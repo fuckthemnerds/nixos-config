@@ -4,10 +4,6 @@ let
 	palette = config.theme.palette;
 in
 {
-	# ── USER INTERFACE THEMING ────────────────────────────────────────────────────
-	# Unified visual style for GTK, QT, Icons, and Cursors.
-
-	# --- Icons & Cursor ---
 	home.packages = with pkgs; [
 		tela-icon-theme
 		google-cursor
@@ -21,7 +17,6 @@ in
 		x11.enable = true;
 	};
 
-	# --- GTK Configuration ---
 	gtk = {
 		enable = true;
 		theme  = {
@@ -78,14 +73,12 @@ in
 		'';
 	};
 
-	# --- Qt Configuration ---
 	qt = {
 		enable = true;
 		platformTheme.name = "gtk";
 		style.name = "adwaita-dark";
 	};
 
-	# --- Dconf Settings ---
 	dconf.settings = {
 		"org/gnome/desktop/interface" = {
 			color-scheme = "prefer-dark";

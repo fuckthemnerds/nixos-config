@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, hostName, ... }:
 
 {
 	services.hypridle = {
@@ -24,6 +24,7 @@
 					on-timeout = "niri msg action power-off-monitors";
 					on-resume = "niri msg action power-on-monitors";
 				}
+			] ++ lib.optionals (hostName == "surface") [
 				{
 					timeout = 1800;
 					on-timeout = "systemctl hibernate";

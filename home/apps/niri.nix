@@ -4,11 +4,8 @@ let
 	palette = config.theme.palette;
 in
 {
-	# Niri is enabled at system level in flake.nix (inputs.niri.nixosModules.niri)
-	# which automatically enables the Home Manager module for users.
 
 	programs.niri.settings = {
-		# --- Monitor Configuration ---
 		outputs = lib.mkMerge [
 			(lib.mkIf (hostName == "aorus") {
 				"eDP-1" = {
@@ -41,12 +38,10 @@ in
 			})
 		];
 
-		# --- Behaviors ---
 		prefer-no-csd = true;
 		hotkey-overlay.skip-at-startup = true;
 		screenshot-path = "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
 
-		# --- Input ---
 		input = {
 			keyboard = {
 				xkb = {
@@ -62,7 +57,6 @@ in
 			};
 		};
 
-		# --- Layout ---
 		layout = {
 			background-color = palette.layer01;
 			gaps = 0;
@@ -100,26 +94,21 @@ in
 			shadow.enable = false;
 		};
 
-		# --- Startup ---
 		spawn-at-startup = [
 			{ command = [ "waybar" ]; }
 		];
 
-		# --- Window Rules ---
 		window-rules = [
 			{
-				# Default: open maximized
 				open-maximized = true;
 			}
 			{
-				# KeePassXC
 				matches = [ { app-id = "^org\\.keepassxc\\.KeePassXC$"; } ];
 				open-floating = true;
 				default-column-width.proportion = 0.6;
 				default-window-height.proportion = 0.6;
 			}
 			{
-				# TUI tools
 				matches = [
 					{ app-id = "^impala$"; }
 					{ app-id = "^wiremix$"; }
@@ -131,28 +120,24 @@ in
 				default-window-height.proportion = 0.8;
 			}
 			{
-				# Firefox Picture-in-Picture
 				matches = [
 					{ app-id = "firefox$"; title = "^Picture-in-Picture$"; }
 				];
 				open-floating = true;
 			}
 			{
-				# Generic floating centering (matches windows that are ALREADY floating)
 				matches = [ { is-floating = true; } ];
 				default-column-width.proportion = 0.6;
 				default-window-height.proportion = 0.6;
 			}
 		];
 
-		# --- Binds ---
 		binds = with config.lib.niri.actions; {
 			"Mod+Space".action.spawn = "fuzzel";
 			"Mod+Return".action.spawn = "foot";
 			"Mod+V".action.sh = "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy";
 			"Super+F1".action.sh = "killall -SIGUSR1 waybar";
 
-			# Media keys
 			"XF86AudioRaiseVolume" = {
 				action.sh = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0";
 				allow-when-locked = true;
@@ -186,7 +171,6 @@ in
 				allow-when-locked = true;
 			};
 
-			# Brightness
 			"XF86MonBrightnessUp" = {
 				action.spawn = [ "brightnessctl" "--class=backlight" "set" "+10%" ];
 				allow-when-locked = true;
@@ -196,10 +180,8 @@ in
 				allow-when-locked = true;
 			};
 
-			# Window control
 			"Mod+Q" = { action.close-window = []; repeat = false; };
-
-			# Focus navigation
+ 
 			"Mod+H".action.focus-column-left = [];
 			"Mod+L".action.focus-column-right = [];
 			"Mod+A".action.focus-column-left = [];
@@ -209,7 +191,6 @@ in
 			"Mod+S".action.focus-window-down = [];
 			"Mod+W".action.focus-window-up = [];
 
-			# Move window
 			"Mod+Shift+H".action.move-column-left = [];
 			"Mod+Shift+L".action.move-column-right = [];
 			"Mod+Shift+A".action.move-column-left = [];
@@ -219,7 +200,6 @@ in
 			"Mod+Shift+J".action.move-window-down-or-to-workspace-down = [];
 			"Mod+Shift+S".action.move-window-down-or-to-workspace-down = [];
 
-			# Monitor focus
 			"Mod+Shift+Ctrl+H".action.focus-monitor-left = [];
 			"Mod+Shift+Ctrl+L".action.focus-monitor-right = [];
 			"Mod+Shift+Ctrl+A".action.focus-monitor-left = [];
@@ -229,7 +209,6 @@ in
 			"Mod+Shift+Ctrl+S".action.focus-monitor-down = [];
 			"Mod+Shift+Ctrl+W".action.focus-monitor-up = [];
 
-			# Move column to monitor
 			"Mod+Alt+Shift+H".action.move-column-to-monitor-left = [];
 			"Mod+Alt+Shift+L".action.move-column-to-monitor-right = [];
 			"Mod+Alt+Shift+A".action.move-column-to-monitor-left = [];
@@ -239,13 +218,11 @@ in
 			"Mod+Alt+Shift+S".action.move-column-to-monitor-down = [];
 			"Mod+Alt+Shift+W".action.move-column-to-monitor-up = [];
 
-			# Workspace navigation
 			"Mod+Ctrl+K".action.focus-workspace-up = [];
 			"Mod+Ctrl+W".action.focus-workspace-up = [];
 			"Mod+Ctrl+J".action.focus-workspace-down = [];
 			"Mod+Ctrl+S".action.focus-workspace-down = [];
 
-			# Workspace by index (1-9)
 			"Mod+1".action.focus-workspace = 1;
 			"Mod+2".action.focus-workspace = 2;
 			"Mod+3".action.focus-workspace = 3;
@@ -266,7 +243,6 @@ in
 			"Mod+Ctrl+8".action.move-column-to-workspace = 8;
 			"Mod+Ctrl+9".action.move-column-to-workspace = 9;
 
-			# Scroll navigation
 			"Mod+WheelScrollDown" = { action.focus-workspace-down = []; cooldown-ms = 150; };
 			"Mod+WheelScrollUp"   = { action.focus-workspace-up = [];   cooldown-ms = 150; };
 			"Mod+Ctrl+WheelScrollDown" = { action.move-column-to-workspace-down = []; cooldown-ms = 150; };
@@ -277,13 +253,11 @@ in
 			"Mod+Ctrl+WheelScrollRight".action.move-column-right = [];
 			"Mod+Ctrl+WheelScrollLeft".action.move-column-left = [];
 
-			# Column consume / expel
 			"Mod+Ctrl+H".action.consume-or-expel-window-left = [];
 			"Mod+Ctrl+A".action.consume-or-expel-window-left = [];
 			"Mod+Ctrl+L".action.consume-or-expel-window-right = [];
 			"Mod+Ctrl+D".action.consume-or-expel-window-right = [];
 
-			# Layout
 			"Mod+R".action.switch-preset-column-width = [];
 			"Mod+Shift+R".action.switch-preset-window-height = [];
 			"Mod+F".action.fullscreen-window = [];
@@ -295,19 +269,15 @@ in
 			"Mod+Shift+Minus".action.set-window-height = "-10%";
 			"Mod+Shift+Equal".action.set-window-height = "+10%";
 
-			# Floating
 			"Mod+Shift+M".action.spawn = "niri-toggle-float";
 			"Mod+M".action.switch-focus-between-floating-and-tiling = [];
 			"Mod+Ctrl+M".action.spawn = "niri-cycle-floating";
 
-			# Overview
 			"Mod+grave" = { action.toggle-overview = []; repeat = false; };
 
-			# Screenshots
 			"Print".action.screenshot = [];
 			"Ctrl+Print".action.screenshot-screen = [];
 
-			# System
 			"Mod+Escape" = { action.toggle-keyboard-shortcuts-inhibit = []; allow-inhibiting = false; };
 			"Mod+P".action.spawn = "niri-power-menu";
 			"Mod+Shift+E".action.quit = [];

@@ -1,12 +1,10 @@
 { config, pkgs, ... }:
 
 {
-	# ── SYSTEM-WIDE SERVICES ──────────────────────────────────────────────────────
 	services.dbus.implementation = "broker";
 	services.earlyoom.enable = true;
 	services.earlyoom.enableNotifications = true;
 
-	# --- Performance & Responsiveness ---
 	zramSwap.enable = true;
 
 	services.ananicy = {
@@ -16,11 +14,17 @@
 	};
 
 	services.auto-cpufreq.enable = (config.networking.hostName == "surface");
-	services.journald.extraConfig = "RuntimeMaxUse=64M";
+	services.journald.extraConfig = ''
+		RuntimeMaxUse=64M
+		Storage=persistent
+		ForwardToSyslog=no
+	'';
 
-	# --- Maintenance (Btrfs & Storage) ---
-	services.fstrim.enable = true;
-	services.fstrim.interval = "weekly";
+	services.fstrim = {
+		enable = true;
+		interval = "weekly";
+		fileSystems = [ "/" "/nix" "/persistent" ];
+	};
 
 	services.btrfs.autoScrub = {
 		enable = true;
@@ -28,6 +32,18 @@
 		fileSystems = [ "/" ];
 	};
 
-	# --- Security & Wayland ---
+	services.fail2ban = {
+		enable = true;
+		maxretry = 5;
+		bantime = "30m";
+		findtime = "10m";
+	};
+
+	services.auditd.enable = true;
+
 	security.pam.services.hyprlock = {};
+
+	security.pam.loginLimits = [
+		{ domain = "*"; item = "maxlogins"; type = "hard"; value = "3"; }
+	];
 }

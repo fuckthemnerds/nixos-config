@@ -1,24 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
-# ── NIXOS INSTALLATION BOOTSTRAP (IMPERMANENCE) ───────────────────────────────
 # Wipes root on boot with Btrfs/SOPS-nix secret management.
-# Supports: Aorus 17XD / Surface Pro 8.
+# Supports: Dendritic multi-host architecture (Aorus, Surface, etc.).
 
 if [[ $EUID -ne 0 ]]; then
 	echo "ERROR: Please run as root."
 	exit 1
 fi
 
-# --- Helper Functions ---
 step() { echo -e "\n\033[1;34m[ STEP ]\033[0m $1"; }
 ok()   { echo -e "\033[1;32m[ OK ]\033[0m $1"; }
 err()  { echo -e "\033[1;31m[ ERR ]\033[0m $1"; exit 1; }
 
-# ── ENVIRONMENT DISCOVERY ─────────────────────────────────────────────────────
-
-# --- Disk Selection ---
-echo "Available storage devices:"
+# Available storage devices:
 lsblk -d -n -o NAME,SIZE,MODEL | awk '{print "/dev/" $1 " - " $2 " - " $3}'
 echo ""
 read -r -p "Target disk (e.g., /dev/nvme0n1): " DISK
@@ -29,14 +24,11 @@ echo -e "\n\033[1;31mWARNING: All data on $DISK will be permanently destroyed.\0
 read -r -p "Type 'YES' to confirm: " CONFIRM
 [[ "$CONFIRM" == "YES" ]] || err "Installation aborted."
 
-# --- Host & User ---
 read -r -p "Target host (aorus/surface): " TARGET_HOST
 [[ "$TARGET_HOST" =~ ^(aorus|surface)$ ]] || err "Invalid host choice."
 
 read -r -p "System username: " SYSTEM_USER
 [[ -n "$SYSTEM_USER" ]] || err "Username cannot be empty."
-
-# ── DISKO (PARTITIONING & MOUNTING) ───────────────────────────────────────────
 
 step "Preparing partitions and mounting volumes..."
 nix --extra-experimental-features "nix-command flakes" \
@@ -52,31 +44,33 @@ fi
 
 ok "File system prepared and mounted via Disko."
 
-# ── SECRET BOOTSTRAP (SSH & SOPS) ─────────────────────────────────────────────
-
 step "Bootstrapping SSH host keys..."
 mkdir -p /mnt/persistent/etc/ssh
-ssh-keygen -t ed25519 -N "" -C "" -f /mnt/persistent/etc/ssh/ssh_host_ed25519_key > /dev/null
-ssh-keygen -t rsa -b 4096 -N "" -C "" -f /mnt/persistent/etc/ssh/ssh_host_rsa_key > /dev/null
+
+# Generate keys with restrictive umask to prevent world-readable window
+(
+	umask 077
+	ssh-keygen -t ed25519 -N "" -C "" -f /mnt/persistent/etc/ssh/ssh_host_ed25519_key > /dev/null
+	ssh-keygen -t rsa -b 4096 -N "" -C "" -f /mnt/persistent/etc/ssh/ssh_host_rsa_key > /dev/null
+)
 chmod 600 /mnt/persistent/etc/ssh/ssh_host_*_key
 ok "Host keys generated in /mnt/persistent/etc/ssh."
 
-step "Preparing SOPS configuration..."
+step "Preparing system configuration..."
 rm -rf /mnt/persistent/etc/nixos
 mkdir -p /mnt/persistent/etc/nixos
 cp -a "$(dirname "$0")"/. /mnt/persistent/etc/nixos/
 mkdir -p /mnt/persistent/etc/nixos/secrets
 mkdir -p /mnt/persistent/etc/nixos/local
 
-# --- Private Identity Setup ---
-cat <<EOF > /mnt/persistent/etc/nixos/local/identity.nix
+cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 {
-	userName = "$SYSTEM_USER";
+	userName     = "$SYSTEM_USER";
+	stateVersion = "25.11";
 }
 EOF
-ok "Local identity for '$SYSTEM_USER' generated in local/identity.nix."
+ok "Local override generated for user: $SYSTEM_USER"
 
-# --- User Password ---
 while true; do
 	read -r -s -p "Set password for '$SYSTEM_USER': " USER_PASS; echo ""
 	read -r -s -p "Confirm password: " USER_PASS2; echo ""
@@ -84,28 +78,32 @@ while true; do
 	echo "Passwords do not match. Please retry."
 done
 
-# --- Secret Encryption ---
-export USER_PASS SYSTEM_USER TARGET_HOST
+# NOTE: USER_PASS is kept as a local variable only (never exported)
+# to prevent exposure via /proc/<pid>/environ.
+export SYSTEM_USER TARGET_HOST
 nix --extra-experimental-features "nix-command flakes" shell \
-	nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#whois --command bash <<'EOF'
+	nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#whois nixpkgs#coreutils --command bash <<'EOF'
 	set -e
 	AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
-	
+
 	# Generate .sops.yaml
 	printf "keys:\n  - &host_%s %s\ncreation_rules:\n  - path_regex: secrets/.*\\.yaml$\n    key_groups:\n      - age:\n          - *host_%s\n" \
 		"$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > /mnt/persistent/etc/nixos/.sops.yaml
 
-	HASHED_PASSWORD=$(echo "$USER_PASS" | mkpasswd -m sha-512 -s)
-	
+	# Hash password via stdin (not echo pipe) to avoid process-list exposure
+	HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | mkpasswd -m sha-512 -s)
+
 	# Encrypt user password secret
 	SOPS_AGE_KEY=$(ssh-to-age --private-key < /mnt/persistent/etc/ssh/ssh_host_ed25519_key) \
 	sops --encrypt --age "$AGE_PUBKEY" --input-type yaml --output-type yaml \
 			 <(printf "user_password_%s: \"%s\"\n" "$SYSTEM_USER" "$HASHED_PASSWORD") \
 			 > /mnt/persistent/etc/nixos/secrets/secrets.yaml
+
+	# Clear password from memory after encryption
+	unset USER_PASS
+	unset HASHED_PASSWORD
 EOF
 ok "SOPS secrets successfully encrypted."
-
-# ── SYSTEM INSTALLATION ───────────────────────────────────────────────────────
 
 step "Configuring hardware-stub..."
 nixos-generate-config --root /mnt --no-filesystems --dir /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST" > /dev/null
@@ -121,7 +119,9 @@ if [[ -f "./parts/globals.nix" ]]; then
 fi
 
 # Stage generated files (secrets and hardware-stub)
-git add .sops.yaml secrets/secrets.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null || ok "Warning: Some files could not be staged."
+# We use 'git add' so Nix flakes can see the files, even if ignored.
+git add .sops.yaml secrets/secrets.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null
+git add -f local/config.nix 2>/dev/null
 
 # Setup remote if found
 if [[ -n "$REMOTE_URL" ]]; then

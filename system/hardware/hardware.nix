@@ -1,7 +1,8 @@
 { config, pkgs, hostName, ... }:
 
 {
-	# Hardware Graphics (VAAPI)
+	hardware.enableRedistributableFirmware = true;
+
 	hardware.graphics = {
 		enable = true;
 		enable32Bit = true;

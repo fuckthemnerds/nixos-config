@@ -1,7 +1,6 @@
 { pkgs, ... }:
 
 {
-	# Install the actual font packages
 	fonts.packages = with pkgs; [
 		nerd-fonts.jetbrains-mono
 		nerd-fonts.blex-mono

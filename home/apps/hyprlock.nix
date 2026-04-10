@@ -2,7 +2,6 @@
 
 let
 	palette = config.theme.palette;
-	# Helper to strip '#' for hyprlock's rgb() format
 	hex = s: builtins.substring 1 6 s;
 in
 {

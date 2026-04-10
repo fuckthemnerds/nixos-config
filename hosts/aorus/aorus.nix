@@ -3,28 +3,23 @@
 {
 	flake.nixosConfigurations.aorus = self.lib.mkHost {
 		hostName = "aorus";
-		hostConfig = { pkgs, hostName, stateVersion, ... }: {
-
-			# ── HOST CONFIGURATION: AORUS ─────────────────────────────────────────────────
-			# Trace for user verification
-			_module.args.swapStatus = builtins.trace "SWAP IS ENABLED ON AORUS (zram)" null;
+		hostConfig = { config, pkgs, hostName, stateVersion, ... }: {
 
 			networking.hostName = hostName;
 			boot.kernelPackages = pkgs.linuxPackages_zen;
 
-			# --- Hardware Enablement (Nvidia/Intel) ---
 			services.xserver.videoDrivers = [ "nvidia" ];
 			hardware.nvidia = {
 				modesetting.enable = true;
 				open               = false;
 				powerManagement.enable = true;
+				package = config.boot.kernelPackages.nvidiaPackages.stable;
 
 				# PCI Bus IDs (Verify with lspci)
 				prime.intelBusId   = "PCI:0:2:0";
 				prime.nvidiaBusId  = "PCI:1:0:0";
 			};
 
-			# --- System Initialization ---
 			system.stateVersion = stateVersion;
 		};
 		extraModules = [

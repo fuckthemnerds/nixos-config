@@ -1,9 +1,13 @@
+# ── SOPS AGE KEY CONFIGURATION ──────────────────────────────────────────────
+# IMPORTANT: Replace these placeholder values with real host keys during setup.
+#   ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub
+# Never commit real keys to a public repository.
 keys:
-  - &aorus_host age1YOUR_AORUS_PUBLIC_ED25519_KEY_STRING_HERE
-  - &surface_host age1YOUR_SURFACE_PUBLIC_ED25519_KEY_STRING_HERE
+  - &aorus_host AGE1PLACEHOLDER_REPLACE_WITH_REAL_HOST_KEY_DURING_INSTALL
+  - &surface_host AGE1PLACEHOLDER_REPLACE_WITH_REAL_HOST_KEY_DURING_INSTALL
 
 creation_rules:
-  - path_regex: secrets/secrets.yaml$
+  - path_regex: secrets/secrets\.yaml$
     key_groups:
       - age:
           - *aorus_host

@@ -1,12 +1,8 @@
 { config, pkgs, userName, ... }:
 
 {
-	# ── USER ACCOUNT CONFIGURATION ────────────────────────────────────────────────
-
-	# --- Shell & Permissions ---
 	programs.fish.enable = true;
 
-	# --- Identity ---
 	users.mutableUsers = false;
 	users.users.${userName} = {
 		isNormalUser = true;

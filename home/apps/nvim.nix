@@ -4,11 +4,9 @@ let
 	palette = config.theme.palette;
 in
 {
-	# ── NEOVIM CONFIGURATION (NIXVIM) ─────────────────────────────────────────────
 	programs.nixvim = {
 		enable = true;
 
-		# ── EDITOR OPTIONS ────────────────────────────────────────────────────────────
 		opts = {
 			number = true;
 			relativenumber = true;
@@ -26,13 +24,11 @@ in
 			cursorline = true;
 			splitright = true;
 			splitbelow = true;
-			colorcolumn = "80"; # Visual guide for blocky headers
+			colorcolumn = "80";
 		};
 
-		# ── COLORSCHEME & HIGHLIGHTS ──────────────────────────────────────────────────
 		colorschemes.oxocarbon.enable = true;
 
-		# --- Carbon g100 Strict Rules ---
 		highlight = {
 			String.fg = palette.syntaxString;
 			Character.fg = palette.syntaxString;
@@ -52,7 +48,6 @@ in
 			Boolean.fg = palette.syntaxNumber;
 			Float.fg = palette.syntaxNumber;
 
-			# TreeSitter Overrides
 			"@variable".fg = palette.syntaxVariable;
 			"@function.call".fg = palette.syntaxFunction;
 			"@keyword".fg = palette.syntaxKeyword;
@@ -66,7 +61,6 @@ in
 			"@tag".fg = palette.syntaxTag;
 		};
 
-		# ── KEYMAPS ───────────────────────────────────────────────────────────────────
 		globals.mapleader = " ";
 		keymaps = [
 			{ mode = "n"; key = "<leader>e"; action = "<cmd>Oil<CR>"; options.desc = "Open Oil file manager"; }
@@ -80,7 +74,6 @@ in
 			{ mode = "v"; key = "J"; action = ":m '>+1<CR>gv=gv"; options.desc = "Move selection down"; }
 			{ mode = "v"; key = "K"; action = ":m '<-2<CR>gv=gv"; options.desc = "Move selection up"; }
 
-			# --- Typst Preview ---
 			{
 				mode = "n";
 				key = "<leader>tp";
@@ -94,7 +87,6 @@ in
 			}
 		];
 
-		# ── PLUGINS ───────────────────────────────────────────────────────────────────
 		plugins = {
 			lualine = {
 				enable = true;
@@ -124,7 +116,6 @@ in
 				settings.default_file_explorer = true;
 			};
 
-			# --- LSP Servers ---
 			lsp = {
 				enable = true;
 				servers = {
@@ -148,7 +139,6 @@ in
 				};
 			};
 
-			# --- Completion ---
 			nvim-cmp = {
 				enable = true;
 				sources = [
@@ -158,7 +148,6 @@ in
 				];
 			};
 
-			# --- Essentials ---
 			luasnip.enable = true;
 			gitsigns.enable = true;
 			comment.enable = true;
@@ -169,7 +158,6 @@ in
 			flash.enable = true;
 			direnv.enable = true;
 
-			# --- UI ---
 			noice = {
 				enable = true;
 				settings = {
@@ -196,7 +184,6 @@ in
 				};
 			};
 
-			# --- Formatting (Auto-fix on Save) ---
 			conform-nvim = {
 				enable = true;
 				settings = {
@@ -212,22 +199,25 @@ in
 				};
 			};
 		};
-		# --- Elastic Tabstops ---
-		extraPlugins = [
-			(pkgs.vimUtils.buildVimPlugin {
-				pname = "elastictabstops.nvim";
-				version = "2024-04-09";
-				src = pkgs.fetchFromGitHub {
-					owner = "lsvmello";
-					repo = "elastictabstops.nvim";
-					rev = "e305e63821734958ce769741a3182b86e08aba9f"; # Latest stable commit
-					hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # DUMMY HASH - replace with actual hash on build failure
-				};
-			})
-		];
 
-		extraConfigLua = ''
-		require('elastictabstops').setup({})
-		'';
+		# To enable: calculate the real sha256 hash with:
+		#   nix-prefetch-url --type sha256 \
+		#     https://github.com/lsvmello/elastictabstops.nvim/archive/e305e63821734958ce769741a3182b86e08aba9f.tar.gz
+		# Then replace hash = "" below with the result.
+		# extraPlugins = [
+		# 	(pkgs.vimUtils.buildVimPlugin {
+		# 		pname = "elastictabstops.nvim";
+		# 		version = "2024-04-09";
+		# 		src = pkgs.fetchFromGitHub {
+		# 			owner = "lsvmello";
+		# 			repo = "elastictabstops.nvim";
+		# 			rev = "e305e63821734958ce769741a3182b86e08aba9f";
+		# 			hash = "";  # TODO: replace with real hash
+		# 		};
+		# 	})
+		# ];
+		# extraConfigLua = ''
+		# require('elastictabstops').setup({})
+		# '';
 	};
 }

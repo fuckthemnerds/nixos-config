@@ -2,7 +2,6 @@
 
 let
 	palette = config.theme.palette;
-	# Helper to remove '#' and append 'ff' alpha for fuzzel format
 	hex = s: builtins.substring 1 6 s;
 	solid = s: "${hex s}ff";
 	alpha = s: a: "${hex s}${a}";

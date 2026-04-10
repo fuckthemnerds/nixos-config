@@ -2,14 +2,12 @@
 
 let
 	palette = config.theme.palette;
-	# Helper to remove '#' for fish set command
 	raw = s: builtins.substring 1 6 s;
 in
 {
 	programs.fish = {
 		enable = true;
 
-		# ── PLUGINS ───────────────────────────────────────────────────────────────────
 		plugins = [
 			{
 				name = "fzf.fish";
@@ -21,14 +19,11 @@ in
 			}
 		];
 
-		# ── INTERACTIVE SHELL INIT ────────────────────────────────────────────────────
 		interactiveShellInit = ''
-		# --- General ---
 		fastfetch
 		set -g fish_greeting
 		fish_vi_key_bindings
 
-		# --- Tide Prompt (Lean Style) ---
 		set -g tide_left_prompt_items pwd git newline character
 		set -g tide_right_prompt_items status cmd_duration jobs direnv
 
@@ -43,7 +38,6 @@ in
 		set -g tide_cmd_duration_threshold 3000
 		set -g tide_cmd_duration_decimals 0
 
-		# --- Syntax Highlighting (Carbon) ---
 		set -g fish_color_normal ${raw palette.textPrimary}
 		set -g fish_color_command ${raw palette.syntaxAttribute}
 		set -g fish_color_keyword ${raw palette.syntaxControl}
@@ -60,7 +54,6 @@ in
 		set -g fish_color_escape ${raw palette.syntaxTag}
 		set -g fish_color_autosuggestion ${raw palette.textHelper}
 
-		# --- Pager Colors ---
 		set -g fish_pager_color_progress ${raw palette.textHelper}
 		set -g fish_pager_color_prefix ${raw palette.syntaxAttribute}
 		set -g fish_pager_color_completion ${raw palette.textPrimary}
@@ -69,7 +62,6 @@ in
 		set -g fish_pager_color_selected_prefix ${raw palette.syntaxAttribute}
 		set -g fish_pager_color_selected_completion ${raw palette.textPrimary}
 
-		# --- Keybinds & Behavior ---
 		bind \co 'commandline -i (fzf)'
 
 		set fish_cursor_default  block

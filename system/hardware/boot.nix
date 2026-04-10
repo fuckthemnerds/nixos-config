@@ -1,19 +1,22 @@
 { ... }:
 
 {
-	# Bootloader setup (systemd-boot for much faster Btrfs booting)
 	boot.loader.systemd-boot.enable = true;
 	boot.loader.systemd-boot.configurationLimit = 10;
+	boot.loader.systemd-boot.timeout = 3;
 	boot.loader.efi.canTouchEfiVariables = true;
 
-	# Visual Boot (Plymouth)
 	boot.plymouth.enable = true;
 	boot.plymouth.theme = "bgrt"; # OEM logo on black — cleanest dark boot
 
-	# Enable systemd in initrd for parallelised early boot and robust btrfs wiping
 	boot.initrd.systemd.enable = true;
 
-	# Advanced sysctl tuning for memory and network performance
+	boot.watchdog = {
+		enable = true;
+		restartOnPanic = true;
+	};
+	boot.kernelParams = [ "watchdog.watchdog_thresh=30" ];
+
 	boot.kernel.sysctl = {
 		"vm.swappiness" = 10;
 		"vm.vfs_cache_pressure" = 50;

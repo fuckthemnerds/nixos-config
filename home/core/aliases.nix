@@ -1,17 +1,16 @@
 {
-	# ── SHELL ABBREVIATIONS (FISH) ────────────────────────────────────────────────
 	# Using 'abbr' so commands are expanded and visible before execution.
 	programs.fish.shellAbbrs = {
-		# --- Rebuild Commands (via nh) ---
-		nrs   = "nh os switch --flake /persist";  # Switch generation
-		nrb   = "nh os boot   --flake /persist";  # Set boot entry
-		nrt   = "nh os test   --flake /persist";  # Temporary test
+		# Uses 'nh' for clean output and nvd diffs
+		nrs   = "nh os switch";                  # Switch generation
+		nrb   = "nh os boot";                    # Set boot entry
+		nrt   = "nh os test";                    # Temporary test
+		nrh   = "nh home switch";                # Update user env only
 
 		# --- Maintenance & Flakes ---
-		nfu   = "nix flake update /persist";      # Update all inputs
-		nfc   = "nix flake check  /persist";      # Verify flake syntax
-		ngc   = "nh clean all";                   # High-level GC
-		cdnix = "cd /persist";                    # Jump to config
+		nfu   = "nix flake update";              # Update all inputs
+		nfc   = "nix flake check";               # Verify flake syntax
+		cdnix = "cd /persistent/etc/nixos";      # Jump to config
 
 		# --- Git Workflow ---
 		gst   = "git status";
@@ -27,14 +26,12 @@
 
 	# ── SHELL ALIASES ─────────────────────────────────────────────────────────────
 	programs.fish.shellAliases = {
-		# --- Modern Alternatives ---
 		ls    = "eza --icons";
 		ll    = "eza -lh --icons --grid --group-directories-first";
 		la    = "eza -lah --icons --grid --group-directories-first";
 		lt    = "eza --tree --icons";
 		y     = "yazi";
 
-		# --- System Utilities ---
 		sudo  = "sudo --preserve-env=PATH,EDITOR,VISUAL env";
 	};
 }

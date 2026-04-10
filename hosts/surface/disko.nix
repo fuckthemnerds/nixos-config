@@ -18,11 +18,11 @@
 						};
 					};
 					swap = {
-						size = "4G";
+						size = "8G";
 						content = {
 							type = "swap";
 							discardPolicy = "both";
-							resumeDevice = true; # Allow hibernation to this swap
+							resumeDevice = true;
 						};
 					};
 					root = {

@@ -1,16 +1,15 @@
 { pkgs, ... }:
 
 {
-	# ── SYSTEM-WIDE PACKAGES ──────────────────────────────────────────────────────
 	environment.systemPackages = with pkgs; [
-		# --- Nix Management ---
+		# Nix Management
 		nh                  # Next-gen Nix helper (clean CLI, auto GC)
 		nvd                 # Visual diff between generations
 		nix-output-monitor  # Progress bars for builds
 		comma               # Instant app execution without installation
 		alejandra           # Fast, opinionated Nix formatter
 
-		# --- System Core & CLI ---
+		# System Core & CLI
 		git                 # Global git for system level tasks
 		fzf                 # Fuzzy finder
 		ripgrep             # Better grep
@@ -22,7 +21,7 @@
 		yazi                # Blazing fast terminal file manager
 		tldr                # Simplified community man pages
 
-		# --- System Admin & Cloud ---
+		# System Admin & Cloud
 		ncdu                # Disk usage analyzer
 		rclone              # Cloud mount/sync (OneDrive)
 		fuse3               # Needed for rclone mounting
@@ -30,7 +29,7 @@
 		age                 # Modern encryption (sops backend)
 		gnumake             # Essential build tool
 
-		# --- Wayland & Desktop ---
+		# Wayland & Desktop
 		wl-clipboard        # Clipboard manager
 		brightnessctl       # Backlight control
 		playerctl           # Media control
@@ -40,19 +39,19 @@
 		xdg-utils           # xdg-open & desktop integration
 		adw-gtk3            # Libadwaita look for GTK3 apps
 
-		# --- Hardware Monitoring ---
+		# Hardware Monitoring
 		nvtopPackages.full  # GPU monitoring (Aorus)
 		powertop            # Battery monitoring (Surface)
 		impala              # Bluetooth TUI
 		pulsemixer          # Volume TUI
 
-		# --- Applications ---
+		# Applications
 		librewolf           # Primary browser
 		keepassxc           # Password manager
 		imv                 # Image viewer
 		mpv                 # Video player
 
-		# --- Media & Utilities ---
+		# Media & Utilities
 		imagemagick         # Image processing
 		ffmpeg              # Video/Audio processing
 		curl                # Net downloads
@@ -60,8 +59,12 @@
 		unzip               # Archive support
 		zip                 # Archive support
 		p7zip               # Advanced archive support
+		
+		# Communication & Media
+		teams-for-linux     # Microsoft Teams client
+		youtube-music       # YouTube Music desktop client
 
-		# --- AI Slop ---
+		# AI Tools
 		code-cursor         # AI-powered code editor
 		claude-code         # Anthropic's agentic CLI
 		antigravity         # High-performance agentic assistant

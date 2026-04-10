@@ -1,23 +1,22 @@
 { pkgs, ... }:
 
 {
-	# ── DEFAULT APPLICATIONS (MIME) ───────────────────────────────────────────────
 	xdg.mimeApps = {
 		enable = true;
 		defaultApplications = {
-			# --- Text & Documents ---
+			# Text & Documents
 			"text/plain"                  = "nvim.desktop";
 			"text/x-shellscript"          = "nvim.desktop";
 			"application/pdf"             = "org.pwmt.zathura.desktop";
 
-			# --- Web ---
+			# Web
 			"text/html"                   = "librewolf.desktop";
 			"x-scheme-handler/http"       = "librewolf.desktop";
 			"x-scheme-handler/https"      = "librewolf.desktop";
 			"x-scheme-handler/about"      = "librewolf.desktop";
 			"x-scheme-handler/unknown"    = "librewolf.desktop";
 
-			# --- Media ---
+			# Media
 			"image/png"                   = "imv.desktop";
 			"image/jpeg"                  = "imv.desktop";
 			"image/gif"                   = "imv.desktop";
@@ -27,13 +26,12 @@
 			"video/webm"                  = "mpv.desktop";
 			"video/mkv"                   = "mpv.desktop";
 
-			# --- Archives ---
+			# Archives
 			"application/zip"             = "org.gnome.FileRoller.desktop";
 			"application/x-tar"           = "org.gnome.FileRoller.desktop";
 		};
 	};
 
-	# ── SESSION VARIABLES ─────────────────────────────────────────────────────────
 	home.sessionVariables = {
 		EDITOR   = "nvim";
 		VISUAL   = "nvim";
@@ -42,7 +40,6 @@
 		SSH_AUTH_SOCK = "\${XDG_RUNTIME_DIR}/app/org.keepassxc.KeePassXC/ssh-agent.socket";
 	};
 
-	# ── XDG USER DIRECTORIES ──────────────────────────────────────────────────────
 	xdg.userDirs = {
 		enable              = true;
 		setSessionVariables = true;

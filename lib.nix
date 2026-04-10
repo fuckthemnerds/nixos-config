@@ -1,8 +1,6 @@
 { lib, ... }:
 
 {
-	# Recursive module importer
-	# Scans a directory and returns a list of all .nix files (excluding default.nix and files starting with _)
 	scanPaths = path:
 		builtins.map (f: (path + "/${f}")) (
 			builtins.attrNames (
@@ -21,12 +19,10 @@
 			)
 		);
 
-	# A more advanced importer that recursively finds all modules
-	# Similar to haumea or import-tree but simpler
 	importModules = dir:
 		let
 			contents = builtins.readDir dir;
-			files = lib.filterAttrs (n: v: v == "regular" && lib.hasSuffix ".nix" n && n != "default.nix" && !lib.hasPrefix "_" n) contents;
+			files = lib.filterAttrs (n: v: v == "regular" && lib.hasSuffix ".nix" n && n != "default.nix" && n != "zz_${baseNameOf dir}_input.nix" && n != "${baseNameOf dir}.nix" && !lib.hasPrefix "_" n) contents;
 			dirs = lib.filterAttrs (n: v: v == "directory") contents;
 			
 			fileNames = builtins.attrNames files;

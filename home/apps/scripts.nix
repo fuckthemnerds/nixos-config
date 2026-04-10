@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, hostName, ... }:
 {
 	home.packages = [
 		(pkgs.writeShellScriptBin "niri-cycle-floating" ''
@@ -56,7 +56,11 @@
 		'')
 
 		(pkgs.writeShellScriptBin "niri-power-menu" ''
-		SELECTION="$(printf "Lock\nHibernate\nLog out\nReboot\nPower Off" | ${pkgs.fuzzel}/bin/fuzzel --dmenu -l 5 -p "> ")"
+		OPTIONS="Lock\nLog out\nReboot\nPower Off"
+		# Hibernate only available on machines with swap
+		${lib.optionalString (hostName == "surface") ''OPTIONS="$OPTIONS\nHibernate"''}
+
+		SELECTION="$(printf "$OPTIONS" | ${pkgs.fuzzel}/bin/fuzzel --dmenu -l 5 -p "> ")"
 
 		case $SELECTION in
 		"Lock")      hyprlock ;;

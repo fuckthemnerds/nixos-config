@@ -4,11 +4,9 @@ let
 	localLib = import ../lib.nix { inherit lib; };
 in
 {
-	# Import all host definitions
 	imports = localLib.importModules ../hosts;
 
 	flake = {
-		# Re-usable host builder
 		lib.mkHost = { hostName, hostConfig ? {}, extraModules ? [] }:
 		let
 			inherit (self) globals gitRemoteUrl;
@@ -21,15 +19,21 @@ in
 				inherit gitRemoteUrl;
 			};
 			modules = [
+				{
+					networking.hostName = hostName;
+					system.stateVersion = globals.stateVersion;
+				}
+
 				hostConfig
 				../hosts/${hostName}/hardware.nix
-				../system/zz_system_input.nix
+				../system/system.nix
 				inputs.impermanence.nixosModules.impermanence
 				inputs.sops-nix.nixosModules.sops
 				inputs.home-manager.nixosModules.home-manager
 				inputs.disko.nixosModules.disko
 				inputs.nix-index-database.nixosModules.nix-index-database
 				inputs.niri.nixosModules.niri
+				inputs.determinate.nixosModules.default
 				../hosts/${hostName}/disko.nix
 			] ++ extraModules;
 		};

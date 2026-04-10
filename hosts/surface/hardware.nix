@@ -8,12 +8,9 @@
 		(modulesPath + "/installer/scan/not-detected.nix") 
 	] ++ (if builtins.pathExists ./hardware-stub.nix then [ ./hardware-stub.nix ] else [ ]);
 
-	# Surface Pro (Intel) kernel modules
 	boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usbhid" "uas" "sd_mod" ];
 	boot.kernelModules = [ "kvm-intel" ];
 
-	# ── File systems ──────────────────────────────────────────────────────────────
 	# Managed by Disko (see hosts/surface/disko.nix)
-
 	swapDevices = [ ];
 }

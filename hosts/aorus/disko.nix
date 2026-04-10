@@ -17,6 +17,14 @@
 							mountOptions = [ "fmask=0022" "dmask=0022" ];
 						};
 					};
+					swap = {
+						size = "32G";
+						content = {
+							type = "swap";
+							discardPolicy = "both";
+							resumeDevice = true;
+						};
+					};
 					root = {
 						size = "100%";
 						content = {

@@ -1,0 +1,13 @@
+{
+	# ── LOCAL OVERRIDES (PII) ──────────────────────────────────────────────────
+	# This file contains personal information and is gitignored.
+	# Rename to local.nix and adjust to your environment.
+	
+	userName     = "filip";
+	stateVersion = "25.11";
+	
+	# --- Git Workflow Configuration ---
+	gitPlatform  = "github";
+	gitUser      = "my-user";
+	gitRepo      = "nixos-config";
+}

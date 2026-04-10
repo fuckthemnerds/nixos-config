@@ -4,17 +4,14 @@ let
 	palette = config.theme.palette;
 in
 {
-	# ── ZATHURA PDF VIEWER CONFIGURATION ──────────────────────────────────────────
 	programs.zathura = {
 		enable = true;
 
 		options = {
-			# --- General & Render ---
 			font = "IBM Plex Sans 12";
 			sandbox = "none";
 			render-loading = false;
 
-			# --- Appearance (Carbon Palette) ---
 			default-bg             = palette.background;
 			default-fg             = palette.textPrimary;
 			statusbar-bg           = palette.layer01;
@@ -30,14 +27,12 @@ in
 			highlight-color        = palette.supportError;
 			highlight-active-color = palette.supportSuccess;
 
-			# --- Dark-Mode Inversion ---
 			recolor            = true;
 			recolor-lightcolor = palette.background;
 			recolor-darkcolor  = palette.textPrimary;
 			recolor-keephue    = true;
 		};
 
-		# --- Mappings ---
 		mappings = {
 			J = "navigate next";
 			K = "navigate previous";
