@@ -1,0 +1,10 @@
+keys:
+  - &aorus_host age1YOUR_AORUS_PUBLIC_ED25519_KEY_STRING_HERE
+  - &surface_host age1YOUR_SURFACE_PUBLIC_ED25519_KEY_STRING_HERE
+
+creation_rules:
+  - path_regex: secrets/secrets.yaml$
+    key_groups:
+      - age:
+          - *aorus_host
+          - *surface_host

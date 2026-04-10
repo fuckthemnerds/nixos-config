@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+set -e
+
+# ── NIXOS INSTALLATION BOOTSTRAP (IMPERMANENCE) ───────────────────────────────
+# Wipes root on boot with Btrfs/SOPS-nix secret management.
+# Supports: Aorus 17XD / Surface Pro 8.
+
+if [[ $EUID -ne 0 ]]; then
+	echo "ERROR: Please run as root."
+	exit 1
+fi
+
+# --- Helper Functions ---
+step() { echo -e "\n\033[1;34m[ STEP ]\033[0m $1"; }
+ok()   { echo -e "\033[1;32m[ OK ]\033[0m $1"; }
+err()  { echo -e "\033[1;31m[ ERR ]\033[0m $1"; exit 1; }
+
+# ── ENVIRONMENT DISCOVERY ─────────────────────────────────────────────────────
+
+# --- Disk Selection ---
+echo "Available storage devices:"
+lsblk -d -n -o NAME,SIZE,MODEL | awk '{print "/dev/" $1 " - " $2 " - " $3}'
+echo ""
+read -r -p "Target disk (e.g., /dev/nvme0n1): " DISK
+
+[[ -b "$DISK" ]] || err "Disk $DISK not found."
+
+echo -e "\n\033[1;31mWARNING: All data on $DISK will be permanently destroyed.\033[0m"
+read -r -p "Type 'YES' to confirm: " CONFIRM
+[[ "$CONFIRM" == "YES" ]] || err "Installation aborted."
+
+# --- Host & User ---
+read -r -p "Target host (aorus/surface): " TARGET_HOST
+[[ "$TARGET_HOST" =~ ^(aorus|surface)$ ]] || err "Invalid host choice."
+
+read -r -p "System username: " SYSTEM_USER
+[[ -n "$SYSTEM_USER" ]] || err "Username cannot be empty."
+
+# ── DISKO (PARTITIONING & MOUNTING) ───────────────────────────────────────────
+
+step "Preparing partitions and mounting volumes..."
+nix --extra-experimental-features "nix-command flakes" \
+	run github:nix-community/disko -- \
+	--mode destroy,format,mount \
+	--argstr device "$DISK" \
+	--yes-wipe-all-disks \
+	"./hosts/$TARGET_HOST/disko.nix"
+
+if ! mountpoint -q /mnt; then
+	err "Failed to mount /mnt. Check disko output above."
+fi
+
+ok "File system prepared and mounted via Disko."
+
+# ── SECRET BOOTSTRAP (SSH & SOPS) ─────────────────────────────────────────────
+
+step "Bootstrapping SSH host keys..."
+mkdir -p /mnt/persistent/etc/ssh
+ssh-keygen -t ed25519 -N "" -C "" -f /mnt/persistent/etc/ssh/ssh_host_ed25519_key > /dev/null
+ssh-keygen -t rsa -b 4096 -N "" -C "" -f /mnt/persistent/etc/ssh/ssh_host_rsa_key > /dev/null
+chmod 600 /mnt/persistent/etc/ssh/ssh_host_*_key
+ok "Host keys generated in /mnt/persistent/etc/ssh."
+
+step "Preparing SOPS configuration..."
+rm -rf /mnt/persistent/etc/nixos
+mkdir -p /mnt/persistent/etc/nixos
+cp -a "$(dirname "$0")"/. /mnt/persistent/etc/nixos/
+mkdir -p /mnt/persistent/etc/nixos/secrets
+
+# --- User Password ---
+while true; do
+	read -r -s -p "Set password for '$SYSTEM_USER': " USER_PASS; echo ""
+	read -r -s -p "Confirm password: " USER_PASS2; echo ""
+	[[ "$USER_PASS" == "$USER_PASS2" ]] && break
+	echo "Passwords do not match. Please retry."
+done
+
+# --- Secret Encryption ---
+export USER_PASS SYSTEM_USER TARGET_HOST
+nix --extra-experimental-features "nix-command flakes" shell \
+	nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#whois --command bash <<'EOF'
+	set -e
+	AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
+	
+	# Generate .sops.yaml
+	printf "keys:\n  - &host_%s %s\ncreation_rules:\n  - path_regex: secrets/.*\\.yaml$\n    key_groups:\n      - age:\n          - *host_%s\n" \
+		"$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > /mnt/persistent/etc/nixos/.sops.yaml
+
+	HASHED_PASSWORD=$(echo "$USER_PASS" | mkpasswd -m sha-512 -s)
+	
+	# Encrypt user password secret
+	SOPS_AGE_KEY=$(ssh-to-age --private-key < /mnt/persistent/etc/ssh/ssh_host_ed25519_key) \
+	sops --encrypt --age "$AGE_PUBKEY" --input-type yaml --output-type yaml \
+			 <(printf "user_password_%s: \"%s\"\n" "$SYSTEM_USER" "$HASHED_PASSWORD") \
+			 > /mnt/persistent/etc/nixos/secrets/secrets.yaml
+EOF
+ok "SOPS secrets successfully encrypted."
+
+# ── SYSTEM INSTALLATION ───────────────────────────────────────────────────────
+
+step "Configuring hardware-stub..."
+nixos-generate-config --root /mnt --no-filesystems --dir /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST" > /dev/null
+mv /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/hardware-configuration.nix /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/hardware-stub.nix
+rm -f /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/configuration.nix
+
+step "Cleaning installation environment..."
+cd /mnt/persistent/etc/nixos || exit 1
+rm -rf .git
+
+read -r -p "Start nixos-install? (y/N): " RUN_INSTALL
+if [[ "$RUN_INSTALL" =~ ^[Yy]$ ]]; then
+	step "Running nixos-install (this may take a while)..."
+	nixos-install --flake ".#$TARGET_HOST" --no-root-passwd
+	ok "Installation complete."
+else
+	ok "Final installation phase skipped. Run 'nixos-install' manually when ready."
+fi
