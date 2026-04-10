@@ -14,19 +14,23 @@ This repository supports two primary workflows: **Initial Installation** (for ne
 To set up a fresh machine with the "Dendritic" architecture (Btrfs subvolumes + Impermanence), follow these steps:
 
 1.  **Boot Phase**: Boot into a NixOS Live ISO.
-2.  **Clone Phase**:
+2.  **Auth Phase (for Private Repos)**: 
+    If you kept the repo **private**, setup SSH:
     ```bash
-    git clone https://github.com/fuckthemnerds/nixos-config.git
-    cd nixos-config
+    eval "$(ssh-agent -s)"
+    ssh-add /path/to/private_key
     ```
 3.  **Bootstrap Phase**:
+    Run the installer directly from your repository:
     ```bash
-    sudo bash install.sh
+    # For Public (or temporary Public):
+    nix run github:my-user/nixos-config#install
+
+    # For Permanent Private:
+    nix run git+ssh://git@github.com/my-user/nixos-config#install
     ```
-    *   **Disk Selection**: Choose your target NVMe drive.
-    *   **Host Selection**: Type `aorus` or `surface`.
-    *   **Secrets**: The script will automatically generate SSH host keys and bootstrap SOPS secrets.
-    *   **Hardware**: A hardware stub will be generated for your specific machine.
+    *   **Username**: Type your actual name (e.g., `filip`). The script generates a gitignored `local/identity.nix` so your PII never enters the repo history.
+    *   **Secrets**: The script prompts for a password and encrypts it via SOPS using your machine's host keys.
 
 ## ── ROUTINE DEPLOYMENT ────────────────────────────────────────────────────────
 

@@ -4,30 +4,23 @@ This repository contains a refactored, impermanent, dual-host NixOS configuratio
 
 ## 🚀 Bootstrap Installation
 
-To install this configuration from a PRIVATE repository, boot into a NixOS Live ISO and follow these steps:
+To install this configuration, boot into a NixOS Live ISO and follow these steps:
 
-### 1. Setup SSH Authentication
-Since the repo is private, you need an SSH key added to your agent to reach GitHub:
-```bash
-# Start agent and add your existing key (from a USB or generated fresh)
-eval "$(ssh-agent -s)"
-ssh-add /path/to/your/private_key 
-
-# Verify connection
-ssh -T git@github.com
-```
-
-### 2. Run the Installer
+### 1. (Recommended) Public Bootstrap
+For the easiest installation, temporarily make your repository **Public** on GitHub and run:
 ```bash
 # Optional: Set experimental features
 export NIX_CONFIG="extra-experimental-features = nix-command flakes"
 
-# Run directly via SSH flake URL
-nix run git+ssh://git@github.com/my-user/nixos-config#install
+# Run directly from your public repo
+nix run github:YOUR_USER/YOUR_REPO#install
 ```
 
+### 2. (Alternative) Private Bootstrap
+If you prefer to keep the repo **Private**, follow the [Private Setup Guide](file:///c:/Users/mad/.gemini/antigravity/scratch/nixos-config/docs/DEPLOYMENT.md) which requires setting up SSH keys on the Live ISO.
+
 > [!NOTE]
-> The repository uses a **Local Identity** pattern. Your actual username (`filip`) is NOT in Git; it is generated locally during installation.
+> **Privacy Persistence**: Because we use a **Local Identity Pattern**, your actual username (`filip`) is NEVER in Git. It is generated locally during installation. Even if the repo is public, your identity remains hidden.
 
 ## 🛠️ Post-Installation Setup
 
