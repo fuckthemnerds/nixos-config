@@ -66,6 +66,15 @@ rm -rf /mnt/persistent/etc/nixos
 mkdir -p /mnt/persistent/etc/nixos
 cp -a "$(dirname "$0")"/. /mnt/persistent/etc/nixos/
 mkdir -p /mnt/persistent/etc/nixos/secrets
+mkdir -p /mnt/persistent/etc/nixos/local
+
+# --- Private Identity Setup ---
+cat <<EOF > /mnt/persistent/etc/nixos/local/identity.nix
+{
+	userName = "$SYSTEM_USER";
+}
+EOF
+ok "Local identity for '$SYSTEM_USER' generated in local/identity.nix."
 
 # --- User Password ---
 while true; do

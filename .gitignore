@@ -28,3 +28,4 @@ tmp/
 *.key
 *.pem
 .sops.yaml.tmp
+local/

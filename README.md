@@ -4,18 +4,30 @@ This repository contains a refactored, impermanent, dual-host NixOS configuratio
 
 ## 🚀 Bootstrap Installation
 
-To install this configuration on a new machine, boot into a NixOS Live ISO and run:
+To install this configuration from a PRIVATE repository, boot into a NixOS Live ISO and follow these steps:
 
+### 1. Setup SSH Authentication
+Since the repo is private, you need an SSH key added to your agent to reach GitHub:
 ```bash
-# Optional: Set experimental features if not on a recent ISO
+# Start agent and add your existing key (from a USB or generated fresh)
+eval "$(ssh-agent -s)"
+ssh-add /path/to/your/private_key 
+
+# Verify connection
+ssh -T git@github.com
+```
+
+### 2. Run the Installer
+```bash
+# Optional: Set experimental features
 export NIX_CONFIG="extra-experimental-features = nix-command flakes"
 
-# Run the installer directly from GitHub
-nix run github:my-user/nixos-config#install
+# Run directly via SSH flake URL
+nix run git+ssh://git@github.com/my-user/nixos-config#install
 ```
 
 > [!NOTE]
-> Replace `my-user` and `nixos-config` with your actual GitHub username and repository name in `parts/globals.nix` before running the command.
+> The repository uses a **Local Identity** pattern. Your actual username (`filip`) is NOT in Git; it is generated locally during installation.
 
 ## 🛠️ Post-Installation Setup
 

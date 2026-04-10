@@ -6,8 +6,8 @@
 		enable = true;
 		
 		# --- User Identity ---
-		userEmail = "email@example.com";
-		userName  = "username"; # Using hostName is also an option: hostName
+		userEmail = "dendritic@users.noreply.github.com";
+		userName  = "Dendritic Admin"; 
 		
 		# --- Global Settings ---
 		settings = {
