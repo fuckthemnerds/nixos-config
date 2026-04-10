@@ -55,6 +55,18 @@
 					inherit system;
 					config.allowUnfree = true;
 				};
+
+				# Apps
+				apps.default = self'.apps.install;
+				apps.install = {
+					type = "app";
+					program = pkgs.writeShellScriptBin "install" ''
+						# Ensure required tools are available
+						export PATH="${pkgs.lib.makeBinPath [ pkgs.git pkgs.nix ]}:$PATH"
+						# Run the script from the flake source
+						exec "${self}/install.sh" "$@"
+					'';
+				};
 			};
 		};
 }

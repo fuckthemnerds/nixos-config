@@ -103,9 +103,22 @@ nixos-generate-config --root /mnt --no-filesystems --dir /mnt/persistent/etc/nix
 mv /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/hardware-configuration.nix /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/hardware-stub.nix
 rm -f /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/configuration.nix
 
-step "Cleaning installation environment..."
+step "Finalizing Git repository..."
 cd /mnt/persistent/etc/nixos || exit 1
-rm -rf .git
+
+# Retrieve remote URL from flake if possible
+if [[ -f "./parts/globals.nix" ]]; then
+	REMOTE_URL=$(nix eval .#gitRemoteUrl --raw 2>/dev/null || echo "")
+fi
+
+# Stage generated files (secrets and hardware-stub)
+git add .sops.yaml secrets/secrets.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null || ok "Warning: Some files could not be staged."
+
+# Setup remote if found
+if [[ -n "$REMOTE_URL" ]]; then
+	git remote add origin "$REMOTE_URL" 2>/dev/null || git remote set-url origin "$REMOTE_URL"
+	ok "Git remote set to: $REMOTE_URL"
+fi
 
 read -r -p "Start nixos-install? (y/N): " RUN_INSTALL
 if [[ "$RUN_INSTALL" =~ ^[Yy]$ ]]; then
