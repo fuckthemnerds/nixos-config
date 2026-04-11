@@ -6,6 +6,7 @@
 	nix = {
 		settings = {
 			trusted-users = [ "root" userName ];
+			allowed-users = [ "@wheel" ];
 		};
 
 		# Pin registry and NIX_PATH to flake inputs for 'self-hosting' consistency
@@ -22,6 +23,22 @@
 		flags = [ "--update-input" "nixpkgs" "--commit-lock-file" ];
 		dates = "daily";
 		randomizedDelaySec = "4h";
+	};
+
+	# Notification bridge for auto-upgrades
+	systemd.services.nixos-upgrade = {
+		preStart = ''
+			USER_ID=$(${pkgs.coreutils}/bin/id -u ${userName})
+			if [ -d /run/user/$USER_ID ]; then
+				${pkgs.su}/bin/su ${userName} -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$USER_ID/bus ${pkgs.libnotify}/bin/notify-send -u low 'NixOS' 'System upgrade starting...'"
+			fi
+		'';
+		postStop = ''
+			USER_ID=$(${pkgs.coreutils}/bin/id -u ${userName})
+			if [ -d /run/user/$USER_ID ]; then
+				${pkgs.su}/bin/su ${userName} -c "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$USER_ID/bus ${pkgs.libnotify}/bin/notify-send 'NixOS' 'System upgrade finished'"
+			fi
+		'';
 	};
 
 	# Disable default command-not-found (using nix-index/comma instead)

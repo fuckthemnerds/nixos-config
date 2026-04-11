@@ -8,7 +8,7 @@
 			localPath = ../local/config.nix;
 			local = if builtins.pathExists localPath then import localPath else {};
 		in {
-			userName     = local.userName     or "dendritic";
+			userName     = local.userName     or "filip";
 			stateVersion = local.stateVersion or "25.11";
 			themeName    = local.themeName    or "main";
 
