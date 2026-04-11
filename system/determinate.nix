@@ -1,7 +1,7 @@
 { ... }:
 
 {
-	determinateNix = {
+	determinate = {
 		enable = true;
 
 		determinateNixd = {
