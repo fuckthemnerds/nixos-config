@@ -1,6 +1,6 @@
 { lib, ... }:
 
-{
+rec {
 	scanPaths = path:
 		builtins.map (f: (path + "/${f}")) (
 			builtins.attrNames (
