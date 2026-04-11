@@ -65,14 +65,14 @@ in
 			default-column-width.proportion = 1.0;
 
 			preset-column-widths = [
-				{ proportion = 1./3.; }
-				{ proportion = 2./3.; }
+				{ proportion = 1.0 / 3.0; }
+				{ proportion = 2.0 / 3.0; }
 				{ proportion = 1.0; }
 			];
 
 			preset-window-heights = [
-				{ proportion = 1./3.; }
-				{ proportion = 2./3.; }
+				{ proportion = 1.0 / 3.0; }
+				{ proportion = 2.0 / 3.0; }
 				{ proportion = 1.0; }
 			];
 
