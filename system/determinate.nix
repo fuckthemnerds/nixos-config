@@ -3,12 +3,6 @@
 {
 	determinate = {
 		enable = true;
-
-		determinateNixd = {
-			garbageCollector = {
-				strategy = "automatic";
-			};
-		};
 	};
 
 	nix.settings = {
