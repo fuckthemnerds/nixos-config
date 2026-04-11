@@ -7,7 +7,7 @@
 		./impermanence.nix
 	];
 
-	services.power-profiles-daemon.enable = true;
+	services.power-profiles-daemon.enable = (hostName == "aorus");
 	hardware.enableRedistributableFirmware = true;
 	services.fwupd.enable = true; # Automatically handle firmware updates
 
