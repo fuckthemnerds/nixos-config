@@ -23,18 +23,13 @@
 
 	services.resolved = {
 		enable = true;
-		settings = {
-			Resolve = {
-				DNSSEC = "true";
-				Domains = [ "~." ];
-				# Primary: Cloudflare | Fallback: Quad9 (redundancy)
-				FallbackDNS = [
-					"1.1.1.1#cloudflare-dns.com"
-					"1.0.0.1#cloudflare-dns.com"
-					"9.9.9.9#dns.quad9.net"
-				];
-				DNSOverTLS = "true";
-			};
-		};
+		dnssec = "true";
+		domains = [ "~." ];
+		fallbackDns = [
+			"1.1.1.1#cloudflare-dns.com"
+			"1.0.0.1#cloudflare-dns.com"
+			"9.9.9.9#dns.quad9.net"
+		];
+		dnsovertls = "true";
 	};
 }

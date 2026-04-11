@@ -100,6 +100,8 @@ nix --extra-experimental-features "nix-command flakes" \
 	--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= \
 	shell nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#coreutils --command bash <<'EOF'
 	set -e
+	# Move to tmp to avoid finding placeholder .sops.yaml in repo root
+	cd /tmp
 	AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
 
 	# Generate .sops.yaml
