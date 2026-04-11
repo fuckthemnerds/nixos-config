@@ -31,13 +31,8 @@
 		interval = "monthly";
 		fileSystems = [ "/" ];
 	};
-
-	services.fail2ban = {
-		enable = true;
-		maxretry = 5;
-		bantime = "30m";
-		jails.DEFAULT.settings.findtime = "10m";
-	};
+	
+	services.fail2ban.enable = true;
 
 	security.auditd.enable = true;
 
