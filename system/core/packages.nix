@@ -52,7 +52,7 @@
 		imv                 # Image viewer
 		mpv                 # Video player
 		teams-for-linux     # Microsoft Teams client
-		youtube-music       # YouTube Music desktop client
+		pear-desktop       # YouTube Music desktop client
 
 		# Media & Utilities
 		imagemagick         # Image processing

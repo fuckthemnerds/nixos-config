@@ -10,8 +10,8 @@
 
 	boot.initrd.systemd.enable = true;
 
-	systemd.watchdog.runtimeTime = "30s";
-	systemd.watchdog.rebootTime = "10m";
+	systemd.settings.Manager.RuntimeWatchdogSec = "30s";
+	systemd.settings.Manager.RebootWatchdogSec = "10m";
 
 	boot.kernelParams = [
 		"watchdog.watchdog_thresh=30"
