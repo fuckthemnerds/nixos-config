@@ -58,7 +58,7 @@
 		users.${userName} = { pkgs, inputs, hostName, ... }: {
 			home.stateVersion = stateVersion;
 			home.username = userName;
-			home.homeDirectory = "/home/${userName}";
+			home.homeDirectory = lib.mkForce "/home/${userName}";
 
 			imports = [
 				../../home/home.nix   # Automatically imports apps, core, themes
