@@ -2,7 +2,7 @@
 	description = "Refactored Impermanent Dual-Host NixOS Configuration";
 
 	inputs = {
-		nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0";
+		nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 		flake-parts.url = "github:hercules-ci/flake-parts";
 		
 		# Hardware & Persistence

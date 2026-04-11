@@ -6,6 +6,7 @@ in
 {
 	programs.nixvim = {
 		enable = true;
+		version.enableNixpkgsReleaseCheck = false;
 
 		opts = {
 			number = true;
