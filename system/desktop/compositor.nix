@@ -6,7 +6,7 @@
 
 	# Disable SSH agent auth and U2F for the TTY display manager
 	security.pam.services.ly = {
-		enableSSHAgentAuth = false;
+		sshAgentAuth = false;
 		u2fAuth = false;
 	};
 }
