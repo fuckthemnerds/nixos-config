@@ -10,11 +10,13 @@
 
 	boot.initrd.systemd.enable = true;
 
-	boot.watchdog = {
-		enable = true;
-		restartOnPanic = true;
-	};
-	boot.kernelParams = [ "watchdog.watchdog_thresh=30" ];
+	systemd.watchdog.runtimeTime = "30s";
+	systemd.watchdog.rebootTime = "10m";
+
+	boot.kernelParams = [
+		"watchdog.watchdog_thresh=30"
+		"panic=10"
+	];
 
 	boot.kernel.sysctl = {
 		"vm.swappiness" = 10;
