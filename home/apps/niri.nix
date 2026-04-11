@@ -2,6 +2,7 @@
 
 let
 	palette = config.theme.palette;
+	sh = cmd: config.lib.niri.actions.spawn "sh" "-c" cmd;
 in
 {
 
