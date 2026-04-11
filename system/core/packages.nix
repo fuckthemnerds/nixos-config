@@ -51,6 +51,8 @@
 		keepassxc           # Password manager
 		imv                 # Image viewer
 		mpv                 # Video player
+		teams-for-linux     # Microsoft Teams client
+		youtube-music       # YouTube Music desktop client
 
 		# Media & Utilities
 		imagemagick         # Image processing
@@ -60,10 +62,6 @@
 		unzip               # Archive support
 		zip                 # Archive support
 		p7zip               # Advanced archive support
-		
-		# Communication & Media
-		teams-for-linux     # Microsoft Teams client
-		youtube-music       # YouTube Music desktop client
 
 		# AI Tools
 		code-cursor         # AI-powered code editor

@@ -45,12 +45,6 @@
 			];
 
 			perSystem = { config, self', inputs', pkgs, system, ... }: {
-				_module.args.pkgs = import nixpkgs {
-					inherit system;
-					config.allowUnfreePredicate = pkg:
-						builtins.elem (nixpkgs.lib.getName pkg) self.globals.unfreePackages;
-				};
-
 				apps.default = self'.apps.install;
 				apps.install = {
 					type = "app";
