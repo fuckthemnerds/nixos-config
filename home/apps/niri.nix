@@ -133,50 +133,50 @@ in
 		];
 
 		binds = with config.lib.niri.actions; {
-			"Mod+Space".action.spawn = "fuzzel";
-			"Mod+Return".action.spawn = "foot";
-			"Mod+V".action.sh = "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy";
-			"Super+F1".action.sh = "killall -SIGUSR1 waybar";
+			"Mod+Space".action = spawn "fuzzel";
+			"Mod+Return".action = spawn "foot";
+			"Mod+V".action = sh "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy";
+			"Super+F1".action = sh "killall -SIGUSR1 waybar";
 
 			"XF86AudioRaiseVolume" = {
-				action.sh = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0";
+				action = sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0";
 				allow-when-locked = true;
 			};
 			"XF86AudioLowerVolume" = {
-				action.sh = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-";
+				action = sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-";
 				allow-when-locked = true;
 			};
 			"XF86AudioMute" = {
-				action.sh = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+				action = sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
 				allow-when-locked = true;
 			};
 			"XF86AudioMicMute" = {
-				action.sh = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
+				action = sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
 				allow-when-locked = true;
 			};
 			"XF86AudioPlay" = {
-				action.sh = "playerctl play-pause";
+				action = sh "playerctl play-pause";
 				allow-when-locked = true;
 			};
 			"XF86AudioStop" = {
-				action.sh = "playerctl stop";
+				action = sh "playerctl stop";
 				allow-when-locked = true;
 			};
 			"XF86AudioPrev" = {
-				action.sh = "playerctl previous";
+				action = sh "playerctl previous";
 				allow-when-locked = true;
 			};
 			"XF86AudioNext" = {
-				action.sh = "playerctl next";
+				action = sh "playerctl next";
 				allow-when-locked = true;
 			};
 
 			"XF86MonBrightnessUp" = {
-				action.spawn = [ "brightnessctl" "--class=backlight" "set" "+10%" ];
+				action = spawn [ "brightnessctl" "--class=backlight" "set" "+10%" ];
 				allow-when-locked = true;
 			};
 			"XF86MonBrightnessDown" = {
-				action.spawn = [ "brightnessctl" "--class=backlight" "set" "10%-" ];
+				action = spawn [ "brightnessctl" "--class=backlight" "set" "10%-" ];
 				allow-when-locked = true;
 			};
 
@@ -269,9 +269,9 @@ in
 			"Mod+Shift+Minus".action.set-window-height = "-10%";
 			"Mod+Shift+Equal".action.set-window-height = "+10%";
 
-			"Mod+Shift+M".action.spawn = "niri-toggle-float";
+			"Mod+Shift+M".action = spawn "niri-toggle-float";
 			"Mod+M".action.switch-focus-between-floating-and-tiling = [];
-			"Mod+Ctrl+M".action.spawn = "niri-cycle-floating";
+			"Mod+Ctrl+M".action = spawn "niri-cycle-floating";
 
 			"Mod+grave" = { action.toggle-overview = []; repeat = false; };
 
@@ -279,7 +279,7 @@ in
 			"Ctrl+Print".action.screenshot-screen = [];
 
 			"Mod+Escape" = { action.toggle-keyboard-shortcuts-inhibit = []; allow-inhibiting = false; };
-			"Mod+P".action.spawn = "niri-power-menu";
+			"Mod+P".action = spawn "niri-power-menu";
 			"Mod+Shift+E".action.quit = [];
 			"Ctrl+Alt+Delete".action.quit = [];
 			"Mod+Shift+P".action.power-off-monitors = [];

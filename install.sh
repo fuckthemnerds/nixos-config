@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# Wipes root on boot with Btrfs/SOPS-nix secret management.
-# Supports: Dendritic multi-host architecture (Aorus, Surface, etc.).
-
 if [[ $EUID -ne 0 ]]; then
 	echo "ERROR: Please run as root."
 	exit 1
@@ -13,10 +10,9 @@ step() { echo -e "\n\033[1;34m[ STEP ]\033[0m $1"; }
 ok()   { echo -e "\033[1;32m[ OK ]\033[0m $1"; }
 err()  { echo -e "\033[1;31m[ ERR ]\033[0m $1"; exit 1; }
 
-# Available storage devices:
 lsblk -d -n -o NAME,SIZE,MODEL | awk '{print "/dev/" $1 " - " $2 " - " $3}'
 echo ""
-read -r -p "Target disk (e.g., /dev/nvme0n1): " DISK
+read -r -p "Target disk: " DISK
 
 [[ -b "$DISK" ]] || err "Disk $DISK not found."
 
@@ -32,6 +28,8 @@ read -r -p "System username: " SYSTEM_USER
 
 step "Preparing partitions and mounting volumes..."
 nix --extra-experimental-features "nix-command flakes" \
+	--option extra-substituters https://install.determinate.systems \
+	--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= \
 	run github:nix-community/disko -- \
 	--mode destroy,format,mount \
 	--argstr device "$DISK" \
@@ -87,15 +85,20 @@ while true; do
 done
 
 step "Hashing password..."
-HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | nix --extra-experimental-features "nix-command flakes" shell nixpkgs#whois --command mkpasswd -m sha-512 -s)
+HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | nix --extra-experimental-features "nix-command flakes" \
+	--option extra-substituters https://install.determinate.systems \
+	--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= \
+	shell nixpkgs#whois --command mkpasswd -m sha-512 -s)
 unset USER_PASS USER_PASS2
 ok "Password hashed."
 
 # Export non-sensitive metadata for the subshell. 
 # HASHED_PASSWORD is exported instead of cleartext for better security.
 export SYSTEM_USER TARGET_HOST HASHED_PASSWORD
-nix --extra-experimental-features "nix-command flakes" shell \
-	nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#coreutils --command bash <<'EOF'
+nix --extra-experimental-features "nix-command flakes" \
+	--option extra-substituters https://install.determinate.systems \
+	--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= \
+	shell nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#coreutils --command bash <<'EOF'
 	set -e
 	AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
 
@@ -122,26 +125,17 @@ rm -f /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/configuration.nix
 step "Finalizing Git repository..."
 cd /mnt/persistent/etc/nixos || exit 1
 
-# Retrieve remote URL from flake if possible
-if [[ -f "./parts/globals.nix" ]]; then
-	REMOTE_URL=$(nix eval .#gitRemoteUrl --raw 2>/dev/null || echo "")
-fi
-
 # Stage generated files (secrets and hardware-stub)
 # We use 'git add' so Nix flakes can see the files, even if ignored.
 git add .sops.yaml secrets/secrets.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null
 git add -f local/config.nix 2>/dev/null
 
-# Setup remote if found
-if [[ -n "$REMOTE_URL" ]]; then
-	git remote add origin "$REMOTE_URL" 2>/dev/null || git remote set-url origin "$REMOTE_URL"
-	ok "Git remote set to: $REMOTE_URL"
-fi
-
 read -r -p "Start nixos-install? (y/N): " RUN_INSTALL
 if [[ "$RUN_INSTALL" =~ ^[Yy]$ ]]; then
 	step "Running nixos-install (this may take a while)..."
-	nixos-install --flake ".#$TARGET_HOST" --no-root-passwd
+	nixos-install --flake ".#$TARGET_HOST" --no-root-passwd \
+		--option extra-substituters https://install.determinate.systems \
+		--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
 	ok "Installation complete."
 else
 	ok "Final installation phase skipped. Run 'nixos-install' manually when ready."

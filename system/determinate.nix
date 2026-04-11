@@ -1,15 +1,13 @@
 { ... }:
 
 {
-	determinate = {
-		enable = true;
-	};
+	determinate.enable = true;
 
 	nix.settings = {
 		auto-optimise-store = true;
 		builders-use-substitutes = true;
 		cores = 0;
-		extra-experimental-features = [ "nix-command" "flakes" "parallel-eval" ];
+		extra-experimental-features = [ "parallel-eval" ];
 
 		substituters = [
 			"https://nix-community.cachix.org"

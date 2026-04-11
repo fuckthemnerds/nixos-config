@@ -6,7 +6,6 @@
 		nh                  # Next-gen Nix helper (clean CLI, auto GC)
 		nvd                 # Visual diff between generations
 		nix-output-monitor  # Progress bars for builds
-		comma               # Instant app execution without installation
 		alejandra           # Fast, opinionated Nix formatter
 
 		# System Core & CLI

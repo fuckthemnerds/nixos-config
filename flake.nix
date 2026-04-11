@@ -2,7 +2,7 @@
 	description = "Refactored Impermanent Dual-Host NixOS Configuration";
 
 	inputs = {
-		nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+		nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0";
 		flake-parts.url = "github:hercules-ci/flake-parts";
 		
 		# Hardware & Persistence
@@ -27,15 +27,11 @@
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
 
-		nix-index-database = {
-			url = "github:nix-community/nix-index-database";
-			inputs.nixpkgs.follows = "nixpkgs";
-		};
 		niri.url = "github:sodiboo/niri-flake";
 		determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 	};
 
-	outputs = inputs@{ self, nixpkgs, flake-parts, ... }:
+	outputs = inputs@{ self, flake-parts, ... }:
 		flake-parts.lib.mkFlake { inherit inputs; } {
 			systems = [ "x86_64-linux" ];
 			
@@ -44,14 +40,14 @@
 				./parts/hosts.nix
 			];
 
-			perSystem = { config, self', inputs', pkgs, system, ... }: {
+			perSystem = { self', pkgs, ... }: {
 				apps.default = self'.apps.install;
 				apps.install = {
 					type = "app";
-					program = pkgs.writeShellScriptBin "install" ''
-						export PATH="${pkgs.lib.makeBinPath [ pkgs.git pkgs.nix ]}:$PATH"
+					program = pkgs.lib.getExe (pkgs.writeShellScriptBin "install" ''
+						export PATH="${pkgs.lib.makeBinPath [ pkgs.git ]}:$PATH"
 						exec "${self}/install.sh" "$@"
-					'';
+					'');
 				};
 			};
 		};

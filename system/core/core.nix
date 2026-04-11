@@ -48,8 +48,7 @@
 		'';
 	};
 
-	# Disable default command-not-found (using nix-index/comma instead)
-	programs.command-not-found.enable = false;
+	programs.command-not-found.enable = true;
 
 	environment.sessionVariables = {
 		NIXOS_OZONE_WL = "1";
@@ -59,7 +58,10 @@
 		useGlobalPkgs = true;
 		useUserPackages = true;
 		extraSpecialArgs = { inherit inputs userName stateVersion hostName themeName gitRemoteUrl; };
-		sharedModules = [ inputs.nixvim.homeModules.nixvim ];
+		sharedModules = [
+			inputs.nixvim.homeModules.nixvim
+			inputs.niri.homeModules.niri
+		];
 
 		users.${userName} = { pkgs, inputs, hostName, ... }: {
 			home.stateVersion = stateVersion;
