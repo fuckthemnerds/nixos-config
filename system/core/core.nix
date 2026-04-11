@@ -7,9 +7,7 @@
 		./users.nix
 	];
 
-	# Allowlist sourced from globals to keep unfree policy in one place
-	nixpkgs.config.allowUnfreePredicate = pkg:
-		builtins.elem (lib.getName pkg) inputs.self.globals.unfreePackages;
+	nixpkgs.config.allowUnfree = true;
 
 	nix = {
 		settings = {
