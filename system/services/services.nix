@@ -39,7 +39,7 @@
 		findtime = "10m";
 	};
 
-	services.auditd.enable = true;
+	security.auditd.enable = true;
 
 	security.pam.services.hyprlock = {};
 
