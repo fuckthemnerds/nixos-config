@@ -36,7 +36,7 @@
 		enable = true;
 		maxretry = 5;
 		bantime = "30m";
-		findtime = "10m";
+		jails.DEFAULT.settings.findtime = "10m";
 	};
 
 	security.auditd.enable = true;
