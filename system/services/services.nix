@@ -23,7 +23,6 @@
 	services.fstrim = {
 		enable = true;
 		interval = "weekly";
-		fileSystems = [ "/" "/nix" "/persistent" ];
 	};
 
 	services.btrfs.autoScrub = {
