@@ -1,6 +1,12 @@
 { config, pkgs, hostName, ... }:
 
 {
+	imports = [
+		./audio.nix
+		./boot.nix
+		./impermanence.nix
+	];
+
 	services.power-profiles-daemon.enable = true;
 	hardware.enableRedistributableFirmware = true;
 	services.fwupd.enable = true; # Automatically handle firmware updates

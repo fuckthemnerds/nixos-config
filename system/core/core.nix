@@ -1,7 +1,11 @@
 { config, lib, pkgs, inputs, userName, hostName, stateVersion, themeName, gitRemoteUrl, ... }:
 
 {
-	imports = [ ];
+	imports = [
+		./packages.nix
+		./sops.nix
+		./users.nix
+	];
 
 	nix = {
 		settings = {

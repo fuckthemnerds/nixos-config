@@ -1,6 +1,10 @@
 { config, pkgs, ... }:
 
 {
+	imports = [
+		./networking.nix
+	];
+
 	services.dbus.implementation = "broker";
 	services.earlyoom.enable = true;
 	services.earlyoom.enableNotifications = true;
