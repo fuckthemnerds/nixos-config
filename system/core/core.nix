@@ -1,4 +1,4 @@
-{ config, lib, inputs, userName, hostName, stateVersion, themeName, gitRemoteUrl, ... }:
+{ config, lib, pkgs, inputs, userName, hostName, stateVersion, themeName, gitRemoteUrl, ... }:
 
 {
 	imports = [ ];
@@ -7,6 +7,7 @@
 		settings = {
 			trusted-users = [ "root" userName ];
 			allowed-users = [ "@wheel" ];
+			auto-optimise-store = true; # Saves disk space by hardlinking identical files
 		};
 
 		# Pin registry and NIX_PATH to flake inputs for 'self-hosting' consistency

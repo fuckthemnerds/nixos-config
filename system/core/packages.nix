@@ -42,6 +42,7 @@
 		# Hardware Monitoring
 		nvtopPackages.full  # GPU monitoring (Aorus)
 		powertop            # Battery monitoring (Surface)
+		acpi                # Lightweight battery/thermal info
 		impala              # Bluetooth TUI
 		pulsemixer          # Volume TUI
 

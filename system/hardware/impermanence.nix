@@ -18,10 +18,6 @@
 		mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
 		fi
 
-		delete_subvolume_recursively() {
-			btrfs subvolume delete "$1"
-		}
-
 		btrfs subvolume snapshot /btrfs_tmp/blank /btrfs_tmp/root
 
 		umount /btrfs_tmp
@@ -58,8 +54,8 @@
 				".ssh"
 				".local/share/keyrings"
 				".local/share/fish"
-				".local/share/nvim"    # Editor state
-				".local/state/nvim"    # Editor undo history
+				".local/share/nvim"
+				".local/state/nvim"
 				".librewolf"
 				".config/niri"
 				".config/wayland-sessions"

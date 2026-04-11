@@ -62,11 +62,19 @@ mkdir -p /mnt/persistent/etc/nixos
 cp -a "$(dirname "$0")"/. /mnt/persistent/etc/nixos/
 mkdir -p /mnt/persistent/etc/nixos/secrets
 mkdir -p /mnt/persistent/etc/nixos/local
-
 cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 {
+	# ── LOCAL CONFIGURATION OVERRIDES ──────────────────────────────────────────
+	# This file is gitignored. Use it for personal identifiers (PII).
+
 	userName     = "$SYSTEM_USER";
 	stateVersion = "25.11";
+	themeName    = "main";
+
+	# --- Git Workflow ---
+	gitPlatform  = "placeholder";
+	gitUser      = "placeholder";
+	gitRepo      = "placeholder";
 }
 EOF
 ok "Local override generated for user: $SYSTEM_USER"
@@ -78,11 +86,16 @@ while true; do
 	echo "Passwords do not match. Please retry."
 done
 
-# NOTE: USER_PASS is kept as a local variable only (never exported)
-# to prevent exposure via /proc/<pid>/environ.
-export SYSTEM_USER TARGET_HOST
+step "Hashing password..."
+HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | nix --extra-experimental-features "nix-command flakes" shell nixpkgs#whois --command mkpasswd -m sha-512 -s)
+unset USER_PASS USER_PASS2
+ok "Password hashed."
+
+# Export non-sensitive metadata for the subshell. 
+# HASHED_PASSWORD is exported instead of cleartext for better security.
+export SYSTEM_USER TARGET_HOST HASHED_PASSWORD
 nix --extra-experimental-features "nix-command flakes" shell \
-	nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#whois nixpkgs#coreutils --command bash <<'EOF'
+	nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#coreutils --command bash <<'EOF'
 	set -e
 	AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
 
@@ -90,17 +103,13 @@ nix --extra-experimental-features "nix-command flakes" shell \
 	printf "keys:\n  - &host_%s %s\ncreation_rules:\n  - path_regex: secrets/.*\\.yaml$\n    key_groups:\n      - age:\n          - *host_%s\n" \
 		"$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > /mnt/persistent/etc/nixos/.sops.yaml
 
-	# Hash password via stdin (not echo pipe) to avoid process-list exposure
-	HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | mkpasswd -m sha-512 -s)
-
 	# Encrypt user password secret
 	SOPS_AGE_KEY=$(ssh-to-age --private-key < /mnt/persistent/etc/ssh/ssh_host_ed25519_key) \
 	sops --encrypt --age "$AGE_PUBKEY" --input-type yaml --output-type yaml \
 			 <(printf "user_password_%s: \"%s\"\n" "$SYSTEM_USER" "$HASHED_PASSWORD") \
 			 > /mnt/persistent/etc/nixos/secrets/secrets.yaml
 
-	# Clear password from memory after encryption
-	unset USER_PASS
+	# Clear hash from memory after encryption
 	unset HASHED_PASSWORD
 EOF
 ok "SOPS secrets successfully encrypted."

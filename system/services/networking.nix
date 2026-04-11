@@ -2,7 +2,7 @@
 
 {
 	networking.networkmanager.enable = true;
-	networking.stevenblack.enable = true; # Standard ads/malware blocklist
+	networking.stevenblack.enable = true;
 
 	networking.firewall = {
 		enable = true;
@@ -13,7 +13,7 @@
 		# SSH — enable only if remote access is required
 		# allowedTCPPorts = [ 22 ];
 
-		# Wayland screen sharing (PipeWire)
+		# Required for Wayland screen sharing via PipeWire
 		allowedUDPPortRanges = [
 			{ from = 49152; to = 65534; }
 		];

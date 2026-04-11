@@ -1,7 +1,9 @@
 { config, pkgs, hostName, ... }:
 
 {
+	services.power-profiles-daemon.enable = true;
 	hardware.enableRedistributableFirmware = true;
+	services.fwupd.enable = true; # Automatically handle firmware updates
 
 	hardware.graphics = {
 		enable = true;
