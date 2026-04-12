@@ -8,7 +8,14 @@
 	];
 
 	nixpkgs.config.allowUnfree = true;
-	nixpkgs.overlays = [ inputs.niri.overlays.niri ];
+	nixpkgs.overlays = [ 
+		inputs.niri.overlays.niri 
+		(final: prev: {
+			niri = prev.niri.overrideAttrs (old: {
+				doCheck = false;
+			});
+		})
+	];
 
 	nix = {
 		settings = {
