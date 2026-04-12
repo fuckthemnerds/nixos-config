@@ -2,7 +2,6 @@
 
 {
 	imports = [
-		inputs.niri.nixosModules.niri
 		./packages.nix
 		./sops.nix
 		./users.nix
@@ -55,8 +54,15 @@
 		NIXOS_OZONE_WL = "1";
 	};
 
-	programs.niri.enable = true;
-	programs.niri.package = inputs.niri.packages.${pkgs.system}.niri;
+	environment.systemPackages = [ inputs.niri.packages.${pkgs.system}.niri ];
+	services.displayManager.sessionPackages = [ inputs.niri.packages.${pkgs.system}.niri ];
+	security.polkit.enable = true;
+
+	xdg.portal = {
+		enable = true;
+		extraPortals = [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
+		config.common.default = "gtk";
+	};
 
 	home-manager = {
 		useGlobalPkgs = true;
