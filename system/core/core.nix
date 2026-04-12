@@ -2,6 +2,7 @@
 
 {
 	imports = [
+		inputs.niri.nixosModules.niri
 		./packages.nix
 		./sops.nix
 		./users.nix
@@ -55,6 +56,7 @@
 	};
 
 	programs.niri.enable = true;
+	programs.niri.package = inputs.niri.packages.${pkgs.system}.niri;
 
 	home-manager = {
 		useGlobalPkgs = true;

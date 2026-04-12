@@ -31,7 +31,6 @@ in
 				inputs.sops-nix.nixosModules.sops
 				inputs.home-manager.nixosModules.home-manager
 				inputs.disko.nixosModules.disko
-				inputs.niri.nixosModules.niri
 				inputs.determinate.nixosModules.default
 				../hosts/${hostName}/disko.nix
 			] ++ extraModules;

@@ -6,6 +6,8 @@ let
 in
 {
 	programs.niri = {
+		enable = true;
+
 		settings = {
 			outputs = lib.mkMerge [
 				(lib.mkIf (hostName == "aorus") {
