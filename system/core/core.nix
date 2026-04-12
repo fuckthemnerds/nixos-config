@@ -8,7 +8,6 @@
 	];
 
 	nixpkgs.config.allowUnfree = true;
-	nixpkgs.overlays = [ inputs.niri.overlays.niri ];
 
 	nix = {
 		settings = {
@@ -56,7 +55,6 @@
 	};
 
 	programs.niri.enable = true;
-	programs.niri.package = pkgs.niri;
 
 	home-manager = {
 		useGlobalPkgs = true;
@@ -64,6 +62,7 @@
 		extraSpecialArgs = { inherit inputs userName stateVersion hostName themeName gitRemoteUrl; };
 		sharedModules = [
 			inputs.nixvim.homeModules.nixvim
+			inputs.niri.homeModules.niri
 		];
 
 		users.${userName} = { pkgs, inputs, hostName, ... }: {
