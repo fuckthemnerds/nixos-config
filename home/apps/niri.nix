@@ -5,7 +5,7 @@ let
 	sh = cmd: config.lib.niri.actions.spawn "sh" "-c" cmd;
 in
 {
-
+	programs.niri.enable = true;
 	programs.niri.settings = {
 		outputs = lib.mkMerge [
 			(lib.mkIf (hostName == "aorus") {
