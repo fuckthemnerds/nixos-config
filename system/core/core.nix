@@ -8,6 +8,7 @@
 	];
 
 	nixpkgs.config.allowUnfree = true;
+	nixpkgs.overlays = [ inputs.niri.overlays.niri ];
 
 	nix = {
 		settings = {
@@ -54,12 +55,15 @@
 		NIXOS_OZONE_WL = "1";
 	};
 
+	programs.niri.package = pkgs.niri-unstable;
+
 	home-manager = {
 		useGlobalPkgs = true;
 		useUserPackages = true;
 		extraSpecialArgs = { inherit inputs userName stateVersion hostName themeName gitRemoteUrl; };
 		sharedModules = [
 			inputs.nixvim.homeModules.nixvim
+			inputs.niri.homeModules.niri
 		];
 
 		users.${userName} = { pkgs, inputs, hostName, ... }: {

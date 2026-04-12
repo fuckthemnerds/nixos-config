@@ -43,6 +43,12 @@ in
 
 			prefer-no-csd = true;
 			hotkey-overlay.skip-at-startup = true;
+			
+			cursor = {
+				hide-when-typing = true;
+				hide-after-inactive-ms = 3000;
+			};
+
 			screenshot-path = "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png";
 
 			input = {
@@ -80,7 +86,7 @@ in
 				];
 
 				focus-ring = {
-					enable = true;
+					enable = false;
 					width = 4;
 					active.color = palette.focus;
 					inactive.color = palette.layer01;
@@ -175,11 +181,11 @@ in
 				};
 
 				"XF86MonBrightnessUp" = {
-					action = spawn [ "brightnessctl" "--class=backlight" "set" "+10%" ];
+					action = spawn "brightnessctl" "--class=backlight" "set" "+10%";
 					allow-when-locked = true;
 				};
 				"XF86MonBrightnessDown" = {
-					action = spawn [ "brightnessctl" "--class=backlight" "set" "10%-" ];
+					action = spawn "brightnessctl" "--class=backlight" "set" "10%-";
 					allow-when-locked = true;
 				};
 
