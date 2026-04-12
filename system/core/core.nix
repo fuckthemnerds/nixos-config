@@ -60,6 +60,7 @@
 		extraSpecialArgs = { inherit inputs userName stateVersion hostName themeName gitRemoteUrl; };
 		sharedModules = [
 			inputs.nixvim.homeModules.nixvim
+			inputs.niri.homeModules.niri
 		];
 
 		users.${userName} = { pkgs, inputs, hostName, ... }: {
