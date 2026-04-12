@@ -55,7 +55,8 @@
 		NIXOS_OZONE_WL = "1";
 	};
 
-	programs.niri.package = pkgs.niri-unstable;
+	programs.niri.enable = true;
+	programs.niri.package = pkgs.niri;
 
 	home-manager = {
 		useGlobalPkgs = true;
