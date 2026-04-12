@@ -8,6 +8,7 @@
 	];
 
 	nixpkgs.config.allowUnfree = true;
+	nixpkgs.overlays = [ inputs.niri.overlays.niri ];
 
 	nix = {
 		settings = {
@@ -54,8 +55,8 @@
 		NIXOS_OZONE_WL = "1";
 	};
 
-	environment.systemPackages = [ inputs.niri.packages.${pkgs.system}.niri ];
-	services.displayManager.sessionPackages = [ inputs.niri.packages.${pkgs.system}.niri ];
+	environment.systemPackages = [ pkgs.niri ];
+	services.displayManager.sessionPackages = [ pkgs.niri ];
 	security.polkit.enable = true;
 
 	xdg.portal = {
