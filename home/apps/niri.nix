@@ -284,8 +284,8 @@ in
 
 				"Mod+grave" = { action = toggle-overview; repeat = false; };
 
-				"Print".action = screenshot;
-				"Ctrl+Print".action = screenshot-screen;
+				"Print".action = spawn "niri" "msg" "action" "screenshot";
+				"Ctrl+Print".action = spawn "niri" "msg" "action" "screenshot-screen";
 
 				"Mod+Escape" = { action = toggle-keyboard-shortcuts-inhibit; allow-inhibiting = false; };
 				"Mod+P".action = spawn "niri-power-menu";
