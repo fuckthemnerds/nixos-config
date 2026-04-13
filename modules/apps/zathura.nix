@@ -11,7 +11,6 @@ in
 				enable = true;
 
 				options = {
-					font = "IBM Plex Sans 12";
 					sandbox = "none";
 					render-loading = false;
 					recolor = true;

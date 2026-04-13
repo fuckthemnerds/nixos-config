@@ -12,11 +12,6 @@ in
         server.enable = true;
 
         settings = {
-          main = {
-            font = "BlexMono Nerd Font:size=11";
-            dpi-aware = "yes";
-            pad = "20x20";
-          };
           cursor = {
             style = "block";
             blink = "yes";

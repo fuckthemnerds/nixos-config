@@ -11,10 +11,8 @@ in
         enable = true;
         settings = {
           main = {
-            font = "BlexMono Nerd Font:size=11";
-            dpi-aware = "yes";
             prompt = "> ";
-            terminal = "foot -a '{cmd}' -T '{cmd}' -e {cmd}";
+            terminal = "footclient -a '{cmd}' -T '{cmd}' -e {cmd}";   
             width = 30;
             lines = 10;
             horizontal-pad = 20;
