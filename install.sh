@@ -82,7 +82,7 @@ cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 
 	userName     = "$SYSTEM_USER";
 	userEmail    = "placeholder@example.com";
-	stateVersion = "25.11";
+	stateVersion = "26.05";
 	themeName    = "main";
 
 	# --- Git Workflow ---
@@ -163,7 +163,7 @@ if [[ "$RUN_INSTALL" =~ ^[Yy]$ ]]; then
 	ok "Installation complete."
 	echo -e "\n\033[1;33m[ IMPORTANT ]\033[0m After rebooting:"
 	echo "1. Edit /persistent/etc/nixos/local/config.nix to set your actual email and git details."
-	echo "2. The system is currently on stateVersion 25.11. Update this only after a major NixOS release."
+	echo "2. The system is currently on stateVersion 26.05. Update this only after a major NixOS release."
 	echo "3. Run 'sudo sops /persistent/etc/nixos/secrets/secrets.yaml' if you need to adjust passwords."
 else
 	ok "Final installation phase skipped. Run 'nixos-install' manually when ready."

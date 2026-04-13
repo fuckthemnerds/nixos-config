@@ -37,7 +37,7 @@
 
       flake = {
         globals = {
-          stateVersion = "25.11";
+          stateVersion = "26.05";
         } // (if builtins.pathExists ./local/config.nix
              then import ./local/config.nix
              else {
