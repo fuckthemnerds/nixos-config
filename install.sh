@@ -38,8 +38,8 @@ read -r -p "Target host (aorus/surface)${DEFAULT_HOST:+ [$DEFAULT_HOST]}: " TARG
 TARGET_HOST=${TARGET_HOST:-$DEFAULT_HOST}
 [[ "$TARGET_HOST" =~ ^(aorus|surface)$ ]] || err "Invalid host choice."
 
-read -r -p "System username [mad]: " SYSTEM_USER
-SYSTEM_USER=${SYSTEM_USER:-mad}
+read -r -p "System username: " SYSTEM_USER
+SYSTEM_USER=${SYSTEM_USER}
 
 step "Preparing partitions and mounting volumes..."
 nix --extra-experimental-features "nix-command flakes" \
