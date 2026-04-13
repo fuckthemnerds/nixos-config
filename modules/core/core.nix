@@ -22,7 +22,6 @@
     extraSpecialArgs = { inherit inputs userName stateVersion hostName; };
     sharedModules = [
       inputs.nixvim.homeModules.nixvim
-      inputs.stylix.homeManagerModules.stylix
     ];
 
     users.${userName} = {
