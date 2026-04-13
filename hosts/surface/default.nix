@@ -1,12 +1,7 @@
-{ self, inputs, ... }:
-
+{ pkgs, ... }:
 {
-	flake.nixosConfigurations.surface = self.lib.mkHost {
-		hostName = "surface";
-		hostConfig = { ... }: {
-		};
-		extraModules = [
-			inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel
-		];
-	};
+  # Toggles features from modules/ (Enabled by default in defaults.nix)
+
+  # Host specific overrides
+  # Surface specific kernel/drivers
 }

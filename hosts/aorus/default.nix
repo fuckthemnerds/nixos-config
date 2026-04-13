@@ -1,32 +1,18 @@
-{ self, inputs, ... }:
-
+{ pkgs, ... }:
 {
-	flake.nixosConfigurations.aorus = self.lib.mkHost {
-		hostName = "aorus";
-		hostConfig = { config, pkgs, hostName, stateVersion, ... }: {
+  # Toggles features from modules/ (Enabled by default in defaults.nix)
 
-			networking.hostName = hostName;
-			boot.kernelPackages = pkgs.linuxPackages_zen;
+  # Host specific overrides
+  boot.kernelPackages = pkgs.linuxPackages_zen;
 
-			services.xserver.videoDrivers = [ "nvidia" ];
-			hardware.nvidia = {
-				modesetting.enable = true;
-				open               = false;
-				powerManagement.enable = true;
-				package = config.boot.kernelPackages.nvidiaPackages.stable;
+  services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.nvidia = {
+    modesetting.enable = true;
+    open = false;
+    powerManagement.enable = true;
+    package = pkgs.linuxPackages_zen.nvidiaPackages.stable;
 
-				# PCI Bus IDs (Verify with lspci)
-				prime.intelBusId   = "PCI:0:2:0";
-				prime.nvidiaBusId  = "PCI:1:0:0";
-			};
-
-			system.stateVersion = stateVersion;
-		};
-		extraModules = [
-			inputs.nixos-hardware.nixosModules.common-cpu-intel
-			inputs.nixos-hardware.nixosModules.common-pc-laptop
-			inputs.nixos-hardware.nixosModules.common-pc-ssd
-			inputs.nixos-hardware.nixosModules.common-gpu-nvidia-sync
-		];
-	};
+    prime.intelBusId = "PCI:0:2:0";
+    prime.nvidiaBusId = "PCI:1:0:0";
+  };
 }

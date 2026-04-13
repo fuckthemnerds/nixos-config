@@ -10,9 +10,23 @@ step() { echo -e "\n\033[1;34m[ STEP ]\033[0m $1"; }
 ok()   { echo -e "\033[1;32m[ OK ]\033[0m $1"; }
 err()  { echo -e "\033[1;31m[ ERR ]\033[0m $1"; exit 1; }
 
+# --- Hardware Detection ---
+DEFAULT_DISK=""
+if [[ -b "/dev/nvme0n1" ]]; then
+	DEFAULT_DISK="/dev/nvme0n1"
+fi
+
+DEFAULT_HOST=""
+if grep -qi "surface" /sys/class/dmi/id/product_name 2>/dev/null || grep -qi "surface" /sys/class/dmi/id/chassis_asset_tag 2>/dev/null; then
+	DEFAULT_HOST="surface"
+elif grep -qi "AORUS\|Gigabyte" /sys/class/dmi/id/board_vendor 2>/dev/null || grep -qi "AORUS\|Gigabyte" /sys/class/dmi/id/bios_vendor 2>/dev/null; then
+	DEFAULT_HOST="aorus"
+fi
+
 lsblk -d -n -o NAME,SIZE,MODEL | awk '{print "/dev/" $1 " - " $2 " - " $3}'
 echo ""
-read -r -p "Target disk: " DISK
+read -r -p "Target disk${DEFAULT_DISK:+ [$DEFAULT_DISK]}: " DISK
+DISK=${DISK:-$DEFAULT_DISK}
 
 [[ -b "$DISK" ]] || err "Disk $DISK not found."
 
@@ -20,11 +34,12 @@ echo -e "\n\033[1;31mWARNING: All data on $DISK will be permanently destroyed.\0
 read -r -p "Type 'YES' to confirm: " CONFIRM
 [[ "$CONFIRM" == "YES" ]] || err "Installation aborted."
 
-read -r -p "Target host (aorus/surface): " TARGET_HOST
+read -r -p "Target host (aorus/surface)${DEFAULT_HOST:+ [$DEFAULT_HOST]}: " TARGET_HOST
+TARGET_HOST=${TARGET_HOST:-$DEFAULT_HOST}
 [[ "$TARGET_HOST" =~ ^(aorus|surface)$ ]] || err "Invalid host choice."
 
-read -r -p "System username: " SYSTEM_USER
-[[ -n "$SYSTEM_USER" ]] || err "Username cannot be empty."
+read -r -p "System username [mad]: " SYSTEM_USER
+SYSTEM_USER=${SYSTEM_USER:-mad}
 
 step "Preparing partitions and mounting volumes..."
 nix --extra-experimental-features "nix-command flakes" \
@@ -66,13 +81,14 @@ cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 	# This file is gitignored. Use it for personal identifiers (PII).
 
 	userName     = "$SYSTEM_USER";
+	userEmail    = "placeholder@example.com";
 	stateVersion = "25.11";
 	themeName    = "main";
 
 	# --- Git Workflow ---
-	gitPlatform  = "placeholder";
+	gitPlatform  = "github";
 	gitUser      = "placeholder";
-	gitRepo      = "placeholder";
+	gitRepo      = "nixos-config";
 }
 EOF
 ok "Local override generated for user: $SYSTEM_USER"
@@ -92,7 +108,7 @@ HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | nix --extra-experimental-features "
 unset USER_PASS USER_PASS2
 ok "Password hashed."
 
-# Export non-sensitive metadata for the subshell. 
+# Export non-sensitive metadata for the subshell.
 # HASHED_PASSWORD is exported instead of cleartext for better security.
 export SYSTEM_USER TARGET_HOST HASHED_PASSWORD
 nix --extra-experimental-features "nix-command flakes" \
@@ -127,8 +143,14 @@ rm -f /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/configuration.nix
 step "Finalizing Git repository..."
 cd /mnt/persistent/etc/nixos || exit 1
 
+# Ensure it's a git repo so flakes work
+if [[ ! -d .git ]]; then
+	git init > /dev/null
+	git add .
+fi
+
 # Stage generated files (secrets and hardware-stub)
-# We use 'git add' so Nix flakes can see the files, even if ignored.
+# Even if they are ignored, Nix flakes need them staged to 'see' them.
 git add .sops.yaml secrets/secrets.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null
 git add -f local/config.nix 2>/dev/null
 
@@ -139,6 +161,10 @@ if [[ "$RUN_INSTALL" =~ ^[Yy]$ ]]; then
 		--option extra-substituters https://install.determinate.systems \
 		--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
 	ok "Installation complete."
+	echo -e "\n\033[1;33m[ IMPORTANT ]\033[0m After rebooting:"
+	echo "1. Edit /persistent/etc/nixos/local/config.nix to set your actual email and git details."
+	echo "2. The system is currently on stateVersion 25.11. Update this only after a major NixOS release."
+	echo "3. Run 'sudo sops /persistent/etc/nixos/secrets/secrets.yaml' if you need to adjust passwords."
 else
 	ok "Final installation phase skipped. Run 'nixos-install' manually when ready."
 fi

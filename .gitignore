@@ -1,30 +1,3 @@
-# ── NIX / NIXOS ───────────────────────────────────────────────────────────────
-result
-result-*
-.direnv/
-.envrc.cache
-
-# ── EDITORS ──────────────────────────────────────────────────────────────────
-*.swp
-*.swo
-*~
-.vscode/
-.idea/
-.nvim.lua
-
-# ── SYSTEM / TEMP ────────────────────────────────────────────────────────────
-.DS_Store
-Thumbs.db
-*.log
-tmp/
-
-# ── TYPST / GENERATED ────────────────────────────────────────────────────────
-# Generated PDFs from Typst files
-**/*.pdf
-
-# ── SECRETS ──────────────────────────────────────────────────────────────────
-# Note: sops-encrypted files (*.yaml) SHOULD be committed.
-# Only ignore actual private keys or unencrypted backups.
 *.key
 *.pem
 .sops.yaml.tmp
