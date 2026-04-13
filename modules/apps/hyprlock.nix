@@ -9,6 +9,7 @@ in
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {
+			stylix.targets.hyprlock.enable = false;
 			programs.hyprlock = {
 				enable = true;
 				settings = {
