@@ -38,9 +38,6 @@ in
 					];
 				};
 			};
-					on-timeout = "systemctl hibernate";
-				}
-			];
 		};
 	};
 }
