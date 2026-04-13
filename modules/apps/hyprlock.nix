@@ -2,7 +2,7 @@
 
 let
 	cfg = config.apps.hyprlock;
-	colors = config.lib.stylix.colors.withHashtag;
+	colors = config.lib.stylix.colors;
 in
 {
 	options.apps.hyprlock.enable = lib.mkEnableOption "hyprlock screen locker";
@@ -15,24 +15,24 @@ in
 					general = {
 						disable_loading_bar = true;
 						hide_cursor = true;
-				grace = 0;
-				no_fade_in = true;
+						grace = 0;
+						no_fade_in = true;
 					};
 
 					background = [
 						{
-					monitor = "";
-					color = "rgb(${hex c.base01})";
+							monitor = "";
+							color = "rgb(${colors.base01})";
 						}
 					];
 
 					input-field = [
 						{
-					monitor = "";
-					size = "272, 56";
-					outline_thickness = 8;
-					dots_size = 0.25;
-					dots_spacing = 0.2;
+							monitor = "";
+							size = "272, 56";
+							outline_thickness = 8;
+							dots_size = 0.25;
+							dots_spacing = 0.2;
 							dots_center = true;
 							outer_color = "rgb(${colors.base0D})";
 							inner_color = "rgb(${colors.base01})";
