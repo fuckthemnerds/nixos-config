@@ -52,13 +52,12 @@ in
         name = "Noto Color Emoji";
         package = pkgs.noto-fonts-color-emoji;
       };
-    };
-
-    sizes = {
-      applications = 11;
-      terminal = 11;
-      desktop = 11;
-      popups = 11;
+      sizes = {
+        applications = 11;
+        terminal = 11;
+        desktop = 11;
+        popups = 11;
+      };
     };
 
     polarity = "dark";
