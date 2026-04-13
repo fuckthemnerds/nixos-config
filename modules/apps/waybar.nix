@@ -123,6 +123,7 @@ in
           }
         '';
       };
+      stylix.targets.waybar.enable = false;
     };
   };
 }

@@ -61,7 +61,5 @@ in
     };
 
     polarity = "dark";
-
-    targets.waybar.enable  = false;
   };
 }
