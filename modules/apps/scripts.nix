@@ -6,7 +6,7 @@ in
 	options.apps.scripts.enable = lib.mkEnableOption "custom utility scripts";
 
 	config = lib.mkIf cfg.enable {
-		home.packages = [
+		environment.systemPackages = [
 			(pkgs.writeShellScriptBin "niri-cycle-floating" ''
 			STATE_FILE=/tmp/niri_floating_pos_state
 			GAP=8
