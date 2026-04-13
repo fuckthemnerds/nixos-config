@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, globals, ... }:
 let
 	cfg = config.apps.btop;
 in
@@ -6,15 +6,17 @@ in
 	options.apps.btop.enable = lib.mkEnableOption "btop system monitor";
 
 	config = lib.mkIf cfg.enable {
-		programs.btop = {
-			enable = true;
-			settings = {
-				theme_background = true;
-				truecolor = true;
-				vim_keys = true;
-				rounded_corners = false;
-				graph_symbol = "braille";
-				shown_boxes = "cpu mem net proc";
+		home-manager.users.${globals.userName} = {
+			programs.btop = {
+				enable = true;
+				settings = {
+					theme_background = true;
+					truecolor = true;
+					vim_keys = true;
+					rounded_corners = false;
+					graph_symbol = "braille";
+					shown_boxes = "cpu mem net proc";
+				};
 			};
 		};
 	};
