@@ -39,12 +39,7 @@ TARGET_HOST=${TARGET_HOST:-$DEFAULT_HOST}
 [[ "$TARGET_HOST" =~ ^(aorus|surface)$ ]] || err "Invalid host choice."
 
 read -r -p "System username: " SYSTEM_USER
-read -r -p "System email: " SYSTEM_EMAIL
-read -r -p "Git platform (github/gitlab) [github]: " GIT_PLATFORM
-GIT_PLATFORM=${GIT_PLATFORM:-github}
-read -r -p "Git username: " GIT_USER
-read -r -p "Git repository name [nixos-config]: " GIT_REPO
-GIT_REPO=${GIT_REPO:-nixos-config}
+SYSTEM_USER=${SYSTEM_USER}
 
 step "Preparing partitions and mounting volumes..."
 nix --extra-experimental-features "nix-command flakes" \
@@ -80,24 +75,23 @@ mkdir -p /mnt/persistent/etc/nixos
 cp -a "$(dirname "$0")"/. /mnt/persistent/etc/nixos/
 mkdir -p /mnt/persistent/etc/nixos/secrets
 mkdir -p /mnt/persistent/etc/nixos/local
-cp "$(dirname "$0")"/local/config.nix.template /mnt/persistent/etc/nixos/local/
 cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 {
 	# ── LOCAL CONFIGURATION OVERRIDES ──────────────────────────────────────────
 	# This file is gitignored. Use it for personal identifiers (PII).
 
 	userName     = "$SYSTEM_USER";
-	userEmail    = "$SYSTEM_EMAIL";
+	userEmail    = "placeholder@example.com";
 	stateVersion = "25.11";
 	themeName    = "main";
 
 	# --- Git Workflow ---
-	gitPlatform  = "$GIT_PLATFORM";
-	gitUser      = "$GIT_USER";
-	gitRepo      = "$GIT_REPO";
+	gitPlatform  = "github";
+	gitUser      = "placeholder";
+	gitRepo      = "nixos-config";
 }
 EOF
-ok "Local override and template generated for user: $SYSTEM_USER"
+ok "Local override generated for user: $SYSTEM_USER"
 
 while true; do
 	read -r -s -p "Set password for '$SYSTEM_USER': " USER_PASS; echo ""
@@ -159,7 +153,6 @@ fi
 # Even if they are ignored, Nix flakes need them staged to 'see' them.
 git add .sops.yaml secrets/secrets.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null
 git add -f local/config.nix 2>/dev/null
-git add local/config.nix.template 2>/dev/null
 
 read -r -p "Start nixos-install? (y/N): " RUN_INSTALL
 if [[ "$RUN_INSTALL" =~ ^[Yy]$ ]]; then
