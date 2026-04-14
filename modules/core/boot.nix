@@ -10,11 +10,7 @@
 			efi.canTouchEfiVariables = true;
 		};
 
-		plymouth = {
-			enable = true;
-			theme = "bgrt";
-		};
-
+		plymouth.enable = true;
 		initrd.systemd.enable = true;
 
 		kernelParams = [
