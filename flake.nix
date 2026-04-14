@@ -1,6 +1,4 @@
 {
-  description = "Refactored Impermanent Dual-Host NixOS Configuration";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -41,11 +39,11 @@
         } // (if builtins.pathExists ./local/config.nix
              then import ./local/config.nix
              else {
-               userName = "__CHANGE_ME__";
-               userEmail = "__CHANGE_ME__";
-               gitPlatform = "__CHANGE_ME__";
-               gitUser = "__CHANGE_ME__";
-               gitRepo = "__CHANGE_ME__";
+               userName = "placeholder";
+               userEmail = "placeholder";
+               gitPlatform = "placeholder";
+               gitUser = "placeholder";
+               gitRepo = "placeholder";
              });
 
         lib.mkHost = { hostName, hostConfig ? {}, extraModules ? [] }:

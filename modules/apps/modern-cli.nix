@@ -4,7 +4,7 @@ let
 	cfg = config.apps.modern-cli;
 in
 {
-	options.apps.modern-cli.enable = lib.mkEnableOption "modern unix cli tools";
+	options.apps.modern-cli.enable = lib.mkEnableOption "modern-cli";
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {

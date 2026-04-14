@@ -3,7 +3,7 @@ let
 	cfg = config.apps.mako;
 in
 {
-	options.apps.mako.enable = lib.mkEnableOption "mako notification daemon";
+	options.apps.mako.enable = lib.mkEnableOption "mako";
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {

@@ -4,7 +4,7 @@ let
 	cfg = config.apps.multimedia;
 in
 {
-	options.apps.multimedia.enable = lib.mkEnableOption "multimedia applications (imv, mpv, yt-music)";
+	options.apps.multimedia.enable = lib.mkEnableOption "multimedia";
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {

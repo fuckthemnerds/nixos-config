@@ -3,7 +3,7 @@ let
 	cfg = config.apps.cliphist;
 in
 {
-	options.apps.cliphist.enable = lib.mkEnableOption "clipboard history";
+	options.apps.cliphist.enable = lib.mkEnableOption "cliphist";
 
 	config = lib.mkIf cfg.enable {
 		systemd.user.services.cliphist = {

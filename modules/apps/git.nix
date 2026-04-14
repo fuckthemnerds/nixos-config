@@ -3,7 +3,7 @@ let
   cfg = config.apps.git;
 in
 {
-  options.apps.git.enable = lib.mkEnableOption "git config";
+  options.apps.git.enable = lib.mkEnableOption "git";
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

@@ -25,7 +25,7 @@ let
   outputs = if hostName == "aorus" then aorusOutputs else if hostName == "surface" then surfaceOutputs else "";
 in
 {
-  options.apps.niri.enable = lib.mkEnableOption "niri compositor";
+  options.apps.niri.enable = lib.mkEnableOption "niri";
 
   config = lib.mkIf cfg.enable {
     programs.niri.enable = true;

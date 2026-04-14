@@ -3,7 +3,7 @@ let
   cfg = config.apps.fuzzel;
 in
 {
-  options.apps.fuzzel.enable = lib.mkEnableOption "fuzzel launcher";
+  options.apps.fuzzel.enable = lib.mkEnableOption "fuzzel";
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

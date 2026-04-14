@@ -4,7 +4,7 @@ let
   palette = config.lib.stylix.colors.withHashtag;
 in
 {
-  options.apps.waybar.enable = lib.mkEnableOption "waybar status bar";
+  options.apps.waybar.enable = lib.mkEnableOption "waybar";
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${userName} = {

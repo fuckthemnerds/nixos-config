@@ -3,7 +3,7 @@ let
 	cfg = config.apps.zathura;
 in
 {
-	options.apps.zathura.enable = lib.mkEnableOption "zathura document viewer";
+	options.apps.zathura.enable = lib.mkEnableOption "zathura";
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {

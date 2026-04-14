@@ -3,7 +3,7 @@ let
   cfg = config.apps.nvim;
 in
 {
-  options.apps.nvim.enable = lib.mkEnableOption "neovim (nixvim)";
+  options.apps.nvim.enable = lib.mkEnableOption "nvim";
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${userName} = {

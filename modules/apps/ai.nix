@@ -3,7 +3,7 @@ let
 	cfg = config.apps.ai;
 in
 {
-	options.apps.ai.enable = lib.mkEnableOption "ai tools (code-cursor, claude-code, antigravity)";
+	options.apps.ai.enable = lib.mkEnableOption "ai";
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {

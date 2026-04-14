@@ -3,7 +3,7 @@ let
   cfg = config.apps.foot;
 in
 {
-  options.apps.foot.enable = lib.mkEnableOption "foot terminal";
+  options.apps.foot.enable = lib.mkEnableOption "foot";
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

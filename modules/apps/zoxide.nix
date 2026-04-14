@@ -3,7 +3,7 @@ let
   cfg = config.apps.zoxide;
 in
 {
-  options.apps.zoxide.enable = lib.mkEnableOption "zoxide directory jumper";
+  options.apps.zoxide.enable = lib.mkEnableOption "zoxide";
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

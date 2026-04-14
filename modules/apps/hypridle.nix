@@ -3,7 +3,7 @@ let
 	cfg = config.apps.hypridle;
 in
 {
-	options.apps.hypridle.enable = lib.mkEnableOption "hypridle daemon";
+	options.apps.hypridle.enable = lib.mkEnableOption "hypridle";
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {

@@ -5,7 +5,7 @@ let
 	colors = config.lib.stylix.colors;
 in
 {
-	options.apps.hyprlock.enable = lib.mkEnableOption "hyprlock screen locker";
+	options.apps.hyprlock.enable = lib.mkEnableOption "hyprlock";
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {

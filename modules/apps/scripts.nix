@@ -3,7 +3,7 @@ let
 	cfg = config.apps.scripts;
 in
 {
-	options.apps.scripts.enable = lib.mkEnableOption "custom utility scripts";
+	options.apps.scripts.enable = lib.mkEnableOption "scripts";
 
 	config = lib.mkIf cfg.enable {
 		environment.systemPackages = [

@@ -3,7 +3,7 @@ let
 	cfg = config.apps.yazi;
 in
 {
-	options.apps.yazi.enable = lib.mkEnableOption "yazi terminal file manager";
+	options.apps.yazi.enable = lib.mkEnableOption "yazi";
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {

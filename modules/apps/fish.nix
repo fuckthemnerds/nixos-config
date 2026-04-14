@@ -3,7 +3,7 @@ let
   cfg = config.apps.fish;
 in
 {
-  options.apps.fish.enable = lib.mkEnableOption "fish shell";
+  options.apps.fish.enable = lib.mkEnableOption "fish";
 
   config = lib.mkIf cfg.enable {
     programs.fish.enable = true;
