@@ -8,11 +8,11 @@ in
 	config = lib.mkIf cfg.enable {
 		systemd.user.services.cliphist = {
 			wantedBy = [ "graphical-session.target" ];
-			Unit = {
+			unitConfig = {
 				Description = "Clipboard history daemon";
 				After = [ "graphical-session.target" ];
 			};
-			Service = {
+			serviceConfig = {
 				ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store";
 				Restart = "always";
 			};
