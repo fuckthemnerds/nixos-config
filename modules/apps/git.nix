@@ -9,8 +9,10 @@ in
     home-manager.users.${globals.userName} = {
       programs.git = {
         enable = true;
-        userName = globals.userName;
-        userEmail = globals.userEmail;
+        user = {
+          name = globals.userName;
+          email = globals.userEmail;
+        };
         extraConfig = {
           init.defaultBranch = "main";
           push.autoSetupRemote = true;
