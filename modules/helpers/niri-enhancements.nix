@@ -1,9 +1,9 @@
 { config, lib, pkgs, hostName, ... }:
 let
-	cfg = config.apps.scripts;
+	cfg = config.apps.niri-enhancements;
 in
 {
-	options.apps.scripts.enable = lib.mkEnableOption "scripts";
+	options.apps.niri-enhancements.enable = lib.mkEnableOption "niri-enhancements";
 
 	config = lib.mkIf cfg.enable {
 		environment.systemPackages = [

@@ -2,12 +2,10 @@
 let
 	dirContents = builtins.readDir ./.;
 	appFiles = lib.filterAttrs (name: type:
-		type == "regular" &&
-		lib.hasSuffix ".nix" name &&
-		name != "defaults.nix" &&
-		!lib.hasPrefix "_" name
+		(type == "regular" && lib.hasSuffix ".nix" name && name != "defaults.nix" && !lib.hasPrefix "_" name) ||
+		(type == "directory" && builtins.pathExists (./. + "/${name}/default.nix"))
 	) dirContents;
-	appNames = map (name: lib.removeSuffix ".nix" name) (builtins.attrNames appFiles);
+	appNames = map (name: if dirContents.${name} == "directory" then name else lib.removeSuffix ".nix" name) (builtins.attrNames appFiles);
 in
 {
 	apps = lib.genAttrs appNames (name: {
@@ -23,11 +21,11 @@ in
 					"text/x-shellscript"          = "nvim.desktop";
 					"application/pdf"             = "org.pwmt.zathura.desktop";
 
-					"text/html"                   = "librewolf.desktop";
-					"x-scheme-handler/http"       = "librewolf.desktop";
-					"x-scheme-handler/https"      = "librewolf.desktop";
-					"x-scheme-handler/about"      = "librewolf.desktop";
-					"x-scheme-handler/unknown"    = "librewolf.desktop";
+					"text/html"                   = "zen.desktop";
+					"x-scheme-handler/http"       = "zen.desktop";
+					"x-scheme-handler/https"      = "zen.desktop";
+					"x-scheme-handler/about"      = "zen.desktop";
+					"x-scheme-handler/unknown"    = "zen.desktop";
 
 					"image/png"                   = "imv.desktop";
 					"image/jpeg"                  = "imv.desktop";

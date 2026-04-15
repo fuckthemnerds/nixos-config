@@ -8,15 +8,8 @@ in
 
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {
-			programs.librewolf = {
-				enable = true;
-				settings = {
-					"webgl.disabled" = false;
-					"privacy.resistFingerprinting" = false;
-				};
-			};
+
 			home.packages = with pkgs; [
-				keepassxc
 				teams-for-linux
 			];
 		};

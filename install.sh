@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+STATE_VERSION="26.05"
+
+NIX_OPTS=(
+	--extra-experimental-features "nix-command flakes"
+	--option extra-substituters https://install.determinate.systems
+	--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
+)
+
 if [[ $EUID -ne 0 ]]; then
 	echo "ERROR: Please run as root."
 	exit 1
@@ -10,7 +19,6 @@ step() { echo -e "\n\033[1;34m[ STEP ]\033[0m $1"; }
 ok()   { echo -e "\033[1;32m[ OK ]\033[0m $1"; }
 err()  { echo -e "\033[1;31m[ ERR ]\033[0m $1"; exit 1; }
 
-# --- Hardware Detection ---
 DEFAULT_DISK=""
 if [[ -b "/dev/nvme0n1" ]]; then
 	DEFAULT_DISK="/dev/nvme0n1"
@@ -39,12 +47,12 @@ TARGET_HOST=${TARGET_HOST:-$DEFAULT_HOST}
 [[ "$TARGET_HOST" =~ ^(aorus|surface)$ ]] || err "Invalid host choice."
 
 read -r -p "System username: " SYSTEM_USER
-SYSTEM_USER=${SYSTEM_USER}
+if [[ ! "$SYSTEM_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]; then
+	err "Invalid username '$SYSTEM_USER'. Must match POSIX pattern: ^[a-z_][a-z0-9_-]*$"
+fi
 
 step "Preparing partitions and mounting volumes..."
-nix --extra-experimental-features "nix-command flakes" \
-	--option extra-substituters https://install.determinate.systems \
-	--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= \
+nix "${NIX_OPTS[@]}" \
 	run github:nix-community/disko -- \
 	--mode destroy,format,mount \
 	--argstr device "$DISK" \
@@ -54,25 +62,33 @@ nix --extra-experimental-features "nix-command flakes" \
 if ! mountpoint -q /mnt; then
 	err "Failed to mount /mnt. Check disko output above."
 fi
+for mp in /mnt/boot /mnt/persistent; do
+	if ! mountpoint -q "$mp" 2>/dev/null; then
+		err "Expected mountpoint $mp is not mounted. Disko may have partially failed."
+	fi
+done
 
 ok "File system prepared and mounted via Disko."
 
 step "Bootstrapping SSH host keys..."
 mkdir -p /mnt/persistent/etc/ssh
 
-# Generate keys with restrictive umask to prevent world-readable window
 (
 	umask 077
 	ssh-keygen -t ed25519 -N "" -C "" -f /mnt/persistent/etc/ssh/ssh_host_ed25519_key > /dev/null
 	ssh-keygen -t rsa -b 4096 -N "" -C "" -f /mnt/persistent/etc/ssh/ssh_host_rsa_key > /dev/null
 )
-chmod 600 /mnt/persistent/etc/ssh/ssh_host_*_key
 ok "Host keys generated in /mnt/persistent/etc/ssh."
 
 step "Preparing system configuration..."
+if [[ -d /mnt/persistent/etc/nixos ]]; then
+	echo "Existing config found — backing up to /mnt/persistent/etc/nixos.bak"
+	rm -rf /mnt/persistent/etc/nixos.bak
+	cp -a /mnt/persistent/etc/nixos /mnt/persistent/etc/nixos.bak
+fi
 rm -rf /mnt/persistent/etc/nixos
 mkdir -p /mnt/persistent/etc/nixos
-cp -a "$(dirname "$0")"/. /mnt/persistent/etc/nixos/
+cp -a "$SCRIPT_DIR"/. /mnt/persistent/etc/nixos/
 mkdir -p /mnt/persistent/etc/nixos/secrets
 mkdir -p /mnt/persistent/etc/nixos/local
 cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
@@ -82,7 +98,7 @@ cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 
 	userName     = "$SYSTEM_USER";
 	userEmail    = "placeholder@example.com";
-	stateVersion = "26.05";
+	stateVersion = "$STATE_VERSION";
 	themeName    = "main";
 
 	# --- Git Workflow ---
@@ -101,36 +117,26 @@ while true; do
 done
 
 step "Hashing password..."
-HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | nix --extra-experimental-features "nix-command flakes" \
-	--option extra-substituters https://install.determinate.systems \
-	--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= \
+HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | nix "${NIX_OPTS[@]}" \
 	shell nixpkgs#whois --command mkpasswd -m sha-512 -s)
 unset USER_PASS USER_PASS2
 ok "Password hashed."
 
-# Export non-sensitive metadata for the subshell.
-# HASHED_PASSWORD is exported instead of cleartext for better security.
 export SYSTEM_USER TARGET_HOST HASHED_PASSWORD
-nix --extra-experimental-features "nix-command flakes" \
-	--option extra-substituters https://install.determinate.systems \
-	--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= \
+nix "${NIX_OPTS[@]}" \
 	shell nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#coreutils --command bash <<'EOF'
 	set -e
-	# Move to tmp to avoid finding placeholder .sops.yaml in repo root
 	cd /tmp
 	AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
 
-	# Generate .sops.yaml
 	printf "keys:\n  - &host_%s %s\ncreation_rules:\n  - path_regex: secrets/.*\\.yaml$\n    key_groups:\n      - age:\n          - *host_%s\n" \
 		"$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > /mnt/persistent/etc/nixos/.sops.yaml
 
-	# Encrypt user password secret
 	SOPS_AGE_KEY=$(ssh-to-age --private-key < /mnt/persistent/etc/ssh/ssh_host_ed25519_key) \
 	sops --encrypt --age "$AGE_PUBKEY" --input-type yaml --output-type yaml \
-			 <(printf "user_password_%s: \"%s\"\n" "$SYSTEM_USER" "$HASHED_PASSWORD") \
+			 <(printf "user_password_%s: \"%s\"\nrclone.conf: |\n  [gdrive]\n  type = drive\n  client_id = PLACEHOLDER\n  token = PLACEHOLDER\n" "$SYSTEM_USER" "$HASHED_PASSWORD") \
 			 > /mnt/persistent/etc/nixos/secrets/secrets.yaml
 
-	# Clear hash from memory after encryption
 	unset HASHED_PASSWORD
 EOF
 ok "SOPS secrets successfully encrypted."
@@ -143,14 +149,10 @@ rm -f /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST"/configuration.nix
 step "Finalizing Git repository..."
 cd /mnt/persistent/etc/nixos || exit 1
 
-# Ensure it's a git repo so flakes work
 if [[ ! -d .git ]]; then
 	git init > /dev/null
-	git add .
 fi
 
-# Stage generated files (secrets and hardware-stub)
-# Even if they are ignored, Nix flakes need them staged to 'see' them.
 git add .sops.yaml secrets/secrets.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null
 git add -f local/config.nix 2>/dev/null
 
@@ -158,12 +160,11 @@ read -r -p "Start nixos-install? (y/N): " RUN_INSTALL
 if [[ "$RUN_INSTALL" =~ ^[Yy]$ ]]; then
 	step "Running nixos-install (this may take a while)..."
 	nixos-install --flake ".#$TARGET_HOST" --no-root-passwd \
-		--option extra-substituters https://install.determinate.systems \
-		--option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
+		"${NIX_OPTS[@]:2}"
 	ok "Installation complete."
 	echo -e "\n\033[1;33m[ IMPORTANT ]\033[0m After rebooting:"
 	echo "1. Edit /persistent/etc/nixos/local/config.nix to set your actual email and git details."
-	echo "2. The system is currently on stateVersion 26.05. Update this only after a major NixOS release."
+	echo "2. The system is currently on stateVersion $STATE_VERSION. Update this only after a major NixOS release."
 	echo "3. Run 'sudo sops /persistent/etc/nixos/secrets/secrets.yaml' if you need to adjust passwords."
 else
 	ok "Final installation phase skipped. Run 'nixos-install' manually when ready."

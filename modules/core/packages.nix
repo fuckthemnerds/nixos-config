@@ -6,8 +6,6 @@
 		nvd                 # Visual diff between generations
 		nix-output-monitor
 		alejandra
-		rclone              # Cloud mount/sync (OneDrive)
-		fuse3               # Needed for rclone mounting
 		sops
 		age
 		gnumake
