@@ -129,13 +129,24 @@ nix "${NIX_OPTS[@]}" \
 	cd /tmp
 	AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
 
-	printf "keys:\n  - &host_%s %s\ncreation_rules:\n  - path_regex: secrets/.*\\.yaml$\n    key_groups:\n      - age:\n          - *host_%s\n" \
-		"$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > /mnt/persistent/etc/nixos/.sops.yaml
+	if [[ -f /mnt/persistent/etc/nixos/secrets/secrets.yaml ]]; then
+		echo "Existing secrets.yaml found. Skipping generation."
+		echo -e "\n\033[1;33m[ IMPORTANT: NEW HOST SECRETS ]\033[0m"
+		echo "This host ($TARGET_HOST) needs access to existing secrets."
+		echo "Your new Age pubkey is: $AGE_PUBKEY"
+		echo "1. On your existing machine (aorus), add this key to .sops.yaml"
+		echo "2. Run 'sops updatekeys secrets/secrets.yaml' on aorus"
+		echo "3. Push the changes to git and pull them here later."
+		echo "Installation can proceed, but services needing secrets will fail until updated."
+	else
+		printf "keys:\n  - &host_%s %s\ncreation_rules:\n  - path_regex: secrets/.*\\.yaml$\n    key_groups:\n      - age:\n          - *host_%s\n" \
+			"$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > /mnt/persistent/etc/nixos/.sops.yaml
 
-	SOPS_AGE_KEY=$(ssh-to-age --private-key < /mnt/persistent/etc/ssh/ssh_host_ed25519_key) \
-	sops --encrypt --age "$AGE_PUBKEY" --input-type yaml --output-type yaml \
-			 <(printf "user_password_%s: \"%s\"\nrclone.conf: |\n  [gdrive]\n  type = drive\n  client_id = PLACEHOLDER\n  token = PLACEHOLDER\n" "$SYSTEM_USER" "$HASHED_PASSWORD") \
-			 > /mnt/persistent/etc/nixos/secrets/secrets.yaml
+		SOPS_AGE_KEY=$(ssh-to-age --private-key < /mnt/persistent/etc/ssh/ssh_host_ed25519_key) \
+		sops --encrypt --age "$AGE_PUBKEY" --input-type yaml --output-type yaml \
+				 <(printf "user_password_%s: \"%s\"\nrclone.conf: |\n  [gdrive]\n  type = drive\n  client_id = PLACEHOLDER\n  token = PLACEHOLDER\n" "$SYSTEM_USER" "$HASHED_PASSWORD") \
+				 > /mnt/persistent/etc/nixos/secrets/secrets.yaml
+	fi
 
 	unset HASHED_PASSWORD
 EOF
