@@ -8,8 +8,7 @@ in
 	config = lib.mkIf cfg.enable {
 		home-manager.users.${globals.userName} = {
 			home.packages = with pkgs; [
-				code-cursor
-				claude-code
+				opencode
 				antigravity
 			];
 		};

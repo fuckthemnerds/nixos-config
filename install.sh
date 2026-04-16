@@ -93,15 +93,11 @@ mkdir -p /mnt/persistent/etc/nixos/secrets
 mkdir -p /mnt/persistent/etc/nixos/local
 cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 {
-	# ── LOCAL CONFIGURATION OVERRIDES ──────────────────────────────────────────
-	# This file is gitignored. Use it for personal identifiers (PII).
-
 	userName     = "$SYSTEM_USER";
 	userEmail    = "placeholder@example.com";
 	stateVersion = "$STATE_VERSION";
 	themeName    = "main";
 
-	# --- Git Workflow ---
 	gitPlatform  = "github";
 	gitUser      = "placeholder";
 	gitRepo      = "nixos-config";
