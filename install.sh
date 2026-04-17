@@ -105,18 +105,22 @@ cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 EOF
 ok "Local override generated for user: $SYSTEM_USER"
 
-while true; do
-	read -r -s -p "Set password for '$SYSTEM_USER': " USER_PASS; echo ""
-	read -r -s -p "Confirm password: " USER_PASS2; echo ""
-	[[ "$USER_PASS" == "$USER_PASS2" ]] && break
-	echo "Passwords do not match. Please retry."
-done
+if [[ ! -f /mnt/persistent/etc/nixos/secrets/secrets.yaml ]]; then
+	while true; do
+		read -r -s -p "Set password for '$SYSTEM_USER': " USER_PASS; echo ""
+		read -r -s -p "Confirm password: " USER_PASS2; echo ""
+		[[ "$USER_PASS" == "$USER_PASS2" ]] && break
+		echo "Passwords do not match. Please retry."
+	done
 
-step "Hashing password..."
-HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | nix "${NIX_OPTS[@]}" \
-	shell nixpkgs#whois --command mkpasswd -m sha-512 -s)
-unset USER_PASS USER_PASS2
-ok "Password hashed."
+	step "Hashing password..."
+	HASHED_PASSWORD=$(printf '%s' "$USER_PASS" | nix "${NIX_OPTS[@]}" \
+		shell nixpkgs#whois --command mkpasswd -m sha-512 -s)
+	unset USER_PASS USER_PASS2
+	ok "Password hashed."
+else
+	ok "Existing secrets.yaml found. Skipping password hashing."
+fi
 
 export SYSTEM_USER TARGET_HOST HASHED_PASSWORD
 nix "${NIX_OPTS[@]}" \
