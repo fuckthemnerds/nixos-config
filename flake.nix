@@ -38,17 +38,17 @@
       systems = [ "x86_64-linux" ];
 
       flake = {
-        globals = {
-          stateVersion = "26.05";
-        } // (if builtins.pathExists ./local/config.nix
-             then import ./local/config.nix
-             else {
-               userName = "placeholder";
-               userEmail = "placeholder";
-               gitPlatform = "placeholder";
-               gitUser = "placeholder";
-               gitRepo = "placeholder";
-             });
+        globals = let
+          localConfig = if builtins.pathExists ./local/config.nix
+                        then import ./local/config.nix
+                        else { };
+        in {
+          inherit (localConfig) userName stateVersion themeName;
+          userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
+          gitPlatform = localConfig.gitPlatform or "github";
+          gitUser = localConfig.gitUser or "fuckthemnerds";
+          gitRepo = localConfig.gitRepo or "nixos-config";
+        };
 
         lib.mkHost = { hostName, hostConfig ? {}, extraModules ? [] }:
           let
@@ -57,7 +57,7 @@
           inputs.nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             specialArgs = let
-              gitRemoteUrl = if globals.gitPlatform == "github" then "https://github.com/${globals.gitUser}/${globals.gitRepo}" else "";
+            gitRemoteUrl = if (globals ? gitPlatform && globals.gitPlatform == "github") then "https://github.com/${globals.gitUser}/${globals.gitRepo}" else "";
             in {
               inherit inputs hostName gitRemoteUrl globals;
               inherit (globals) userName stateVersion;

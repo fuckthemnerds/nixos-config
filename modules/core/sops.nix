@@ -2,11 +2,11 @@
 
 {
 	sops = {
-		defaultSopsFile = "/persistent/etc/nixos/secrets/secrets.yaml";
+		defaultSopsFile = ../../secrets/secrets.yaml;
 		defaultSopsFormat = "yaml";
 		validateSopsFiles = false;
 
-		age.sshKeyPaths = [ "/persistent/etc/ssh/ssh_host_ed25519_key" ];
+		age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
 		secrets."user_password_${userName}" = {
 			neededForUsers = true;
