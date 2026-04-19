@@ -1,1 +1,0 @@
-{ imports = [ ../aorus/disko.nix ]; }

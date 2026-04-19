@@ -7,7 +7,7 @@ export NIX_CONFIG="experimental-features = nix-command flakes"
 echo "=== NixOS Interactive Pre-flight Setup ==="
 
 # 1. Host selection
-HOSTS=("aorus-bare" "aorus" "surface")
+HOSTS=("aorus" "surface")
 echo "Available hosts:"
 select HOST in "${HOSTS[@]}"; do
     if [[ -n "$HOST" ]]; then
@@ -165,7 +165,11 @@ echo ""
 echo "=== Copying Config ==="
 mkdir -p /mnt/persistent/home/$USERNAME/
 cp -r "$(pwd)" /mnt/persistent/home/$USERNAME/nixcfg
-chown -R $USERNAME:users /mnt/persistent/home/$USERNAME/nixcfg || true
+if chroot /mnt id "$USERNAME" >/dev/null 2>&1; then
+    chroot /mnt chown -R "$USERNAME:users" "/persistent/home/$USERNAME/nixcfg"
+else
+    echo "Warning: User $USERNAME not found in target system. Config ownership left as root."
+fi
 
 echo ""
 echo "Installation complete!"
@@ -176,19 +180,7 @@ nix shell nixpkgs#git nixpkgs#age nixpkgs#sops nixpkgs#mkpasswd --command /tmp/r
 
 echo ""
 echo "==================================================================="
-if [[ "$HOST" == "aorus-bare" ]]; then
-    echo "  Barebones install complete!"
-    echo ""
-    echo "  After first boot, switch to the full config:"
-    echo ""
-    echo "    cd ~/nixcfg"
-    echo "    sudo nixos-rebuild switch --flake .#aorus"
-    echo ""
-    echo "  That will enable: home-manager, stylix, nixvim, kanata,"
-    echo "  fish shell, all apps, and the full module set."
-else
-    echo "  Full install complete!"
-fi
+echo "  Full install complete!"
 echo "==================================================================="
 echo ""
 

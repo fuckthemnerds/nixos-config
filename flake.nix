@@ -89,37 +89,9 @@
             ] ++ extraModules;
           };
 
-        # Barebones variant: skips auto-imported modules/, no HM/stylix/nixvim.
-        # Install this first, then `nixos-rebuild switch --flake .#aorus` for full.
-        lib.mkBareHost = { hostName, hostConfig ? {}, extraModules ? [] }:
-          let
-            inherit (self) globals;
-          in
-          inputs.nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            specialArgs = {
-              inherit inputs hostName globals;
-              inherit (globals) userName stateVersion;
-            };
-            modules = [
-              {
-                networking.hostName = hostName;
-                system.stateVersion = globals.stateVersion;
-                nixpkgs.config.allowUnfree = true;
-              }
-              ./hosts/${hostName}/default.nix
-              ./hosts/${hostName}/hardware.nix
-              ./hosts/${hostName}/disko.nix
-              inputs.impermanence.nixosModules.impermanence
-              inputs.sops-nix.nixosModules.sops
-              inputs.disko.nixosModules.disko
-              hostConfig
-            ] ++ extraModules;
-          };
 
         nixosConfigurations = {
           aorus = self.lib.mkHost { hostName = "aorus"; };
-          aorus-bare = self.lib.mkBareHost { hostName = "aorus-bare"; };
           surface = self.lib.mkHost {
             hostName = "surface";
             extraModules = [ inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];

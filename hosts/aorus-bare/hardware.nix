@@ -1,1 +1,0 @@
-{ imports = [ ../aorus/hardware.nix ]; }
