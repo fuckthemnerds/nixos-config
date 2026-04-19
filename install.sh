@@ -136,15 +136,15 @@ fi
 echo "=== Tracking Secrets ==="
 git add -f secrets/
 
+# --- Run Disko (format and mount only) ---
 echo ""
-echo "=== Running Disko (disk partitioning + format) ==="
-echo "    Output streamed live below:"
+echo "=== Running Disko (partitioning + formatting + mounting) ==="
 echo "------------------------------------------------------------"
-# -L = verbose nix logs; output piped through stdbuf to prevent buffering
-stdbuf -oL nix run -L 'github:nix-community/disko#disko-install' -- \
+stdbuf -oL nix run -L 'github:nix-community/disko' -- \
+    --mode destroy,format,mount \
     --flake .#$HOST --disk main $DISK 2>&1 | stdbuf -oL tee /tmp/disko.log
 echo "------------------------------------------------------------"
-echo "Disko done."
+echo "Disk partitioning and mounting complete."
 
 echo ""
 echo "=== Deploying Secrets to Target ==="

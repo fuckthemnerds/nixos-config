@@ -1,11 +1,7 @@
 { config, pkgs, ... }:
 
 {
-	imports = [
-		./networking.nix
-	];
-
-	services = {
+  services = {
 		dbus.implementation = "broker";
 		earlyoom = {
 			enable = true;

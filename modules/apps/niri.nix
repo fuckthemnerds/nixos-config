@@ -3,6 +3,9 @@ let
   cfg = config.apps.niri;
   colors = config.lib.stylix.colors.withHashtag;
 
+  enhancements = ../helpers/niri-enhancements.nix;
+  hasEnhancements = builtins.pathExists enhancements;
+
   aorusOutputs = ''
     output "eDP-1" {
         mode "2560x1440@165.0"
@@ -25,9 +28,13 @@ let
   outputs = if hostName == "aorus" then aorusOutputs else if hostName == "surface" then surfaceOutputs else "";
 in
 {
+  imports = lib.optional hasEnhancements enhancements;
+
   options.apps.niri.enable = lib.mkEnableOption "niri";
 
   config = lib.mkIf cfg.enable {
+    apps.niri-enhancements.enable = lib.mkDefault hasEnhancements;
+
     programs.niri.enable = true;
 
     home-manager.users.${userName} = {

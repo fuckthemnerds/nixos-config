@@ -30,7 +30,7 @@
       before      = [ "sysroot.mount" ];
       unitConfig.DefaultDependencies = "no";
       serviceConfig.Type = "oneshot";
-      path   = [ pkgs.btrfs-progs ];
+      path   = [ pkgs.btrfs-progs pkgs.coreutils pkgs.findutils ];
       script = ''
         mkdir -p /btrfs_tmp
         mount -o subvol=/ /dev/disk/by-label/nixos /btrfs_tmp
