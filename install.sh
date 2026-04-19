@@ -81,6 +81,9 @@ chmod 400 /tmp/sops-nix/keys.txt
 AGE_PUB_KEY=\$(age-keygen -y /tmp/sops-nix/keys.txt)
 echo "Generated age public key: \$AGE_PUB_KEY"
 
+# Update .sops.yaml with the generated key for all placeholder hosts
+sed -i "s/age1placeholder_replace_with_real_host_key_[a-zA-Z0-9_-]*/\$AGE_PUB_KEY/g" .sops.yaml
+
 # Ensure basic placeholder secret files exist
 if [[ ! -f secrets/secrets.yaml ]]; then
     USER_HASH=\$(mkpasswd -m yescrypt -s <<< "\$USER_PASS")
@@ -89,7 +92,7 @@ git_credentials: |
     https://\$USERNAME:placeholder@github.com
 user_password_\$USERNAME: \$USER_HASH
 YAML
-    sops --encrypt --in-place --age "\$AGE_PUB_KEY" secrets/secrets.yaml
+    sops --encrypt --in-place secrets/secrets.yaml
 fi
 
 if [[ ! -f secrets/rclone.yaml ]]; then
@@ -97,7 +100,7 @@ if [[ ! -f secrets/rclone.yaml ]]; then
 rclone_client_id: placeholder
 rclone_token: placeholder
 YAML
-    sops --encrypt --in-place --age "\$AGE_PUB_KEY" secrets/rclone.yaml
+    sops --encrypt --in-place secrets/rclone.yaml
 fi
 
 echo "=== Tracking Secrets ==="
