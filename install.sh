@@ -2,6 +2,9 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [[ "$SCRIPT_DIR" == /nix/store/* ]]; then
+    SCRIPT_DIR="$(pwd)"
+fi
 STATE_VERSION="26.05"
 
 NIX_OPTS=(
@@ -128,8 +131,8 @@ if [[ ! -f "$SECRETS_FILE" ]]; then
 		set -e
 		AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
 		
-		# Properly format the YAML alias list
-		printf "keys:\n  - &admin %s\n  - &host_%s %s\n\ncreation_rules:\n  - path_regex: secrets/secrets\\\\.yaml$\n    key_groups:\n      - age:\n          - *admin\n          - *host_%s\n" \
+		# Properly format the YAML alias list and use a robust regex for Windows/Linux
+		printf "keys:\n  - &admin %s\n  - &host_%s %s\n\ncreation_rules:\n  - path_regex: secrets[/\\\\\\\\].*\\\\.yaml$\n    key_groups:\n      - age:\n          - *admin\n          - *host_%s\n" \
 			"$ADMIN_PUBKEY" "$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > "$SCRIPT_DIR/.sops.yaml"
 
 		sops --encrypt --age "$ADMIN_PUBKEY,$AGE_PUBKEY" --input-type yaml --output-type yaml \
@@ -180,7 +183,7 @@ if [[ ! -d .git ]]; then
 	git init > /dev/null
 fi
 
-git add .sops.yaml secrets/secrets.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null
+git add .sops.yaml secrets/secrets.yaml secrets/rclone.yaml hosts/"$TARGET_HOST"/hardware-stub.nix 2>/dev/null
 git add -f local/config.nix 2>/dev/null
 
 read -r -p "Start nixos-install? (y/N): " RUN_INSTALL
