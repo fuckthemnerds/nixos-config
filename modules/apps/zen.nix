@@ -43,6 +43,12 @@ in
       home.packages = [ zenPkg ];
 
       xdg.configFile."tridactyl/tridactylrc".text = ''
+        set update.lastchecktime 1776613539174
+        set configversion 2.0
+
+        colourscheme mytheme
+        set theme mytheme
+
         bind <Space> fillcmdline cmdline
 
         bind H back
@@ -64,45 +70,72 @@ in
         set smoothscroll true
         set newtab about:blank
         set autocontain block
+
         set editorcmd nvim
         set editor --cmd "set columns=120 lines=40"
-
-        colourscheme mytheme
       '';
 
       xdg.configFile."tridactyl/themes/mytheme/mythem.css".text = with config.lib.stylix.colors; ''
-        :root {
+        :root.TridactylThemeMytheme {
+          --tridactyl-font-family: "${config.stylix.fonts.monospace.name}", monospace;
+          --tridactyl-font-size: 13pt;
+          --tridactyl-small-font-size: 11pt;
+
           --tridactyl-bg: #${base00};
           --tridactyl-fg: #${base05};
+          --tridactyl-border-radius: 4px;
+
           --tridactyl-cmdl-bg: #${base01};
           --tridactyl-cmdl-fg: #${base05};
+          --tridactyl-cmdl-font-size: 1.6rem;
+          --tridactyl-cmdl-border: 1px solid #${base03};
 
-          --tridactyl-header-first-bg: #${base02};
-          --tridactyl-header-first-fg: #${base07};
+          --tridactyl-status-font-family: "${config.stylix.fonts.monospace.name}", monospace;
+          --tridactyl-status-font-size: 12px;
+          --tridactyl-status-bg: #${base01};
+          --tridactyl-status-fg: #${base05};
+          --tridactyl-status-border: 1px solid #${base03};
+          --tridactyl-status-border-radius: 4px;
+
+          --tridactyl-hintspan-font-size: var(--tridactyl-small-font-size);
+          --tridactyl-hintspan-font-weight: 700;
+          --tridactyl-hintspan-fg: #${base01};
+          --tridactyl-hintspan-bg: #${base0D};
+          --tridactyl-hintspan-border-width: 0px;
+          --tridactyl-hintspan-border-style: solid;
+          --tridactyl-hintspan-border-color: transparent;
+
+          --tridactyl-hint-active-fg: #${base01};
+          --tridactyl-hint-active-bg: #${base0E};
+          --tridactyl-hint-active-outline: 1px solid #${base0E};
+
+          --tridactyl-cmplt-option-height: 1.8em;
+          --tridactyl-of-bg: #${base01};
+          --tridactyl-of-fg: #${base05};
+
+          --tridactyl-header-font-size: 14px;
+          --tridactyl-header-font-weight: 700;
+          --tridactyl-header-main-bg: #${base00};
+          --tridactyl-header-main-fg: #${base05};
           --tridactyl-header-second-bg: #${base01};
-          --tridactyl-header-second-fg: #${base05};
+          --tridactyl-header-second-fg: #${base0D};
+          --tridactyl-header-third-bg: #${base01};
 
-          --tridactyl-cmplt-bg: #${base00};
-          --tridactyl-cmplt-fg: #${base05};
-          --tridactyl-cmplt-border: #${base03};
-          --tridactyl-cmplt-scrollbar-color: #${base04};
+          --tridactyl-highlight-box-font-weight: 700;
+          --tridactyl-highlight-box-bg: #${base01};
+          --tridactyl-highlight-box-fg: #${base05};
+        }
 
-          --tridactyl-url-fg: #${base0D};
-          --tridactyl-url-bg: #${base00};
+        :root #command-line-holder {
+          order: 1 !important;
+        }
 
-          --tridactyl-action-bg: #${base01};
-          --tridactyl-action-fg: #${base05};
+        :root #completions {
+          order: 2 !important;
+        }
 
-          --tridactyl-highlight-bg: #${base0A};
-          --tridactyl-highlight-fg: #${base00};
-
-          --tridactyl-error-fg: #${base08};
-          --tridactyl-warning-fg: #${base0A};
-          --tridactyl-success-fg: #${base0B};
-          --tridactyl-info-fg: #${base0C};
-
-          --tridactyl-special-fg: #${base0E};
-          --tridactyl-accent: #${base0D};
+        :root .TridactylStatusIndicator {
+          font-family: var(--tridactyl-font-family) !important;
         }
       '';
     };

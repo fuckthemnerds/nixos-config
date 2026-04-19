@@ -22,9 +22,22 @@ echo "Selected host: $HOST"
 read -p "Enter your username [mad]: " USERNAME
 USERNAME=${USERNAME:-mad}
 read -p "Enter your email: " USEREMAIL
-read -sp "Enter password for $USERNAME: " USER_PASS
+while true; do
+    read -sp "Enter password for $USERNAME: " USER_PASS
+    echo
+    if [[ -z "$USER_PASS" ]]; then
+        echo "Password cannot be empty."
+        continue
+    fi
+    read -sp "Verify password for $USERNAME: " USER_PASS_VERIFY
+    echo
+    if [[ "$USER_PASS" == "$USER_PASS_VERIFY" ]]; then
+        break
+    else
+        echo "Passwords do not match. Try again."
+    fi
+done
 echo
-
 mkdir -p secrets
 cat > secrets/usercreds.nix <<EOF
 {
