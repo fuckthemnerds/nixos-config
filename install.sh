@@ -81,19 +81,10 @@ mkdir -p /mnt/persistent/etc/ssh
 ok "Host keys generated in /mnt/persistent/etc/ssh."
 
 step "Preparing system configuration..."
-if [[ -d /mnt/persistent/etc/nixos ]]; then
-	echo "Existing config found — backing up to /mnt/persistent/etc/nixos.bak"
-	rm -rf /mnt/persistent/etc/nixos.bak
-	cp -a /mnt/persistent/etc/nixos /mnt/persistent/etc/nixos.bak
-fi
-rm -rf /mnt/persistent/etc/nixos
-mkdir -p /mnt/persistent/etc/nixos
-cp -a "$SCRIPT_DIR"/. /mnt/persistent/etc/nixos/
-mkdir -p /mnt/persistent/etc/nixos/secrets
-mkdir -p /mnt/persistent/etc/nixos/local
+mkdir -p "$SCRIPT_DIR/local" "$SCRIPT_DIR/secrets"
 
 # Only non-secret logic stays in the local config now
-cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
+cat > "$SCRIPT_DIR/local/config.nix" <<EOF
 {
 	userName     = "$SYSTEM_USER";
 	stateVersion = "$STATE_VERSION";
@@ -102,7 +93,8 @@ cat > /mnt/persistent/etc/nixos/local/config.nix <<EOF
 EOF
 ok "Local override generated for user: $SYSTEM_USER"
 
-SECRETS_FILE="/mnt/persistent/etc/nixos/secrets/secrets.yaml"
+SECRETS_FILE="$SCRIPT_DIR/secrets/secrets.yaml"
+SOPS_CONFIG="$SCRIPT_DIR/.sops.yaml"
 
 if [[ ! -f "$SECRETS_FILE" ]]; then
 	step "FIRST DEVICE SETUP: Generating Admin Key and Secrets..."
@@ -131,18 +123,18 @@ if [[ ! -f "$SECRETS_FILE" ]]; then
 	read -r -p "Enter your Git email [205473740+fuckthemnerds@users.noreply.github.com]: " GIT_EMAIL
 	GIT_EMAIL=${GIT_EMAIL:-205473740+fuckthemnerds@users.noreply.github.com}
 	
-	export SYSTEM_USER TARGET_HOST HASHED_PASSWORD ADMIN_PUBKEY GIT_USER GIT_EMAIL
+	export SYSTEM_USER TARGET_HOST HASHED_PASSWORD ADMIN_PUBKEY GIT_USER GIT_EMAIL SCRIPT_DIR
 	nix "${NIX_OPTS[@]}" shell nixpkgs#ssh-to-age nixpkgs#sops nixpkgs#coreutils --command bash <<'EOF'
 		set -e
 		AGE_PUBKEY=$(ssh-to-age < /mnt/persistent/etc/ssh/ssh_host_ed25519_key.pub)
 		
 		# Properly format the YAML alias list
-        printf "keys:\n  - &admin %s\n  - &host_%s %s\n\ncreation_rules:\n  - path_regex: secrets/secrets\\\\.yaml$\n    key_groups:\n      - age:\n          - *admin\n          - *host_%s\n" \
-            "$ADMIN_PUBKEY" "$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > /mnt/persistent/etc/nixos/.sops.yaml
+		printf "keys:\n  - &admin %s\n  - &host_%s %s\n\ncreation_rules:\n  - path_regex: secrets/secrets\\\\.yaml$\n    key_groups:\n      - age:\n          - *admin\n          - *host_%s\n" \
+			"$ADMIN_PUBKEY" "$TARGET_HOST" "$AGE_PUBKEY" "$TARGET_HOST" > "$SCRIPT_DIR/.sops.yaml"
 
 		sops --encrypt --age "$ADMIN_PUBKEY,$AGE_PUBKEY" --input-type yaml --output-type yaml \
 			<(printf "user_password_%s: \"%s\"\ngit_user: \"%s\"\ngit_email: \"%s\"\nrclone.conf: |\n  [gdrive]\n  type = drive\n  client_id = PLACEHOLDER\n  token = PLACEHOLDER\n" "$SYSTEM_USER" "$HASHED_PASSWORD" "$GIT_USER" "$GIT_EMAIL") \
-			> /mnt/persistent/etc/nixos/secrets/secrets.yaml
+			> "$SCRIPT_DIR/secrets/secrets.yaml"
 EOF
 	ok "SOPS secrets successfully created and encrypted."
 
@@ -166,6 +158,15 @@ EOF
 	# Pause the script so the user can actually do the git pull before installing
 	read -r -p "Press Enter when you have pulled the updated secrets.yaml..."
 fi
+step "Deploying configuration to target..."
+if [[ -d /mnt/persistent/etc/nixos ]]; then
+	echo "Existing config found — backing up to /mnt/persistent/etc/nixos.bak"
+	rm -rf /mnt/persistent/etc/nixos.bak
+	cp -a /mnt/persistent/etc/nixos /mnt/persistent/etc/nixos.bak
+fi
+rm -rf /mnt/persistent/etc/nixos
+mkdir -p /mnt/persistent/etc/nixos
+cp -a "$SCRIPT_DIR"/. /mnt/persistent/etc/nixos/
 
 step "Configuring hardware-stub..."
 nixos-generate-config --root /mnt --no-filesystems --dir /mnt/persistent/etc/nixos/hosts/"$TARGET_HOST" > /dev/null
