@@ -14,7 +14,6 @@
 
 		plymouth = {
 			enable = true;
-			theme = "breeze";
 		};
 
 		initrd.systemd.enable = true;
