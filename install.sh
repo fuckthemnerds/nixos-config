@@ -66,8 +66,10 @@ if [[ "$CONFIRM_WIPE" != "YES" ]]; then
 fi
 
 # Run everything from within a nix shell with required tools
-export USER_PASS
-nix shell nixpkgs#git nixpkgs#age nixpkgs#sops nixpkgs#mkpasswd --command bash <<EOF
+export USER_PASS USERNAME HOST DISK
+
+cat > /tmp/run-nixos-install.sh << 'EOF'
+#!/usr/bin/env bash
 set -e
 
 echo "=== Secrets Bootstrap ==="
@@ -78,19 +80,19 @@ if [[ ! -f /tmp/sops-nix/keys.txt ]]; then
 fi
 chmod 400 /tmp/sops-nix/keys.txt
 
-AGE_PUB_KEY=\$(age-keygen -y /tmp/sops-nix/keys.txt)
-echo "Generated age public key: \$AGE_PUB_KEY"
+AGE_PUB_KEY=$(age-keygen -y /tmp/sops-nix/keys.txt)
+echo "Generated age public key: $AGE_PUB_KEY"
 
 # Update .sops.yaml with the generated key for all placeholder hosts
-sed -i "s/age1placeholder_replace_with_real_host_key_[a-zA-Z0-9_-]*/\$AGE_PUB_KEY/g" .sops.yaml
+sed -i "s/age1placeholder_replace_with_real_host_key_[a-zA-Z0-9_-]*/$AGE_PUB_KEY/g" .sops.yaml
 
 # Ensure basic placeholder secret files exist
 if [[ ! -f secrets/secrets.yaml ]]; then
-    USER_HASH=\$(mkpasswd -m yescrypt -s <<< "\$USER_PASS")
+    USER_HASH=$(mkpasswd -m yescrypt -s <<< "$USER_PASS")
     cat > secrets/secrets.yaml <<YAML
 git_credentials: |
-    https://\$USERNAME:placeholder@github.com
-user_password_\$USERNAME: \$USER_HASH
+    https://$USERNAME:placeholder@github.com
+user_password_$USERNAME: $USER_HASH
 YAML
     sops --encrypt --in-place secrets/secrets.yaml
 fi
@@ -107,7 +109,8 @@ echo "=== Tracking Secrets ==="
 git add -f secrets/
 
 echo "=== Running Disko ==="
-nix run 'github:nix-community/disko#disko-install' -- --flake .#$HOST --disk main $DISK < /dev/tty
+# Removed < /dev/tty because now it runs in a real shell vs heredoc
+nix run -L 'github:nix-community/disko#disko-install' -- --flake .#$HOST --disk main $DISK
 
 echo "=== Deploying Secrets to Target ==="
 mkdir -p /mnt/persistent/var/lib/sops-nix/
@@ -116,15 +119,18 @@ cp /tmp/sops-nix/keys.txt /mnt/persistent/var/lib/sops-nix/keys.txt
 chmod 400 /mnt/persistent/var/lib/sops-nix/keys.txt
 
 echo "=== Install NixOS ==="
-nixos-install --flake .#$HOST --no-root-password < /dev/tty
+nixos-install --flake .#$HOST --no-root-password
 
 echo "=== Copying Config ==="
 mkdir -p /mnt/persistent/home/$USERNAME/
-cp -r "\$(pwd)" /mnt/persistent/home/$USERNAME/nixcfg
+cp -r "$(pwd)" /mnt/persistent/home/$USERNAME/nixcfg
 chown -R $USERNAME:users /mnt/persistent/home/$USERNAME/nixcfg || true
 
 echo "Installation complete!"
 EOF
+
+chmod +x /tmp/run-nixos-install.sh
+nix shell nixpkgs#git nixpkgs#age nixpkgs#sops nixpkgs#mkpasswd --command /tmp/run-nixos-install.sh
 
 read -p "Do you want to reboot now? [y/N] " REBOOT_CONFIRM
 if [[ "$REBOOT_CONFIRM" =~ ^[Yy]$ ]]; then

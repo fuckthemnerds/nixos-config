@@ -9,7 +9,6 @@
 		sops
 		age
 		gnumake
-		nvtop
 		powertop            # Battery monitoring (Surface)
 		acpi                # Lightweight battery/thermal info
 		curl

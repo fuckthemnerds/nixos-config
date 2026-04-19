@@ -5,6 +5,10 @@
   # Host specific overrides
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
+  environment.systemPackages = [
+    pkgs.nvtopPackages.full
+  ];
+
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
     modesetting.enable = true;

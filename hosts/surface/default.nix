@@ -4,4 +4,8 @@
 
   # Host specific overrides
   # Surface specific kernel/drivers
+
+  environment.systemPackages = [
+    pkgs.nvtopPackages.intel
+  ];
 }
