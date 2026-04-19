@@ -31,6 +31,7 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
 
   outputs = inputs@{ self, flake-parts, ... }:
@@ -39,8 +40,8 @@
 
       flake = {
         globals = let
-          localConfig = if builtins.pathExists ./local/config.nix
-                        then import ./local/config.nix
+          localConfig = if builtins.pathExists ./secrets/usercreds.nix
+                        then import ./secrets/usercreds.nix
                         else { };
         in {
           userName = localConfig.userName or "mad";
@@ -90,7 +91,10 @@
 
         nixosConfigurations = {
           aorus = self.lib.mkHost { hostName = "aorus"; };
-          surface = self.lib.mkHost { hostName = "surface"; };
+          surface = self.lib.mkHost {
+            hostName = "surface";
+            extraModules = [ inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];
+          };
         };
       };
 

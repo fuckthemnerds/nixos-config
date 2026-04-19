@@ -10,13 +10,23 @@ in
     programs.fuse.userAllowOther = true;
     environment.systemPackages = [ pkgs.rclone ];
 
-    sops.secrets."rclone.conf" = {
-      sopsFile = ../../secrets/rclone.yaml;
+    sops.secrets.rclone_client_id.sopsFile = ../../secrets/rclone.yaml;
+    sops.secrets.rclone_token.sopsFile = ../../secrets/rclone.yaml;
+
+    sops.templates."rclone.conf" = {
       owner = globals.userName;
+      content = ''
+        [gdrive]
+        type = drive
+        client_id = ${config.sops.placeholder.rclone_client_id}
+        token = ${config.sops.placeholder.rclone_token}
+      '';
     };
 
-    home-manager.users.${globals.userName} = {
+    home-manager.users.${globals.userName} = { osConfig, ... }: {
       home.file."gdrive/.keep".text = "";
+
+      xdg.configFile."rclone/rclone.conf".source = osConfig.sops.templates."rclone.conf".path;
 
       systemd.user.services.rclone-gdrive = {
         Unit = {
@@ -29,7 +39,7 @@ in
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p %h/gdrive";
           ExecStart = ''
             ${pkgs.rclone}/bin/rclone mount gdrive: %h/gdrive \
-              --config=${config.sops.secrets."rclone.conf".path} \
+              --config=%h/.config/rclone/rclone.conf \
               --vfs-cache-mode full \
               --vfs-cache-max-size 20G \
               --vfs-cache-max-age 24h \

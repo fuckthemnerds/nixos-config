@@ -8,5 +8,6 @@
 	boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usbhid" "uas" "sd_mod" ];
 	boot.kernelModules = [ "kvm-intel" ];
 
-	swapDevices = [ ];
+	swapDevices = [ { device = "/dev/disk/by-partlabel/disk-main-swap"; } ];
+	boot.resumeDevice = "/dev/disk/by-partlabel/disk-main-swap";
 }
