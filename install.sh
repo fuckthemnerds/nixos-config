@@ -7,7 +7,7 @@ export NIX_CONFIG="experimental-features = nix-command flakes"
 echo "=== NixOS Interactive Pre-flight Setup ==="
 
 # 1. Host selection
-HOSTS=("aorus" "surface")
+HOSTS=("aorus-bare" "aorus" "surface")
 echo "Available hosts:"
 select HOST in "${HOSTS[@]}"; do
     if [[ -n "$HOST" ]]; then
@@ -173,6 +173,24 @@ EOF
 
 chmod +x /tmp/run-nixos-install.sh
 nix shell nixpkgs#git nixpkgs#age nixpkgs#sops nixpkgs#mkpasswd --command /tmp/run-nixos-install.sh
+
+echo ""
+echo "==================================================================="
+if [[ "$HOST" == "aorus-bare" ]]; then
+    echo "  Barebones install complete!"
+    echo ""
+    echo "  After first boot, switch to the full config:"
+    echo ""
+    echo "    cd ~/nixcfg"
+    echo "    sudo nixos-rebuild switch --flake .#aorus"
+    echo ""
+    echo "  That will enable: home-manager, stylix, nixvim, kanata,"
+    echo "  fish shell, all apps, and the full module set."
+else
+    echo "  Full install complete!"
+fi
+echo "==================================================================="
+echo ""
 
 read -p "Do you want to reboot now? [y/N] " REBOOT_CONFIRM
 if [[ "$REBOOT_CONFIRM" =~ ^[Yy]$ ]]; then
