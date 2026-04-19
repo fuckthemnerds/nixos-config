@@ -70,19 +70,15 @@ export USER_PASS
 nix shell nixpkgs#git nixpkgs#age nixpkgs#sops nixpkgs#mkpasswd --command bash <<EOF
 set -e
 
-echo "=== Running Disko ==="
-nix run 'github:nix-community/disko#disko-install' -- --flake .#$HOST --disk main $DISK
-
 echo "=== Secrets Bootstrap ==="
-mkdir -p /mnt/persistent/var/lib/sops-nix/
-chmod 755 /mnt/persistent/var/lib/sops-nix/
+mkdir -p /tmp/sops-nix/
 
-if [[ ! -f /mnt/persistent/var/lib/sops-nix/keys.txt ]]; then
-    age-keygen -o /mnt/persistent/var/lib/sops-nix/keys.txt
+if [[ ! -f /tmp/sops-nix/keys.txt ]]; then
+    age-keygen -o /tmp/sops-nix/keys.txt
 fi
-chmod 400 /mnt/persistent/var/lib/sops-nix/keys.txt
+chmod 400 /tmp/sops-nix/keys.txt
 
-AGE_PUB_KEY=\$(age-keygen -y /mnt/persistent/var/lib/sops-nix/keys.txt)
+AGE_PUB_KEY=\$(age-keygen -y /tmp/sops-nix/keys.txt)
 echo "Generated age public key: \$AGE_PUB_KEY"
 
 # Ensure basic placeholder secret files exist
@@ -106,6 +102,15 @@ fi
 
 echo "=== Tracking Secrets ==="
 git add -f secrets/
+
+echo "=== Running Disko ==="
+nix run 'github:nix-community/disko#disko-install' -- --flake .#$HOST --disk main $DISK
+
+echo "=== Deploying Secrets to Target ==="
+mkdir -p /mnt/persistent/var/lib/sops-nix/
+chmod 755 /mnt/persistent/var/lib/sops-nix/
+cp /tmp/sops-nix/keys.txt /mnt/persistent/var/lib/sops-nix/keys.txt
+chmod 400 /mnt/persistent/var/lib/sops-nix/keys.txt
 
 echo "=== Install NixOS ==="
 nixos-install --flake .#$HOST --no-root-password
