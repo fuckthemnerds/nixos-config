@@ -91,13 +91,16 @@ YAML
     sops --encrypt --in-place --age "\$AGE_PUB_KEY" secrets/rclone.yaml
 fi
 
+echo "=== Tracking Secrets ==="
+git add -f secrets/
+
 echo "=== Install NixOS ==="
 nixos-install --flake .#$HOST --no-root-password
 
 echo "=== Copying Config ==="
 mkdir -p /mnt/persistent/home/$USERNAME/
-cp -r "\$(pwd)" /mnt/persistent/home/$USERNAME/nixos-config
-chown -R 1000:100 /mnt/persistent/home/$USERNAME/nixos-config || true
+cp -r "\$(pwd)" /mnt/persistent/home/$USERNAME/nixcfg
+chown -R $USERNAME:users /mnt/persistent/home/$USERNAME/nixcfg || true
 
 echo "Installation complete!"
 EOF

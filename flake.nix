@@ -99,6 +99,7 @@
       };
 
       perSystem = { self', pkgs, ... }: {
+        formatter = pkgs.alejandra;
         apps.default = self'.apps.install;
         apps.install = {
           type = "app";
