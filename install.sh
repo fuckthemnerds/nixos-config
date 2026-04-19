@@ -67,8 +67,12 @@ fi
 
 # Run everything from within a nix shell with required tools
 export USER_PASS
+
+AWK_PROGRESS='{ if (/^copying path /) { printf "\r\033[KCopying paths: %d...", ++i; fflush() } else { if (i>0) { print ""; i=0 } print $0; fflush() } } END { if (i>0) print "" }'
+
 nix shell nixpkgs#git nixpkgs#age nixpkgs#sops nixpkgs#mkpasswd --command bash <<EOF
 set -e
+set -o pipefail
 
 echo "=== Secrets Bootstrap ==="
 mkdir -p /tmp/sops-nix/
@@ -107,7 +111,7 @@ echo "=== Tracking Secrets ==="
 git add -f secrets/
 
 echo "=== Running Disko ==="
-nix run 'github:nix-community/disko#disko-install' -- --flake .#$HOST --disk main $DISK
+nix run 'github:nix-community/disko#disko-install' -- --flake .#$HOST --disk main $DISK 2>&1 | awk '$AWK_PROGRESS'
 
 echo "=== Deploying Secrets to Target ==="
 mkdir -p /mnt/persistent/var/lib/sops-nix/
@@ -116,7 +120,7 @@ cp /tmp/sops-nix/keys.txt /mnt/persistent/var/lib/sops-nix/keys.txt
 chmod 400 /mnt/persistent/var/lib/sops-nix/keys.txt
 
 echo "=== Install NixOS ==="
-nixos-install --flake .#$HOST --no-root-password
+nixos-install --flake .#$HOST --no-root-password 2>&1 | awk '$AWK_PROGRESS'
 
 echo "=== Copying Config ==="
 mkdir -p /mnt/persistent/home/$USERNAME/
