@@ -1,4 +1,4 @@
-{ config, lib, userName, ... }:
+{ config, pkgs, lib, userName, ... }:
 
 {
 	boot.initrd.systemd.services.rollback = {
