@@ -9,7 +9,7 @@
 		sops
 		age
 		gnumake
-		nvtopPackages.full  # GPU monitoring (Aorus)
+		nvtop
 		powertop            # Battery monitoring (Surface)
 		acpi                # Lightweight battery/thermal info
 		curl
