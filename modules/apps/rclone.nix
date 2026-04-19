@@ -23,10 +23,10 @@ in
       '';
     };
 
-    home-manager.users.${globals.userName} = { osConfig, ... }: {
+    home-manager.users.${globals.userName} = { osConfig, config, ... }: {
       home.file."gdrive/.keep".text = "";
 
-      xdg.configFile."rclone/rclone.conf".source = osConfig.sops.templates."rclone.conf".path;
+      xdg.configFile."rclone/rclone.conf".source = config.lib.file.mkOutOfStoreSymlink osConfig.sops.templates."rclone.conf".path;
 
       systemd.user.services.rclone-gdrive = {
         Unit = {
