@@ -11,6 +11,7 @@ in
     environment.systemPackages = [ pkgs.rclone ];
 
     sops.secrets."rclone.conf" = {
+      sopsFile = ../../secrets/rclone.yaml;
       owner = globals.userName;
     };
 

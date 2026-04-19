@@ -8,3 +8,8 @@ creation_rules:
       - age:
           - *aorus_host
           - *surface_host
+  - path_regex: secrets/rclone\.yaml$
+    key_groups:
+      - age:
+          - *aorus_host
+          - *surface_host

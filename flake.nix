@@ -43,7 +43,9 @@
                         then import ./local/config.nix
                         else { };
         in {
-          inherit (localConfig) userName stateVersion themeName;
+          userName = localConfig.userName or "mad";
+          stateVersion = localConfig.stateVersion or "26.05";
+          themeName = localConfig.themeName or "main";
           userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
           gitPlatform = localConfig.gitPlatform or "github";
           gitUser = localConfig.gitUser or "fuckthemnerds";

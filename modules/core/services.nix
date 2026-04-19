@@ -37,6 +37,11 @@
 			fileSystems = [ "/" ];
 		};
 
+		displayManager.ly = {
+			enable = true;
+			x11Support = false;
+		};
+
 		fail2ban.enable = true;
 	};
 
