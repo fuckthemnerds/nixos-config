@@ -21,6 +21,7 @@ let
   customPrefs = ''
     user_pref("privacy.clearOnShutdown.cookies", false);
     user_pref("privacy.clearOnShutdown.sessions", false);
+    user_pref("privacy.clearOnShutdown_v2.cookiesAndStorage", false);
     user_pref("network.cookie.lifetimePolicy", 0);
     user_pref("browser.startup.page", 3);
   '';
