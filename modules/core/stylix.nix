@@ -9,8 +9,6 @@ in
   stylix = {
     enable = true;
     autoEnable = false;
-    homeManagerIntegration.autoImport = false;
-    homeManagerIntegration.followSystem = false;
     image = dummyBg;
 
     base16Scheme = {
@@ -65,4 +63,8 @@ in
 
     polarity = "dark";
   };
+
+  home-manager.sharedModules = [
+    inputs.stylix.homeManagerModules.stylix
+  ];
 }
