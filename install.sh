@@ -112,7 +112,7 @@ prompt_select() {
 
 [ ! -d .git ] && git init >/dev/null 2>&1
 export NIX_CONFIG="experimental-features = nix-command flakes"
-FLAKE_REF="${FLAKE_REF:-gitW+file:.}"
+FLAKE_REF="${FLAKE_REF:-git+file:.}"
 
 header "NIXOS PRE-FLIGHT SETUP"
 
