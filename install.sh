@@ -10,35 +10,19 @@ RED='\033[1;31m'
 GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[1;34m'
-MAGENTA='\033[1;35m'
 CYAN='\033[1;36m'
 BOLD='\033[1m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Symbols
 CHECK="✔"
 CROSS="✘"
-INFO="ℹ"
-WARN="⚠"
 
-# Global Total Width
+# Total Width
 WIDTH=70
 
 # Alignment Helpers
-center_text() {
-    local text=$1
-    local color=$2
-    local border_color=$3
-    
-    local text_len=${#text}
-    local total_padding=$((WIDTH - text_len - 2))
-    local pad_left=$((total_padding / 2))
-    local pad_right=$((total_padding - pad_left))
-    
-    printf "${border_color}│${NC}${color}%*s%s%*s${NC}${border_color}│${NC}\n" "$pad_left" "" "$text" "$pad_right" ""
-}
-
-left_text() {
+print_line() {
     local text=$1
     local color=$2
     local border_color=$3
@@ -66,15 +50,9 @@ box_footer() {
 header() {
     local title=$1
     echo -e "\n${BLUE}┌$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┐${NC}"
-    center_text " $title " "${BOLD}" "${BLUE}"
+    local padding=$(( (WIDTH - ${#title} - 2) / 2 ))
+    printf "${BLUE}│${NC}${BOLD}%*s%s%*s${NC}${BLUE}│${NC}\n" "$padding" "" "$title" "$((WIDTH - padding - ${#title} - 2))" ""
     echo -e "${BLUE}└$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┘${NC}\n"
-}
-
-warning_box() {
-    local msg=$1
-    echo -e "${RED}${BOLD}┌$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┐${NC}"
-    center_text "$msg" "${BOLD}" "${RED}${BOLD}"
-    echo -e "${RED}${BOLD}└$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┘${NC}"
 }
 
 spinner() {
@@ -111,18 +89,18 @@ prompt_select() {
     
     box_header "$msg" "${CYAN}"
     for i in "${!options[@]}"; do
-        left_text "[$((i+1))] ${options[$i]}" "" "${CYAN}"
+        print_line "[$((i+1))] ${options[$i]}" "" "${CYAN}"
     done
+    box_footer "${CYAN}"
+    
     while true; do
-        echo -ne "${CYAN}│${NC} [>] Select number: "
-        read -r choice
+        read -p "[>] Select number: " choice
         if [[ "$choice" -gt 0 && "$choice" -le "${#options[@]}" ]]; then
             eval "$var_name=\"${options[$((choice-1))]}\""
             break
         fi
-        echo -e "${CYAN}│${NC} ${RED}[!] Invalid choice.${NC}"
+        echo -e "${RED}[!] Invalid choice.${NC}"
     done
-    box_footer "${CYAN}"
     echo -e "${GREEN}[+] Selected: ${!var_name}${NC}\n"
 }
 
@@ -152,43 +130,42 @@ done < <(lsblk -dpno NAME,SIZE,MODEL | grep -v 'loop' | grep -v 'ram')
 prompt_select "AVAILABLE DISKS" SELECTED_DISK_STR "${MAPFILE[@]}"
 DISK=$(echo "$SELECTED_DISK_STR" | awk '{print $1}')
 
-warning_box "WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED"
-echo -ne "${RED}${BOLD}│${NC} [>] Type YES to continue: "
-read -r CONFIRM_WIPE
-warning_box "ABORTED" && exit 1 if [[ "$CONFIRM_WIPE" != "YES" ]]
-# Fixed the warning_box call above to be more readable
+header "WARNING: DATA DESTRUCTION"
+echo -e "${RED}${BOLD}┌──────────────────────────────────────────────────────────────────┐${NC}"
+echo -e "${RED}${BOLD}│ WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED       │${NC}"
+echo -e "${RED}${BOLD}└──────────────────────────────────────────────────────────────────┘${NC}"
+read -p "[>] Type YES to continue: " CONFIRM_WIPE
 if [[ "$CONFIRM_WIPE" != "YES" ]]; then
-    echo -e "${RED}${BOLD}│${NC} ${YELLOW}[!] Aborted.${NC}"
-    box_footer "${RED}${BOLD}"
+    echo -e "${YELLOW}[!] Aborted.${NC}"
     exit 1
 fi
-box_footer "${RED}${BOLD}"
 echo ""
 
 # SOPS Master Key
 box_header "SOPS MASTER KEY" "${CYAN}"
-echo -ne "${CYAN}│${NC} [>] Generate a new SOPS master key for decryption? [y/N]: "
-read -r GEN_MASTER_INPUT
+print_line "Do you want to generate a new SOPS master key?" "" "${CYAN}"
 box_footer "${CYAN}"
+read -p "[>] Generate new key? [y/N]: " GEN_MASTER_INPUT
 GEN_MASTER="no"
 [[ "$GEN_MASTER_INPUT" =~ ^[Yy]$ ]] && GEN_MASTER="yes"
 echo ""
 
 # User Credentials
 box_header "USER CREDENTIALS" "${CYAN}"
-echo -ne "${CYAN}│${NC} [>] Username: " && read -r USERNAME
+print_line "Enter the credentials for the new system user." "" "${CYAN}"
+box_footer "${CYAN}"
+read -p "[>] Username: " USERNAME
 USERNAME=${USERNAME:-mad}
-echo -ne "${CYAN}│${NC} [>] Email: " && read -r USEREMAIL
+read -p "[>] Email: " USEREMAIL
 while true; do
-    echo -ne "${CYAN}│${NC} [>] Password for $USERNAME: " && read -rs USER_PASS
+    read -sp "[>] Password for $USERNAME: " USER_PASS
     echo ""
     [[ -z "$USER_PASS" ]] && continue
-    echo -ne "${CYAN}│${NC} [>] Verify password: " && read -rs USER_PASS_VERIFY
+    read -sp "[>] Verify password: " USER_PASS_VERIFY
     echo ""
     [[ "$USER_PASS" == "$USER_PASS_VERIFY" ]] && break
-    echo -e "${CYAN}│${NC} ${RED}[!] Passwords do not match.${NC}"
+    echo -e "${RED}[!] Passwords do not match.${NC}"
 done
-box_footer "${CYAN}"
 echo ""
 
 # Save user credentials
@@ -327,10 +304,7 @@ if chroot /mnt id "$USERNAME" >/dev/null 2>&1; then
 fi
 
 header "INSTALLATION COMPLETE"
-box_header "SYSTEM REBOOT" "${CYAN}"
-echo -ne "${CYAN}│${NC} [>] Reboot now? [y/N] "
-read -r REBOOT_CONFIRM
-box_footer "${CYAN}"
+read -p "[>] Installation finished. Reboot now? [y/N]: " REBOOT_CONFIRM
 if [[ "$REBOOT_CONFIRM" =~ ^[Yy]$ ]]; then
     sync
     reboot
