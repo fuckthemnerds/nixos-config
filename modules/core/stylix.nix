@@ -8,7 +8,7 @@ in
 {
   stylix = {
     enable = true;
-    autoEnable = false; # This will now correctly propagate to Home Manager
+    autoEnable = false;
     image = dummyBg;
 
     base16Scheme = {
