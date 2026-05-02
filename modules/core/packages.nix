@@ -15,6 +15,6 @@
 		wget
 		unzip
 		zip
-		pkgs."7zz"
+		_7zz
 	];
 }
