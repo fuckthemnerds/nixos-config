@@ -57,6 +57,7 @@
 
 		users.${userName} = {
 			directories = [
+				"nixcfg"
 				"Downloads"
 				"Music"
 				"Pictures"

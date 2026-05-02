@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# ==============================================================================
-# UI HELPERS & STYLING
-# ==============================================================================
 
-# Colors
 RED='\033[1;31m'
 GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
@@ -14,15 +10,11 @@ CYAN='\033[1;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-# Symbols
 CHECK="✔"
 CROSS="✘"
 
-# Global Width
 WIDTH=70
 
-# Alignment Helpers
-# Using a more robust approach: building the string then printing
 box_line() {
     local text="│ $1"
     local border_color=$2
@@ -106,9 +98,6 @@ prompt_select() {
     echo -e "${GREEN}[+] Selected: ${!var_name}${NC}\n"
 }
 
-# ==============================================================================
-# INITIALIZATION
-# ==============================================================================
 
 [ ! -d .git ] && git init >/dev/null 2>&1
 export NIX_CONFIG="experimental-features = nix-command flakes"
@@ -116,7 +105,6 @@ FLAKE_REF="${FLAKE_REF:-git+file:.}"
 
 header "NIXOS PRE-FLIGHT SETUP"
 
-# Host Selection
 HOSTS_STR=$(nix eval --raw --impure --expr \
   'builtins.concatStringsSep " " (builtins.attrNames (builtins.getFlake (toString ./.)).nixosConfigurations)' \
   2>/dev/null || echo "aorus surface")
@@ -124,7 +112,6 @@ read -r -a HOSTS <<< "$HOSTS_STR"
 prompt_select "AVAILABLE HOSTS" SELECTED_HOST "${HOSTS[@]}"
 HOST=$SELECTED_HOST
 
-# Disk Selection
 MAPFILE=()
 while IFS= read -r line; do
     MAPFILE+=("$line")
@@ -142,7 +129,6 @@ if [[ "$CONFIRM_WIPE" != "YES" ]]; then
 fi
 echo ""
 
-# SOPS Master Key
 box_header "SOPS MASTER KEY" "${CYAN}"
 box_line "Generate a new SOPS master key?" "${CYAN}"
 box_footer "${CYAN}"
@@ -151,7 +137,6 @@ GEN_MASTER="no"
 [[ "$GEN_MASTER_INPUT" =~ ^[Yy]$ ]] && GEN_MASTER="yes"
 echo ""
 
-# User Credentials
 box_header "USER CREDENTIALS" "${CYAN}"
 box_line "Enter credentials" "${CYAN}"
 box_footer "${CYAN}"
@@ -169,7 +154,6 @@ while true; do
 done
 echo ""
 
-# Save user credentials
 umask 077
 mkdir -p secrets
 cat > secrets/usercreds.nix <<EOF
@@ -183,9 +167,6 @@ git add secrets/usercreds.nix >/dev/null 2>&1
 
 export USERNAME HOST DISK FLAKE_REF USER_PASS GEN_MASTER
 
-# ==============================================================================
-# SECRETS BOOTSTRAP
-# ==============================================================================
 
 header "SECRETS BOOTSTRAP"
 
@@ -199,7 +180,6 @@ HOST_KEY_FILE="/tmp/sops-nix/keys.txt"
 export SOPS_AGE_KEY_FILE="$HOST_KEY_FILE"
 HOST_PUBKEY_FILE="secrets/${HOST}.pub"
 
-# 0. Master Key
 if [[ "$GEN_MASTER" == "yes" ]]; then
     MASTER_KEY_FILE="$HOME/.config/sops/age/keys.txt"
     mkdir -p "$(dirname "$MASTER_KEY_FILE")"
@@ -211,12 +191,10 @@ if [[ "$GEN_MASTER" == "yes" ]]; then
     git add secrets/master.pub
 fi
 
-# 1. Host Key
 [[ ! -f "$HOST_KEY_FILE" ]] && age-keygen -o "$HOST_KEY_FILE" 2>/dev/null
 chmod 400 "$HOST_KEY_FILE"
 age-keygen -y "$HOST_KEY_FILE" > "$HOST_PUBKEY_FILE"
 
-# 2. .sops.yaml
 AGE_RECIPIENTS_YAML=""
 for pk_file in secrets/*.pub; do
     if [[ -f "$pk_file" ]]; then
@@ -234,7 +212,6 @@ $(printf '%s' "$AGE_RECIPIENTS_YAML")
 SOPS
 git add .sops.yaml
 
-# 3. secrets.yaml
 if [[ ! -f secrets/secrets.yaml ]] || ! grep -q "sops:" secrets/secrets.yaml 2>/dev/null; then
     USER_HASH=$(mkpasswd -m yescrypt -s <<< "$USER_PASS")
     cat <<YAML | sops --encrypt --filename-override secrets/secrets.yaml \
@@ -249,7 +226,6 @@ else
     git add secrets/secrets.yaml
 fi
 
-# 4. rclone.yaml
 if [[ ! -f secrets/rclone.yaml ]] || ! grep -q "sops:" secrets/rclone.yaml 2>/dev/null; then
     cat <<YAML | sops --encrypt --filename-override secrets/rclone.yaml \
         --input-type yaml --output-type yaml /dev/stdin > secrets/rclone.yaml
@@ -269,13 +245,9 @@ nix shell nixpkgs#git nixpkgs#age nixpkgs#sops nixpkgs#mkpasswd \
     --command /tmp/bootstrap-secrets.sh &
 spinner $! "Bootstrapping secrets and age keys"
 
-# ==============================================================================
-# LOCAL DEPLOY
-# ==============================================================================
 
 header "LOCAL DEPLOY"
 echo -e "${CYAN}[*] Running Disko for partitioning...${NC}"
-# Added --yes-wipe-all-disks to skip extra confirmation
 nix run -L 'github:nix-community/disko' -- \
     --mode destroy,format,mount \
     --flake "${FLAKE_REF}#$HOST" \
@@ -299,11 +271,17 @@ export TMPDIR=/mnt/persistent/tmp
 echo -e "${CYAN}[*] Starting nixos-install (this may take a while)...${NC}"
 nixos-install --flake "${FLAKE_REF}#$HOST" --no-root-password
 
-# Post-install
-mkdir -p "/mnt/persistent/home/$USERNAME/"
-cp -r "$(pwd)" "/mnt/persistent/home/$USERNAME/nixcfg"
+if [[ -f "$HOME/.config/sops/age/keys.txt" ]]; then
+    mkdir -p "/mnt/persistent/home/$USERNAME/.config/sops/age"
+    cp "$HOME/.config/sops/age/keys.txt" "/mnt/persistent/home/$USERNAME/.config/sops/age/keys.txt"
+    chmod 400 "/mnt/persistent/home/$USERNAME/.config/sops/age/keys.txt"
+fi
+
+mkdir -p "/mnt/persistent/home/$USERNAME/nixcfg"
+cp -rT "$(pwd)" "/mnt/persistent/home/$USERNAME/nixcfg"
+
 if chroot /mnt id "$USERNAME" >/dev/null 2>&1; then
-    chroot /mnt chown -R "$USERNAME:users" "/mnt/persistent/home/$USERNAME/nixcfg" || true
+    chroot /mnt chown -R "$USERNAME:users" "/persistent/home/$USERNAME"
 fi
 
 header "INSTALLATION COMPLETE"
