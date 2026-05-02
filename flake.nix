@@ -38,64 +38,63 @@
   };
 
   outputs = inputs@{ self, flake-parts, ... }:
+    let
+      localConfig = if builtins.pathExists ./secrets/usercreds.nix
+                    then import ./secrets/usercreds.nix
+                    else { };
+
+      globals = {
+        userName = localConfig.userName or "mad";
+        stateVersion = localConfig.stateVersion or "26.05";
+        themeName = localConfig.themeName or "main";
+        userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
+        gitPlatform = localConfig.gitPlatform or "github";
+        gitUser = localConfig.gitUser or "fuckthemnerds";
+        gitRepo = localConfig.gitRepo or "nixos-config";
+      };
+
+      mkHost = { hostName, hostConfig ? {}, extraModules ? [] }:
+        inputs.nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = let
+            gitRemoteUrl = if (globals ? gitPlatform && globals.gitPlatform == "github") then "https://github.com/${globals.gitUser}/${globals.gitRepo}" else "";
+          in {
+            inherit inputs hostName gitRemoteUrl globals;
+            inherit (globals) userName stateVersion;
+          };
+          modules = [
+            {
+              networking.hostName = hostName;
+              system.stateVersion = globals.stateVersion;
+              nixpkgs.config.allowUnfree = true;
+            }
+
+            ./modules/default.nix
+
+            ./hosts/${hostName}/default.nix
+            ./hosts/${hostName}/hardware.nix
+            ./hosts/${hostName}/disko.nix
+
+            inputs.impermanence.nixosModules.impermanence
+            inputs.sops-nix.nixosModules.sops
+            inputs.home-manager.nixosModules.home-manager
+            inputs.disko.nixosModules.disko
+            inputs.determinate.nixosModules.default
+            inputs.stylix.nixosModules.stylix
+
+            hostConfig
+          ] ++ extraModules;
+        };
+    in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
 
       flake = {
-        globals = let
-          localConfig = if builtins.pathExists ./secrets/usercreds.nix
-                        then import ./secrets/usercreds.nix
-                        else { };
-        in {
-          userName = localConfig.userName or "mad";
-          stateVersion = localConfig.stateVersion or "26.05";
-          themeName = localConfig.themeName or "main";
-          userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
-          gitPlatform = localConfig.gitPlatform or "github";
-          gitUser = localConfig.gitUser or "fuckthemnerds";
-          gitRepo = localConfig.gitRepo or "nixos-config";
-        };
-
-        lib.mkHost = { hostName, hostConfig ? {}, extraModules ? [] }:
-          let
-            inherit (self) globals;
-          in
-          inputs.nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            specialArgs = let
-            gitRemoteUrl = if (globals ? gitPlatform && globals.gitPlatform == "github") then "https://github.com/${globals.gitUser}/${globals.gitRepo}" else "";
-            in {
-              inherit inputs hostName gitRemoteUrl globals;
-              inherit (globals) userName stateVersion;
-            };
-            modules = [
-              {
-                networking.hostName = hostName;
-                system.stateVersion = globals.stateVersion;
-                nixpkgs.config.allowUnfree = true;
-              }
-
-              ] ++ ((import ./imports.nix { inherit (inputs.nixpkgs) lib; }).importModules ./modules) ++ [
-
-              ./hosts/${hostName}/default.nix
-              ./hosts/${hostName}/hardware.nix
-              ./hosts/${hostName}/disko.nix
-
-              inputs.impermanence.nixosModules.impermanence
-              inputs.sops-nix.nixosModules.sops
-              inputs.home-manager.nixosModules.home-manager
-              inputs.disko.nixosModules.disko
-              inputs.determinate.nixosModules.default
-              inputs.stylix.nixosModules.stylix
-
-              hostConfig
-            ] ++ extraModules;
-          };
-
+        inherit globals;
 
         nixosConfigurations = {
-          aorus = self.lib.mkHost { hostName = "aorus"; };
-          surface = self.lib.mkHost {
+          aorus = mkHost { hostName = "aorus"; };
+          surface = mkHost {
             hostName = "surface";
             extraModules = [ inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];
           };

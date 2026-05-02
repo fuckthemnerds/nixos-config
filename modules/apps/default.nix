@@ -1,16 +1,32 @@
 { config, lib, pkgs, globals, ... }:
-let
-	dirContents = builtins.readDir ./.;
-	appFiles = lib.filterAttrs (name: type:
-		(type == "regular" && lib.hasSuffix ".nix" name && name != "defaults.nix" && !lib.hasPrefix "_" name) ||
-		(type == "directory" && builtins.pathExists (./. + "/${name}/default.nix"))
-	) dirContents;
-	appNames = map (name: if dirContents.${name} == "directory" then name else lib.removeSuffix ".nix" name) (builtins.attrNames appFiles);
-in
+
 {
-	apps = lib.genAttrs appNames (name: {
-		enable = lib.mkDefault true;
-	});
+	apps = {
+		ai.enable = lib.mkDefault true;
+		btop.enable = lib.mkDefault true;
+		cliphist.enable = lib.mkDefault true;
+		fastfetch.enable = lib.mkDefault true;
+		fish.enable = lib.mkDefault true;
+		foot.enable = lib.mkDefault true;
+		fuzzel.enable = lib.mkDefault true;
+		git.enable = lib.mkDefault true;
+		gui-apps.enable = lib.mkDefault true;
+		hypridle.enable = lib.mkDefault true;
+		hyprlock.enable = lib.mkDefault true;
+		keepassxc.enable = lib.mkDefault true;
+		localsend.enable = lib.mkDefault true;
+		mako.enable = lib.mkDefault true;
+		modern-cli.enable = lib.mkDefault true;
+		multimedia.enable = lib.mkDefault true;
+		niri.enable = lib.mkDefault true;
+		nvim.enable = lib.mkDefault true;
+		rclone.enable = lib.mkDefault true;
+		waybar.enable = lib.mkDefault true;
+		yazi.enable = lib.mkDefault true;
+		zathura.enable = lib.mkDefault true;
+		zen.enable = lib.mkDefault true;
+		zoxide.enable = lib.mkDefault true;
+	};
 
 	home-manager.users.${globals.userName} = {
 		xdg = {
