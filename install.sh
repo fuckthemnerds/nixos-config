@@ -112,7 +112,7 @@ prompt_select() {
 
 [ ! -d .git ] && git init >/dev/null 2>&1
 export NIX_CONFIG="experimental-features = nix-command flakes"
-FLAKE_REF="${FLAKE_REF:-git+file:.}"
+FLAKE_REF="${FLAKE_REF:-gitW+file:.}"
 
 header "NIXOS PRE-FLIGHT SETUP"
 
@@ -133,8 +133,7 @@ prompt_select "AVAILABLE DISKS" SELECTED_DISK_STR "${MAPFILE[@]}"
 DISK=$(echo "$SELECTED_DISK_STR" | awk '{print $1}')
 
 box_header "WARNING" "${RED}${BOLD}"
-box_line "ALL DATA ON $DISK WILL BE" "${RED}${BOLD}"
-box_line "IRRECOVERABLY DESTROYED" "${RED}${BOLD}"
+box_line "ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED" "${RED}${BOLD}"
 box_footer "${RED}${BOLD}"
 read -p "[>] Type YES to continue: " CONFIRM_WIPE
 if [[ "$CONFIRM_WIPE" != "YES" ]]; then
