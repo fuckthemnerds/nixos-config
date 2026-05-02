@@ -31,40 +31,20 @@ done
 echo "[+] Selected host: $HOST"
 echo ""
 
-echo "┌─[ DEPLOYMENT MODE ]──────────────────────────────────────────────"
-echo "│ [1] Local Disk (Live USB Target)"
-echo "│ [2] Remote Device (SSH / nixos-anywhere)"
+echo "┌─[ AVAILABLE DISKS ]──────────────────────────────────────────────"
+lsblk -dpno NAME,SIZE,MODEL | grep -v 'loop' | nl -ba -nrz -w1 | \
+    awk '{printf "│ [%s] %s %s %s\n", $1, $2, $3, $4}'
 echo "└──────────────────────────────────────────────────────────────────"
-while true; do
-    read -p "[>] Select mode: " DEPLOY_MODE
-    if [[ "$DEPLOY_MODE" == "1" || "$DEPLOY_MODE" == "2" ]]; then break; fi
-done
-echo "[+] Selected mode: $DEPLOY_MODE"
+read -p "[>] Select disk number: " DISK_NUM
+DISK=$(lsblk -dpno NAME | grep -v 'loop' | sed -n "${DISK_NUM}p")
+if [[ -z "$DISK" ]]; then exit 1; fi
+echo "[+] Selected disk: $DISK"
 echo ""
-
-if [[ "$DEPLOY_MODE" == "1" ]]; then
-    echo "┌─[ AVAILABLE DISKS ]──────────────────────────────────────────────"
-    lsblk -dpno NAME,SIZE,MODEL | grep -v 'loop' | nl -ba -nrz -w1 | \
-        awk '{printf "│ [%s] %s %s %s\n", $1, $2, $3, $4}'
-    echo "└──────────────────────────────────────────────────────────────────"
-    read -p "[>] Select disk number: " DISK_NUM
-    DISK=$(lsblk -dpno NAME | grep -v 'loop' | sed -n "${DISK_NUM}p")
-    if [[ -z "$DISK" ]]; then exit 1; fi
-    echo "[+] Selected disk: $DISK"
-    echo ""
-    echo "███████████████████████████████████████████████████████████████████"
-    echo "█   WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED    █"
-    echo "███████████████████████████████████████████████████████████████████"
-    read -p "[>] Type YES to continue: " CONFIRM_WIPE
-    if [[ "$CONFIRM_WIPE" != "YES" ]]; then exit 1; fi
-
-elif [[ "$DEPLOY_MODE" == "2" ]]; then
-    echo "┌─[ REMOTE TARGET ]────────────────────────────────────────────────"
-    read -p "│ [>] Enter IP address: " REMOTE_IP
-    echo "└──────────────────────────────────────────────────────────────────"
-    if [[ -z "$REMOTE_IP" ]]; then exit 1; fi
-    echo "[+] Selected remote target: root@$REMOTE_IP"
-fi
+echo "┌──────────────────────────────────────────────────────────────────"
+echo "│   WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED     "
+echo "└──────────────────────────────────────────────────────────────────"
+read -p "[>] Type YES to continue: " CONFIRM_WIPE
+if [[ "$CONFIRM_WIPE" != "YES" ]]; then exit 1; fi
 echo ""
 
 echo "┌─[ SOPS MASTER KEY ]──────────────────────────────────────────────"
@@ -103,36 +83,11 @@ cat > secrets/usercreds.nix <<EOF
 EOF
 git add secrets/usercreds.nix
 
-export USERNAME HOST DISK DEPLOY_MODE REMOTE_IP FLAKE_REF USER_PASS GEN_MASTER
+export USERNAME HOST DISK FLAKE_REF USER_PASS GEN_MASTER
 
 cat > /tmp/run-nixos-install.sh << 'EOF'
 #!/usr/bin/env bash
 set -e
-
-_spin_pid=""
-
-spinner() {
-    local msg="$1"
-    local frames=('[■□□□]' '[□■□□]' '[□□■□]' '[□□□■]')
-    local i=0
-    while true; do
-        printf "\r%s %s" "${frames[$((i % ${#frames[@]}))]}" "$msg"
-        sleep 0.1
-        ((i++))
-    done
-}
-
-spin_start() { spinner "$1" & _spin_pid=$!; disown; }
-
-spin_stop() {
-    if [[ -n "$_spin_pid" ]]; then
-        kill "$_spin_pid" 2>/dev/null; wait "$_spin_pid" 2>/dev/null || true
-        _spin_pid=""
-        printf "\r\033[2K"
-    fi
-}
-
-trap spin_stop EXIT
 
 echo "==================================================================="
 echo "                         SECRETS BOOTSTRAP                         "
@@ -151,10 +106,9 @@ if [[ "$GEN_MASTER" == "yes" ]]; then
     MASTER_KEY_FILE="$HOME/.config/sops/age/keys.txt"
     mkdir -p "$(dirname "$MASTER_KEY_FILE")"
     if [[ ! -f "$MASTER_KEY_FILE" ]]; then
-        spin_start "Generating master age key..."
+        echo "[*] Generating master age key..."
         age-keygen -o "$MASTER_KEY_FILE" 2>/dev/null
         chmod 400 "$MASTER_KEY_FILE"
-        spin_stop
     else
         echo "[!] Master key already exists at $MASTER_KEY_FILE"
     fi
@@ -170,9 +124,8 @@ if [[ ! -f "$HOST_KEY_FILE" ]]; then
         echo "[!] Warning: Public key for $HOST already exists in repo, but private key is missing."
         echo "[!] Generating a new key for this deployment..."
     fi
-    spin_start "Generating age key for $HOST..."
+    echo "[*] Generating age key for $HOST..."
     age-keygen -o "$HOST_KEY_FILE" 2>/dev/null
-    spin_stop
 fi
 chmod 400 "$HOST_KEY_FILE"
 
@@ -207,12 +160,11 @@ git add .sops.yaml
 echo "[+] .sops.yaml updated with ${#ALL_PUBKEYS[@]} recipient(s)"
 
 if [[ ! -f secrets/secrets.yaml ]] || ! grep -q "sops:" secrets/secrets.yaml 2>/dev/null; then
-    spin_start "Hashing password..."
+    echo "[*] Hashing password..."
     USER_HASH=$(mkpasswd -m yescrypt -s <<< "$USER_PASS")
     unset USER_PASS
-    spin_stop
 
-    spin_start "Encrypting secrets.yaml..."
+    echo "[*] Encrypting secrets.yaml..."
     cat <<YAML | sops --encrypt \
         --filename-override secrets/secrets.yaml \
         --input-type yaml --output-type yaml /dev/stdin > secrets/secrets.yaml
@@ -222,16 +174,14 @@ user_password_$USERNAME: $USER_HASH
 YAML
     unset USER_HASH
     git add secrets/secrets.yaml
-    spin_stop
 else
-    spin_start "Updating recipients in secrets.yaml..."
+    echo "[*] Updating recipients in secrets.yaml..."
     sops updatekeys --yes secrets/secrets.yaml
     git add secrets/secrets.yaml
-    spin_stop
 fi
 
 if [[ ! -f secrets/rclone.yaml ]] || ! grep -q "sops:" secrets/rclone.yaml 2>/dev/null; then
-    spin_start "Encrypting rclone.yaml..."
+    echo "[*] Encrypting rclone.yaml..."
     cat <<YAML | sops --encrypt \
         --filename-override secrets/rclone.yaml \
         --input-type yaml --output-type yaml /dev/stdin > secrets/rclone.yaml
@@ -239,64 +189,45 @@ rclone_client_id: placeholder
 rclone_token: placeholder
 YAML
     git add secrets/rclone.yaml
-    spin_stop
 else
-    spin_start "Updating recipients in rclone.yaml..."
+    echo "[*] Updating recipients in rclone.yaml..."
     sops updatekeys --yes secrets/rclone.yaml
     git add secrets/rclone.yaml
-    spin_stop
 fi
 
 git add secrets/
 
-if [[ "$DEPLOY_MODE" == "1" ]]; then
-    echo ""
-    echo "==================================================================="
-    echo "                           LOCAL DEPLOY                            "
-    echo "==================================================================="
-    stdbuf -oL nix run -L 'github:nix-community/disko' -- \
-        --mode destroy,format,mount \
-        --flake "${FLAKE_REF}#$HOST" --disk main "$DISK" 2>&1 | stdbuf -oL tee /tmp/disko.log
+echo ""
+echo "==================================================================="
+echo "                           LOCAL DEPLOY                            "
+echo "==================================================================="
+nix run -L 'github:nix-community/disko' -- \
+    --mode destroy,format,mount \
+    --flake "${FLAKE_REF}#$HOST" --disk main "$DISK"
 
-    mkdir -p /mnt/persistent/var/lib/sops-nix/
-    chmod 755 /mnt/persistent/var/lib/sops-nix/
-    cp "$HOST_KEY_FILE" /mnt/persistent/var/lib/sops-nix/keys.txt
-    chmod 400 /mnt/persistent/var/lib/sops-nix/keys.txt
+mkdir -p /mnt/persistent/var/lib/sops-nix/
+chmod 755 /mnt/persistent/var/lib/sops-nix/
+cp "$HOST_KEY_FILE" /mnt/persistent/var/lib/sops-nix/keys.txt
+chmod 400 /mnt/persistent/var/lib/sops-nix/keys.txt
 
-    echo ""
-    echo "==================================================================="
-    echo "                     GENERATING HARDWARE CONFIG                    "
-    echo "==================================================================="
-    stdbuf -oL nixos-generate-config --no-filesystems --root /mnt --dir /tmp/nixos-hw 2>&1 | stdbuf -oL tee /tmp/nixos-hw.log
-    mkdir -p "hosts/$HOST"
-    cp /tmp/nixos-hw/hardware-configuration.nix "hosts/$HOST/hardware.nix"
+echo ""
+echo "==================================================================="
+echo "                     GENERATING HARDWARE CONFIG                    "
+echo "==================================================================="
+nixos-generate-config --no-filesystems --root /mnt --dir /tmp/nixos-hw
+mkdir -p "hosts/$HOST"
+cp /tmp/nixos-hw/hardware-configuration.nix "hosts/$HOST/hardware.nix"
 
-    echo ""
-    echo "==================================================================="
-    echo "                         INSTALLING NIXOS                          "
-    echo "==================================================================="
-    stdbuf -oL nixos-install --flake "${FLAKE_REF}#$HOST" --no-root-password 2>&1 | stdbuf -oL tee /tmp/nixos-install.log
+echo ""
+echo "==================================================================="
+echo "                         INSTALLING NIXOS                          "
+echo "==================================================================="
+nixos-install --flake "${FLAKE_REF}#$HOST" --no-root-password
 
-    mkdir -p "/mnt/persistent/home/$USERNAME/"
-    cp -r "$(pwd)" "/mnt/persistent/home/$USERNAME/nixcfg"
-    if chroot /mnt id "$USERNAME" >/dev/null 2>&1; then
-        chroot /mnt chown -R "$USERNAME:users" "/persistent/home/$USERNAME/nixcfg" || true
-    fi
-
-elif [[ "$DEPLOY_MODE" == "2" ]]; then
-    echo ""
-    echo "==================================================================="
-    echo "                           REMOTE DEPLOY                           "
-    echo "==================================================================="
-    mkdir -p /tmp/extra-files/var/lib/sops-nix
-    cp "$HOST_KEY_FILE" /tmp/extra-files/var/lib/sops-nix/keys.txt
-    chmod -R 700 /tmp/extra-files
-    chmod 400 /tmp/extra-files/var/lib/sops-nix/keys.txt
-
-    stdbuf -oL nix run github:nix-community/nixos-anywhere -- \
-        --flake "${FLAKE_REF}#$HOST" \
-        --extra-files /tmp/extra-files \
-        "root@$REMOTE_IP" 2>&1 | stdbuf -oL tee /tmp/nixos-anywhere.log
+mkdir -p "/mnt/persistent/home/$USERNAME/"
+cp -r "$(pwd)" "/mnt/persistent/home/$USERNAME/nixcfg"
+if chroot /mnt id "$USERNAME" >/dev/null 2>&1; then
+    chroot /mnt chown -R "$USERNAME:users" "/persistent/home/$USERNAME/nixcfg" || true
 fi
 
 echo ""
@@ -309,12 +240,10 @@ chmod +x /tmp/run-nixos-install.sh
 nix shell nixpkgs#git nixpkgs#age nixpkgs#sops nixpkgs#mkpasswd \
     --command /tmp/run-nixos-install.sh
 
-if [[ "$DEPLOY_MODE" == "1" ]]; then
-    echo "┌─[ SYSTEM REBOOT ]────────────────────────────────────────────────"
-    read -p "│ [>] Reboot now? [y/N] " REBOOT_CONFIRM
-    echo "└──────────────────────────────────────────────────────────────────"
-    if [[ "$REBOOT_CONFIRM" =~ ^[Yy]$ ]]; then
-        sync
-        reboot
-    fi
+echo "┌─[ SYSTEM REBOOT ]────────────────────────────────────────────────"
+read -p "│ [>] Reboot now? [y/N] " REBOOT_CONFIRM
+echo "└──────────────────────────────────────────────────────────────────"
+if [[ "$REBOOT_CONFIRM" =~ ^[Yy]$ ]]; then
+    sync
+    reboot
 fi
