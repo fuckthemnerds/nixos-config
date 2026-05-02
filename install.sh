@@ -21,7 +21,10 @@ CROSS="✘"
 INFO="ℹ"
 WARN="⚠"
 
-# Center Text Function
+# Global Width
+WIDTH=68
+
+# Alignment Helpers
 center_text() {
     local text=$1
     local width=$2
@@ -36,40 +39,44 @@ center_text() {
     printf "${border_color}│${NC}${color}%*s%s%*s${NC}${border_color}│${NC}\n" "$pad_left" "" "$text" "$pad_right" ""
 }
 
-# Generic Box Header
+left_text() {
+    local text=$1
+    local width=$2
+    local color=$3
+    local border_color=$4
+    
+    local text_len=${#text}
+    local padding=$((width - text_len - 1))
+    [[ $padding -lt 0 ]] && padding=0
+    
+    printf "${border_color}│${NC} ${color}%s%*s${NC}${border_color}│${NC}\n" "$text" "$padding" ""
+}
+
 box_header() {
     local msg=$1
-    local width=68
     local color=$2
-    echo -e "${color}┌─[ $msg ]$(printf '─%.0s' $(seq 1 $((width - ${#msg} - 4))))┐${NC}"
+    echo -e "${color}┌─[ $msg ]$(printf '─%.0s' $(seq 1 $((WIDTH - ${#msg} - 4))))┐${NC}"
 }
 
-# Generic Box Footer
 box_footer() {
-    local width=68
     local color=$1
-    echo -e "${color}└$(printf '─%.0s' $(seq 1 $width))┘${NC}"
+    echo -e "${color}└$(printf '─%.0s' $(seq 1 $WIDTH))┘${NC}"
 }
 
-# Header Function (Big centered header)
 header() {
     local title=$1
-    local width=68
-    echo -e "\n${BLUE}┌$(printf '─%.0s' $(seq 1 $width))┐${NC}"
-    center_text " $title " "$width" "${BOLD}" "${BLUE}"
-    echo -e "${BLUE}└$(printf '─%.0s' $(seq 1 $width))┘${NC}\n"
+    echo -e "\n${BLUE}┌$(printf '─%.0s' $(seq 1 $WIDTH))┐${NC}"
+    center_text " $title " "$WIDTH" "${BOLD}" "${BLUE}"
+    echo -e "${BLUE}└$(printf '─%.0s' $(seq 1 $WIDTH))┘${NC}\n"
 }
 
-# Warning Box
 warning_box() {
     local msg=$1
-    local width=68
-    echo -e "${RED}${BOLD}┌$(printf '─%.0s' $(seq 1 $width))┐${NC}"
-    center_text "$msg" "$width" "${BOLD}" "${RED}${BOLD}"
-    echo -e "${RED}${BOLD}└$(printf '─%.0s' $(seq 1 $width))┘${NC}"
+    echo -e "${RED}${BOLD}┌$(printf '─%.0s' $(seq 1 $WIDTH))┐${NC}"
+    center_text "$msg" "$WIDTH" "${BOLD}" "${RED}${BOLD}"
+    echo -e "${RED}${BOLD}└$(printf '─%.0s' $(seq 1 $WIDTH))┘${NC}"
 }
 
-# Spinner Function
 spinner() {
     local pid=$1
     local delay=0.1
@@ -96,7 +103,6 @@ spinner() {
     tput cnorm 2>/dev/null || true
 }
 
-# Prompt Selection
 prompt_select() {
     local msg=$1
     local var_name=$2
@@ -105,7 +111,7 @@ prompt_select() {
     
     box_header "$msg" "${CYAN}"
     for i in "${!options[@]}"; do
-        printf "${CYAN}│${NC} [%d] %s\n" "$((i+1))" "${options[$i]}"
+        left_text "[$((i+1))] ${options[$i]}" "$WIDTH" "" "${CYAN}"
     done
     box_footer "${CYAN}"
     
@@ -155,7 +161,8 @@ echo ""
 
 # SOPS Master Key
 box_header "SOPS MASTER KEY" "${CYAN}"
-read -p "│ [>] Generate a new SOPS master key for decryption? [y/N]: " GEN_MASTER_INPUT
+echo -ne "${CYAN}│${NC} [>] Generate a new SOPS master key for decryption? [y/N]: "
+read -r GEN_MASTER_INPUT
 box_footer "${CYAN}"
 GEN_MASTER="no"
 [[ "$GEN_MASTER_INPUT" =~ ^[Yy]$ ]] && GEN_MASTER="yes"
@@ -163,17 +170,17 @@ echo ""
 
 # User Credentials
 box_header "USER CREDENTIALS" "${CYAN}"
-read -p "│ [>] Username: " USERNAME
+echo -ne "${CYAN}│${NC} [>] Username: " && read -r USERNAME
 USERNAME=${USERNAME:-mad}
-read -p "│ [>] Email: " USEREMAIL
+echo -ne "${CYAN}│${NC} [>] Email: " && read -r USEREMAIL
 while true; do
-    read -sp "│ [>] Password for $USERNAME: " USER_PASS
+    echo -ne "${CYAN}│${NC} [>] Password for $USERNAME: " && read -rs USER_PASS
     echo ""
     [[ -z "$USER_PASS" ]] && continue
-    read -sp "│ [>] Verify password: " USER_PASS_VERIFY
+    echo -ne "${CYAN}│${NC} [>] Verify password: " && read -rs USER_PASS_VERIFY
     echo ""
     [[ "$USER_PASS" == "$USER_PASS_VERIFY" ]] && break
-    echo -e "${RED}│ [!] Passwords do not match.${NC}"
+    echo -e "${CYAN}│${NC} ${RED}[!] Passwords do not match.${NC}"
 done
 box_footer "${CYAN}"
 echo ""
@@ -229,7 +236,7 @@ AGE_RECIPIENTS_YAML=""
 for pk_file in secrets/*.pub; do
     if [[ -f "$pk_file" ]]; then
         PUBKEY=$(cat "$pk_file")
-        AGE_RECIPIENTS_YAML+="          - $pk"$'\n'
+        AGE_RECIPIENTS_YAML+="          - $PUBKEY"$'\n'
     fi
 done
 
@@ -315,7 +322,8 @@ fi
 
 header "INSTALLATION COMPLETE"
 box_header "SYSTEM REBOOT" "${CYAN}"
-read -p "│ [>] Reboot now? [y/N] " REBOOT_CONFIRM
+echo -ne "${CYAN}│${NC} [>] Reboot now? [y/N] "
+read -r REBOOT_CONFIRM
 box_footer "${CYAN}"
 if [[ "$REBOOT_CONFIRM" =~ ^[Yy]$ ]]; then
     sync
