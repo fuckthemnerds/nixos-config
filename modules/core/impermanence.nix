@@ -48,7 +48,9 @@
 		files = [
 			"/etc/machine-id"
 			"/etc/ssh/ssh_host_ed25519_key"
+			"/etc/ssh/ssh_host_ed25519_key.pub"
 			"/etc/ssh/ssh_host_rsa_key"
+			"/etc/ssh/ssh_host_rsa_key.pub"
 		];
 
 		users.${userName} = {
@@ -72,6 +74,9 @@
 				".local/state/wireplumber"
 				".cache/bat"
 				".config/sops/age"
+				".config/keepassxc"
+				".cache/cliphist"
+				".config/teams-for-linux"
 			];
 		};
 	};

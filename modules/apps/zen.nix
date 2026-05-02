@@ -75,7 +75,7 @@ in
         set editor --cmd "set columns=120 lines=40"
       '';
 
-      xdg.configFile."tridactyl/themes/mytheme/mythem.css".text = with config.lib.stylix.colors; ''
+      xdg.configFile."tridactyl/themes/mytheme/mytheme.css".text = with config.lib.stylix.colors; ''
         :root.TridactylThemeMytheme {
           --tridactyl-font-family: "${config.stylix.fonts.monospace.name}", monospace;
           --tridactyl-font-size: 13pt;

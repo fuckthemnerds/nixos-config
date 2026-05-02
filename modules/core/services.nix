@@ -38,11 +38,30 @@
 			x11Support = false;
 		};
 
-		fail2ban.enable = true;
+		pipewire = {
+			enable = true;
+			alsa.enable = true;
+			alsa.support32Bit = true;
+			pulse.enable = true;
+			wireplumber.enable = true;
+		};
+
+	};
+
+	boot.tmp = {
+		useTmpfs = true;
+		tmpfsSize = if (config.networking.hostName == "surface") then "2G" else "50%";
+	};
+
+	hardware.bluetooth = {
+		enable = true;
+		powerOnBoot = true;
+		settings.General.Experimental = true;
 	};
 
 	security = {
-		auditd.enable = true;
+		rtkit.enable = true;
+		polkit.enable = true;
 		pam = {
 			services.hyprlock = {};
 			loginLimits = [

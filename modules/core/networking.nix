@@ -23,7 +23,7 @@
 	services.resolved = {
 		enable = true;
 		settings.Resolve = {
-			DNSSEC = "true";
+			DNSSEC = "allow-downgrade";
 			Domains = [ "~." ];
 			FallbackDNS = [
 				"1.1.1.1#cloudflare-dns.com"

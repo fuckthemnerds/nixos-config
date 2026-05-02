@@ -21,16 +21,16 @@ in
 			OUT_H=$(echo "$OUT" | ${pkgs.jq}/bin/jq '.logical.height')
 
 			if pgrep -x waybar > /dev/null; then
-			BOTTOM_GAP=$(( GAP + WAYBAR_HEIGHT ))
+			TOP_GAP=$(( GAP + WAYBAR_HEIGHT ))
 			else
-			BOTTOM_GAP=$GAP
+			TOP_GAP=$GAP
 			fi
 
 			POSITIONS=(
-				"$(( OUT_W - WIN_W - GAP )) $GAP"
-				"$GAP $GAP"
-				"$GAP $(( OUT_H - WIN_H - BOTTOM_GAP ))"
-				"$(( OUT_W - WIN_W - GAP )) $(( OUT_H - WIN_H - BOTTOM_GAP ))"
+				"$(( OUT_W - WIN_W - GAP )) $TOP_GAP"
+				"$GAP $TOP_GAP"
+				"$GAP $(( OUT_H - WIN_H - GAP ))"
+				"$(( OUT_W - WIN_W - GAP )) $(( OUT_H - WIN_H - GAP ))"
 			)
 
 			if [[ -f "$STATE_FILE" ]]; then

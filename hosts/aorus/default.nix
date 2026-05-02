@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   # Toggles features from modules/ (Enabled by default in defaults.nix)
 
@@ -14,7 +14,7 @@
     modesetting.enable = true;
     open = false;
     powerManagement.enable = true;
-    package = pkgs.linuxPackages_zen.nvidiaPackages.stable;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
 
     prime.intelBusId = "PCI:0:2:0";
     prime.nvidiaBusId = "PCI:1:0:0";

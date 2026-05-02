@@ -50,6 +50,8 @@ in
 
         impala
         pulsemixer
+        bluetui
+        wiremix
       ];
 
       xdg.configFile."niri/config.kdl".text = ''
@@ -69,7 +71,6 @@ in
             keyboard {
                 xkb {
                     layout "pl"
-                    options "ctrl:nocaps"
                 }
             }
             touchpad {

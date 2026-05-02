@@ -5,15 +5,17 @@
     settings = {
       trusted-users = [ "root" userName ];
       allowed-users = [ "@wheel" ];
-      auto-optimise-store = true;
+    };
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
     };
     registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
   };
 
   zramSwap.enable = true;
-
-  programs.command-not-found.enable = true;
 
   home-manager = {
     useGlobalPkgs = true;
