@@ -21,18 +21,17 @@ CROSS="✘"
 INFO="ℹ"
 WARN="⚠"
 
-# Global Width
-WIDTH=68
+# Global Total Width
+WIDTH=70
 
 # Alignment Helpers
 center_text() {
     local text=$1
-    local width=$2
-    local color=$3
-    local border_color=$4
+    local color=$2
+    local border_color=$3
     
     local text_len=${#text}
-    local total_padding=$((width - text_len))
+    local total_padding=$((WIDTH - text_len - 2))
     local pad_left=$((total_padding / 2))
     local pad_right=$((total_padding - pad_left))
     
@@ -41,12 +40,11 @@ center_text() {
 
 left_text() {
     local text=$1
-    local width=$2
-    local color=$3
-    local border_color=$4
+    local color=$2
+    local border_color=$3
     
     local text_len=${#text}
-    local padding=$((width - text_len - 1))
+    local padding=$((WIDTH - text_len - 3))
     [[ $padding -lt 0 ]] && padding=0
     
     printf "${border_color}│${NC} ${color}%s%*s${NC}${border_color}│${NC}\n" "$text" "$padding" ""
@@ -55,26 +53,28 @@ left_text() {
 box_header() {
     local msg=$1
     local color=$2
-    echo -e "${color}┌─[ $msg ]$(printf '─%.0s' $(seq 1 $((WIDTH - ${#msg} - 4))))┐${NC}"
+    local dashes=$((WIDTH - ${#msg} - 8))
+    [[ $dashes -lt 0 ]] && dashes=0
+    echo -e "${color}┌─[ $msg ]$(printf '─%.0s' $(seq 1 $dashes))┐${NC}"
 }
 
 box_footer() {
     local color=$1
-    echo -e "${color}└$(printf '─%.0s' $(seq 1 $WIDTH))┘${NC}"
+    echo -e "${color}└$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┘${NC}"
 }
 
 header() {
     local title=$1
-    echo -e "\n${BLUE}┌$(printf '─%.0s' $(seq 1 $WIDTH))┐${NC}"
-    center_text " $title " "$WIDTH" "${BOLD}" "${BLUE}"
-    echo -e "${BLUE}└$(printf '─%.0s' $(seq 1 $WIDTH))┘${NC}\n"
+    echo -e "\n${BLUE}┌$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┐${NC}"
+    center_text " $title " "${BOLD}" "${BLUE}"
+    echo -e "${BLUE}└$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┘${NC}\n"
 }
 
 warning_box() {
     local msg=$1
-    echo -e "${RED}${BOLD}┌$(printf '─%.0s' $(seq 1 $WIDTH))┐${NC}"
-    center_text "$msg" "$WIDTH" "${BOLD}" "${RED}${BOLD}"
-    echo -e "${RED}${BOLD}└$(printf '─%.0s' $(seq 1 $WIDTH))┘${NC}"
+    echo -e "${RED}${BOLD}┌$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┐${NC}"
+    center_text "$msg" "${BOLD}" "${RED}${BOLD}"
+    echo -e "${RED}${BOLD}└$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┘${NC}"
 }
 
 spinner() {
@@ -111,17 +111,18 @@ prompt_select() {
     
     box_header "$msg" "${CYAN}"
     for i in "${!options[@]}"; do
-        left_text "[$((i+1))] ${options[$i]}" "$WIDTH" "" "${CYAN}"
+        left_text "[$((i+1))] ${options[$i]}" "" "${CYAN}"
     done
-    box_footer "${CYAN}"
-    
     while true; do
-        read -p "[>] Select number: " choice
+        echo -ne "${CYAN}│${NC} [>] Select number: "
+        read -r choice
         if [[ "$choice" -gt 0 && "$choice" -le "${#options[@]}" ]]; then
             eval "$var_name=\"${options[$((choice-1))]}\""
             break
         fi
+        echo -e "${CYAN}│${NC} ${RED}[!] Invalid choice.${NC}"
     done
+    box_footer "${CYAN}"
     echo -e "${GREEN}[+] Selected: ${!var_name}${NC}\n"
 }
 
@@ -152,11 +153,16 @@ prompt_select "AVAILABLE DISKS" SELECTED_DISK_STR "${MAPFILE[@]}"
 DISK=$(echo "$SELECTED_DISK_STR" | awk '{print $1}')
 
 warning_box "WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED"
-read -p "[>] Type YES to continue: " CONFIRM_WIPE
+echo -ne "${RED}${BOLD}│${NC} [>] Type YES to continue: "
+read -r CONFIRM_WIPE
+warning_box "ABORTED" && exit 1 if [[ "$CONFIRM_WIPE" != "YES" ]]
+# Fixed the warning_box call above to be more readable
 if [[ "$CONFIRM_WIPE" != "YES" ]]; then
-    echo -e "${YELLOW}[!] Aborted.${NC}"
+    echo -e "${RED}${BOLD}│${NC} ${YELLOW}[!] Aborted.${NC}"
+    box_footer "${RED}${BOLD}"
     exit 1
 fi
+box_footer "${RED}${BOLD}"
 echo ""
 
 # SOPS Master Key
@@ -192,6 +198,7 @@ cat > secrets/usercreds.nix <<EOF
 {
   userName = "$USERNAME";
   userEmail = "$USEREMAIL";
+  device = "$DISK";
 }
 EOF
 git add secrets/usercreds.nix >/dev/null 2>&1
@@ -292,8 +299,7 @@ header "LOCAL DEPLOY"
 echo -e "${CYAN}[*] Running Disko for partitioning...${NC}"
 nix run -L 'github:nix-community/disko' -- \
     --mode destroy,format,mount \
-    --flake "${FLAKE_REF}#$HOST" \
-    --argstr device "$DISK"
+    --flake "${FLAKE_REF}#$HOST"
 
 mkdir -p /mnt/persistent/var/lib/sops-nix/
 chmod 755 /mnt/persistent/var/lib/sops-nix/

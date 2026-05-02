@@ -41,13 +41,14 @@
                     else { };
 
       globals = {
-        userName = localConfig.userName or "mad";
-        stateVersion = localConfig.stateVersion or "25.05";
-        themeName = localConfig.themeName or "main";
+        userName = localConfig.userName;
+        stateVersion = localConfig.stateVersion;
+        themeName = localConfig.themeName;
         userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
         gitPlatform = localConfig.gitPlatform or "github";
-        gitUser = localConfig.gitUser or "fuckthemnerds";
-        gitRepo = localConfig.gitRepo or "nixos-config";
+        gitUser = localConfig.gitUser;
+        gitRepo = localConfig.gitRepo;
+        device = localConfig.device;
       };
 
       mkHost = { hostName, hostConfig ? {}, extraModules ? [] }:

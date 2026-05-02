@@ -1,9 +1,9 @@
-{ device ? "/dev/nvme0n1", ... }:
+{ globals, ... }:
 {
 	disko.devices = {
 		disk.main = {
 			type = "disk";
-			device = device;
+			device = globals.device;
 			content = {
 				type = "gpt";
 				partitions = {
