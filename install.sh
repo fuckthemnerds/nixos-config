@@ -130,42 +130,49 @@ echo "==================================================================="
 
 umask 077
 mkdir -p /tmp/sops-nix/
+mkdir -p secrets/
 
 HOST_KEY_FILE="/tmp/sops-nix/keys.txt"
 export SOPS_AGE_KEY_FILE="$HOST_KEY_FILE"
-HOST_PUBKEY_FILE="secrets/age_keys/${HOST}.pub"
+HOST_PUBKEY_FILE="secrets/${HOST}.pub"
 
+# 1. Handle Host Age Key
 if [[ ! -f "$HOST_KEY_FILE" ]]; then
+    if [[ -f "$HOST_PUBKEY_FILE" ]]; then
+        echo "[!] Warning: Public key for $HOST already exists in repo, but private key is missing."
+        echo "[!] Generating a new key for this deployment..."
+    fi
     spin_start "Generating age key for $HOST..."
-    age-keygen -o "$HOST_KEY_FILE" 2>&1
+    age-keygen -o "$HOST_KEY_FILE" 2>/dev/null
     spin_stop
 fi
 chmod 400 "$HOST_KEY_FILE"
 
 THIS_HOST_PUBKEY=$(age-keygen -y "$HOST_KEY_FILE")
-echo "[+] Age public key for $HOST: $THIS_HOST_PUBKEY"
-
-mkdir -p secrets/age_keys
+echo "[+] Host Public Key ($HOST): $THIS_HOST_PUBKEY"
 echo "$THIS_HOST_PUBKEY" > "$HOST_PUBKEY_FILE"
-git add "$HOST_PUBKEY_FILE"
 
+# 2. Gather All Recipients (including Master Key if it exists)
 ALL_PUBKEYS=()
-for pk_file in secrets/age_keys/*.pub; do
-    [[ -f "$pk_file" ]] && ALL_PUBKEYS+=("$(cat "$pk_file")")
+for pk_file in secrets/*.pub; do
+    if [[ -f "$pk_file" ]]; then
+        PUBKEY=$(cat "$pk_file")
+        ALL_PUBKEYS+=("$PUBKEY")
+        echo "[+] Adding recipient: $(basename "$pk_file" .pub) ($PUBKEY)"
+    fi
 done
 
+# 3. Generate .sops.yaml
 AGE_RECIPIENTS_YAML=""
 for pk in "${ALL_PUBKEYS[@]}"; do
-    AGE_RECIPIENTS_YAML+="        - $pk"$'\n'
+    AGE_RECIPIENTS_YAML+="          - $pk"$'\n'
 done
 
 cat > .sops.yaml <<SOPS
 creation_rules:
-  - path_regex: secrets/secrets\.yaml$
-    age:
-$(printf '%s' "$AGE_RECIPIENTS_YAML")
-  - path_regex: secrets/rclone\.yaml$
-    age:
+  - path_regex: secrets/.*\.yaml$
+    key_groups:
+      - age:
 $(printf '%s' "$AGE_RECIPIENTS_YAML")
 SOPS
 git add .sops.yaml
