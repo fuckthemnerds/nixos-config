@@ -21,62 +21,93 @@ CROSS="✘"
 INFO="ℹ"
 WARN="⚠"
 
-# Header Function
+# Center Text Function
+center_text() {
+    local text=$1
+    local width=$2
+    local color=$3
+    local border_color=$4
+    
+    local text_len=${#text}
+    local total_padding=$((width - text_len))
+    local pad_left=$((total_padding / 2))
+    local pad_right=$((total_padding - pad_left))
+    
+    printf "${border_color}│${NC}${color}%*s%s%*s${NC}${border_color}│${NC}\n" "$pad_left" "" "$text" "$pad_right" ""
+}
+
+# Generic Box Header
+box_header() {
+    local msg=$1
+    local width=68
+    local color=$2
+    echo -e "${color}┌─[ $msg ]$(printf '─%.0s' $(seq 1 $((width - ${#msg} - 4))))┐${NC}"
+}
+
+# Generic Box Footer
+box_footer() {
+    local width=68
+    local color=$1
+    echo -e "${color}└$(printf '─%.0s' $(seq 1 $width))┘${NC}"
+}
+
+# Header Function (Big centered header)
 header() {
     local title=$1
-    local width=70
-    local padding=$(( (width - ${#title} - 2) / 2 ))
+    local width=68
     echo -e "\n${BLUE}┌$(printf '─%.0s' $(seq 1 $width))┐${NC}"
-    printf "${BLUE}│${NC}${BOLD}%*s %s %*s${NC}${BLUE}│${NC}\n" $padding "" "$title" $padding ""
+    center_text " $title " "$width" "${BOLD}" "${BLUE}"
     echo -e "${BLUE}└$(printf '─%.0s' $(seq 1 $width))┘${NC}\n"
 }
 
+# Warning Box
+warning_box() {
+    local msg=$1
+    local width=68
+    echo -e "${RED}${BOLD}┌$(printf '─%.0s' $(seq 1 $width))┐${NC}"
+    center_text "$msg" "$width" "${BOLD}" "${RED}${BOLD}"
+    echo -e "${RED}${BOLD}└$(printf '─%.0s' $(seq 1 $width))┘${NC}"
+}
+
 # Spinner Function
-# Usage: command & spinner $! "Message"
 spinner() {
     local pid=$1
     local delay=0.1
     local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
     local msg=$2
     
-    # Hide cursor
     tput civis 2>/dev/null || true
-    
     while ps -p $pid > /dev/null; do
         for i in $(seq 0 9); do
             printf "\r${BLUE}[${spinstr:$i:1}]${NC} ${msg}..."
             sleep $delay
         done
     done
-    
-    # Check exit status of the PID
     wait $pid
     local exit_status=$?
     
     if [ $exit_status -eq 0 ]; then
         printf "\r${GREEN}[${CHECK}]${NC} ${msg} (Done!)\n"
     else
-        printf "\r${RED}[${CROSS}]${NC} ${msg} (Failed with exit code $exit_status)\n"
+        printf "\r${RED}[${CROSS}]${NC} ${msg} (Failed: $exit_status)\n"
         tput cnorm 2>/dev/null || true
         exit $exit_status
     fi
-    
-    # Show cursor
     tput cnorm 2>/dev/null || true
 }
 
-# Prompt Helper
+# Prompt Selection
 prompt_select() {
     local msg=$1
     local var_name=$2
     shift 2
     local options=("$@")
     
-    echo -e "${CYAN}┌─[ $msg ]──────────────────────────────────────────────${NC}"
+    box_header "$msg" "${CYAN}"
     for i in "${!options[@]}"; do
         printf "${CYAN}│${NC} [%d] %s\n" "$((i+1))" "${options[$i]}"
     done
-    echo -e "${CYAN}└──────────────────────────────────────────────────────────────────${NC}"
+    box_footer "${CYAN}"
     
     while true; do
         read -p "[>] Select number: " choice
@@ -93,7 +124,6 @@ prompt_select() {
 # ==============================================================================
 
 [ ! -d .git ] && git init >/dev/null 2>&1
-
 export NIX_CONFIG="experimental-features = nix-command flakes"
 FLAKE_REF="${FLAKE_REF:-git+file:.}"
 
@@ -104,7 +134,6 @@ HOSTS_STR=$(nix eval --raw --impure --expr \
   'builtins.concatStringsSep " " (builtins.attrNames (builtins.getFlake (toString ./.)).nixosConfigurations)' \
   2>/dev/null || echo "aorus surface")
 read -r -a HOSTS <<< "$HOSTS_STR"
-
 prompt_select "AVAILABLE HOSTS" SELECTED_HOST "${HOSTS[@]}"
 HOST=$SELECTED_HOST
 
@@ -113,13 +142,10 @@ MAPFILE=()
 while IFS= read -r line; do
     MAPFILE+=("$line")
 done < <(lsblk -dpno NAME,SIZE,MODEL | grep -v 'loop' | grep -v 'ram')
-
 prompt_select "AVAILABLE DISKS" SELECTED_DISK_STR "${MAPFILE[@]}"
 DISK=$(echo "$SELECTED_DISK_STR" | awk '{print $1}')
 
-echo -e "${RED}${BOLD}┌──────────────────────────────────────────────────────────────────┐${NC}"
-echo -e "${RED}${BOLD}│ WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED       │${NC}"
-echo -e "${RED}${BOLD}└──────────────────────────────────────────────────────────────────┘${NC}"
+warning_box "WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED"
 read -p "[>] Type YES to continue: " CONFIRM_WIPE
 if [[ "$CONFIRM_WIPE" != "YES" ]]; then
     echo -e "${YELLOW}[!] Aborted.${NC}"
@@ -128,31 +154,28 @@ fi
 echo ""
 
 # SOPS Master Key
-echo -e "${CYAN}┌─[ SOPS MASTER KEY ]──────────────────────────────────────────────${NC}"
+box_header "SOPS MASTER KEY" "${CYAN}"
 read -p "│ [>] Generate a new SOPS master key for decryption? [y/N]: " GEN_MASTER_INPUT
-echo -e "${CYAN}└──────────────────────────────────────────────────────────────────${NC}"
-if [[ "$GEN_MASTER_INPUT" =~ ^[Yy]$ ]]; then
-    GEN_MASTER="yes"
-else
-    GEN_MASTER="no"
-fi
+box_footer "${CYAN}"
+GEN_MASTER="no"
+[[ "$GEN_MASTER_INPUT" =~ ^[Yy]$ ]] && GEN_MASTER="yes"
 echo ""
 
 # User Credentials
-echo -e "${CYAN}┌─[ USER CREDENTIALS ]─────────────────────────────────────────────${NC}"
+box_header "USER CREDENTIALS" "${CYAN}"
 read -p "│ [>] Username: " USERNAME
 USERNAME=${USERNAME:-mad}
 read -p "│ [>] Email: " USEREMAIL
 while true; do
     read -sp "│ [>] Password for $USERNAME: " USER_PASS
     echo ""
-    if [[ -z "$USER_PASS" ]]; then continue; fi
+    [[ -z "$USER_PASS" ]] && continue
     read -sp "│ [>] Verify password: " USER_PASS_VERIFY
     echo ""
-    if [[ "$USER_PASS" == "$USER_PASS_VERIFY" ]]; then break; fi
+    [[ "$USER_PASS" == "$USER_PASS_VERIFY" ]] && break
     echo -e "${RED}│ [!] Passwords do not match.${NC}"
 done
-echo -e "${CYAN}└──────────────────────────────────────────────────────────────────${NC}"
+box_footer "${CYAN}"
 echo ""
 
 # Save user credentials
@@ -166,7 +189,6 @@ cat > secrets/usercreds.nix <<EOF
 EOF
 git add secrets/usercreds.nix >/dev/null 2>&1
 
-# Export variables for the sub-shell
 export USERNAME HOST DISK FLAKE_REF USER_PASS GEN_MASTER
 
 # ==============================================================================
@@ -175,22 +197,17 @@ export USERNAME HOST DISK FLAKE_REF USER_PASS GEN_MASTER
 
 header "SECRETS BOOTSTRAP"
 
-# Run in a subshell with a temporary script to keep things clean
 cat > /tmp/bootstrap-secrets.sh << 'EOF'
 #!/usr/bin/env bash
 set -e
-# Note: Functions from parent shell are not automatically available here
-# We use simple commands instead
-
 umask 077
-mkdir -p /tmp/sops-nix/
-mkdir -p secrets/
+mkdir -p /tmp/sops-nix/ secrets/
 
 HOST_KEY_FILE="/tmp/sops-nix/keys.txt"
 export SOPS_AGE_KEY_FILE="$HOST_KEY_FILE"
 HOST_PUBKEY_FILE="secrets/${HOST}.pub"
 
-# 0. Handle Master Age Key
+# 0. Master Key
 if [[ "$GEN_MASTER" == "yes" ]]; then
     MASTER_KEY_FILE="$HOME/.config/sops/age/keys.txt"
     mkdir -p "$(dirname "$MASTER_KEY_FILE")"
@@ -198,22 +215,16 @@ if [[ "$GEN_MASTER" == "yes" ]]; then
         age-keygen -o "$MASTER_KEY_FILE" 2>/dev/null
         chmod 400 "$MASTER_KEY_FILE"
     fi
-    MASTER_PUBKEY=$(age-keygen -y "$MASTER_KEY_FILE")
-    echo "$MASTER_PUBKEY" > secrets/master.pub
+    age-keygen -y "$MASTER_KEY_FILE" > secrets/master.pub
     git add secrets/master.pub
 fi
 
-# 1. Handle Host Age Key
-if [[ ! -f "$HOST_KEY_FILE" ]]; then
-    age-keygen -o "$HOST_KEY_FILE" 2>/dev/null
-fi
+# 1. Host Key
+[[ ! -f "$HOST_KEY_FILE" ]] && age-keygen -o "$HOST_KEY_FILE" 2>/dev/null
 chmod 400 "$HOST_KEY_FILE"
+age-keygen -y "$HOST_KEY_FILE" > "$HOST_PUBKEY_FILE"
 
-THIS_HOST_PUBKEY=$(age-keygen -y "$HOST_KEY_FILE")
-echo "$THIS_HOST_PUBKEY" > "$HOST_PUBKEY_FILE"
-
-# 2. Update .sops.yaml
-ALL_PUBKEYS=()
+# 2. .sops.yaml
 AGE_RECIPIENTS_YAML=""
 for pk_file in secrets/*.pub; do
     if [[ -f "$pk_file" ]]; then
@@ -231,11 +242,10 @@ $(printf '%s' "$AGE_RECIPIENTS_YAML")
 SOPS
 git add .sops.yaml
 
-# 3. Encrypt/Update secrets
+# 3. secrets.yaml
 if [[ ! -f secrets/secrets.yaml ]] || ! grep -q "sops:" secrets/secrets.yaml 2>/dev/null; then
     USER_HASH=$(mkpasswd -m yescrypt -s <<< "$USER_PASS")
-    cat <<YAML | sops --encrypt \
-        --filename-override secrets/secrets.yaml \
+    cat <<YAML | sops --encrypt --filename-override secrets/secrets.yaml \
         --input-type yaml --output-type yaml /dev/stdin > secrets/secrets.yaml
 git_credentials: |
   https://$USERNAME:placeholder@github.com
@@ -247,9 +257,9 @@ else
     git add secrets/secrets.yaml
 fi
 
+# 4. rclone.yaml
 if [[ ! -f secrets/rclone.yaml ]] || ! grep -q "sops:" secrets/rclone.yaml 2>/dev/null; then
-    cat <<YAML | sops --encrypt \
-        --filename-override secrets/rclone.yaml \
+    cat <<YAML | sops --encrypt --filename-override secrets/rclone.yaml \
         --input-type yaml --output-type yaml /dev/stdin > secrets/rclone.yaml
 rclone_client_id: placeholder
 rclone_token: placeholder
@@ -259,7 +269,6 @@ else
     sops updatekeys --yes secrets/rclone.yaml
     git add secrets/rclone.yaml
 fi
-
 git add secrets/
 EOF
 
@@ -273,48 +282,31 @@ spinner $! "Bootstrapping secrets and age keys"
 # ==============================================================================
 
 header "LOCAL DEPLOY"
-
 echo -e "${CYAN}[*] Running Disko for partitioning...${NC}"
-# Corrected disko command: using --argstr device to pass the disk path
 nix run -L 'github:nix-community/disko' -- \
     --mode destroy,format,mount \
     --flake "${FLAKE_REF}#$HOST" \
     --argstr device "$DISK"
 
-# Provision the key to the new system
 mkdir -p /mnt/persistent/var/lib/sops-nix/
 chmod 755 /mnt/persistent/var/lib/sops-nix/
 cp "/tmp/sops-nix/keys.txt" /mnt/persistent/var/lib/sops-nix/keys.txt
 chmod 400 /mnt/persistent/var/lib/sops-nix/keys.txt
 
-# ==============================================================================
-# HARDWARE CONFIGURATION
-# ==============================================================================
-
 header "GENERATING HARDWARE CONFIG"
-
 nixos-generate-config --no-filesystems --root /mnt --dir /tmp/nixos-hw >/dev/null 2>&1 &
 spinner $! "Detecting hardware and generating configuration"
-
 mkdir -p "hosts/$HOST"
 cp /tmp/nixos-hw/hardware-configuration.nix "hosts/$HOST/hardware.nix"
 git add "hosts/$HOST/hardware.nix"
 
-# ==============================================================================
-# NIXOS INSTALLATION
-# ==============================================================================
-
 header "INSTALLING NIXOS"
-
-# Space optimization: Use the newly mounted persistent storage for temporary build files
-# to avoid filling up the installer's RAM-based /tmp.
 mkdir -p /mnt/persistent/tmp
 export TMPDIR=/mnt/persistent/tmp
-
 echo -e "${CYAN}[*] Starting nixos-install (this may take a while)...${NC}"
 nixos-install --flake "${FLAKE_REF}#$HOST" --no-root-password
 
-# Post-install: copy the config to the new system
+# Post-install
 mkdir -p "/mnt/persistent/home/$USERNAME/"
 cp -r "$(pwd)" "/mnt/persistent/home/$USERNAME/nixcfg"
 if chroot /mnt id "$USERNAME" >/dev/null 2>&1; then
@@ -322,10 +314,9 @@ if chroot /mnt id "$USERNAME" >/dev/null 2>&1; then
 fi
 
 header "INSTALLATION COMPLETE"
-
-echo -e "${CYAN}┌─[ SYSTEM REBOOT ]────────────────────────────────────────────────${NC}"
+box_header "SYSTEM REBOOT" "${CYAN}"
 read -p "│ [>] Reboot now? [y/N] " REBOOT_CONFIRM
-echo -e "${CYAN}└──────────────────────────────────────────────────────────────────${NC}"
+box_footer "${CYAN}"
 if [[ "$REBOOT_CONFIRM" =~ ^[Yy]$ ]]; then
     sync
     reboot
