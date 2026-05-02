@@ -91,7 +91,6 @@
 
         nixosConfigurations = {
           aorus = mkHost { hostName = "aorus"; };
-          bootstrap = mkHost { hostName = "bootstrap"; };
           surface = mkHost {
             hostName = "surface";
             extraModules = [ inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];

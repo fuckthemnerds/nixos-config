@@ -41,7 +41,7 @@ if [[ -z "$DISK" ]]; then exit 1; fi
 echo "[+] Selected disk: $DISK"
 echo ""
 echo "┌──────────────────────────────────────────────────────────────────"
-echo "│   WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED     "
+echo "   WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED      "
 echo "└──────────────────────────────────────────────────────────────────"
 read -p "[>] Type YES to continue: " CONFIRM_WIPE
 if [[ "$CONFIRM_WIPE" != "YES" ]]; then exit 1; fi
