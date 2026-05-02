@@ -18,28 +18,29 @@ NC='\033[0m'
 CHECK="✔"
 CROSS="✘"
 
-# Total Width
+# Global Width
 WIDTH=70
 
 # Alignment Helpers
-print_line() {
-    local text=$1
-    local color=$2
-    local border_color=$3
-    
+# Using a more robust approach: building the string then printing
+box_line() {
+    local text="│ $1"
+    local border_color=$2
     local text_len=${#text}
-    local padding=$((WIDTH - text_len - 3))
+    local padding=$((WIDTH - text_len - 1))
     [[ $padding -lt 0 ]] && padding=0
     
-    printf "${border_color}│${NC} ${color}%s%*s${NC}${border_color}│${NC}\n" "$text" "$padding" ""
+    echo -e "${border_color}${text}$(printf ' %.0s' $(seq 1 $padding))│${NC}"
 }
 
 box_header() {
     local msg=$1
     local color=$2
-    local dashes=$((WIDTH - ${#msg} - 8))
+    local prefix="┌─[ $msg ]"
+    local prefix_len=${#prefix}
+    local dashes=$((WIDTH - prefix_len - 1))
     [[ $dashes -lt 0 ]] && dashes=0
-    echo -e "${color}┌─[ $msg ]$(printf '─%.0s' $(seq 1 $dashes))┐${NC}"
+    echo -e "${color}${prefix}$(printf '─%.0s' $(seq 1 $dashes))┐${NC}"
 }
 
 box_footer() {
@@ -51,7 +52,8 @@ header() {
     local title=$1
     echo -e "\n${BLUE}┌$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┐${NC}"
     local padding=$(( (WIDTH - ${#title} - 2) / 2 ))
-    printf "${BLUE}│${NC}${BOLD}%*s%s%*s${NC}${BLUE}│${NC}\n" "$padding" "" "$title" "$((WIDTH - padding - ${#title} - 2))" ""
+    local pad_right=$((WIDTH - padding - ${#title} - 2))
+    echo -e "${BLUE}│${NC}${BOLD}$(printf '%*s' $padding "")$title$(printf '%*s' $pad_right "")${NC}${BLUE}│${NC}"
     echo -e "${BLUE}└$(printf '─%.0s' $(seq 1 $((WIDTH - 2))))┘${NC}\n"
 }
 
@@ -89,7 +91,7 @@ prompt_select() {
     
     box_header "$msg" "${CYAN}"
     for i in "${!options[@]}"; do
-        print_line "[$((i+1))] ${options[$i]}" "" "${CYAN}"
+        box_line "[$((i+1))] ${options[$i]}" "${CYAN}"
     done
     box_footer "${CYAN}"
     
@@ -143,7 +145,7 @@ echo ""
 
 # SOPS Master Key
 box_header "SOPS MASTER KEY" "${CYAN}"
-print_line "Do you want to generate a new SOPS master key?" "" "${CYAN}"
+box_line "Generate a new SOPS master key?" "${CYAN}"
 box_footer "${CYAN}"
 read -p "[>] Generate new key? [y/N]: " GEN_MASTER_INPUT
 GEN_MASTER="no"
@@ -152,7 +154,7 @@ echo ""
 
 # User Credentials
 box_header "USER CREDENTIALS" "${CYAN}"
-print_line "Enter the credentials for the new system user." "" "${CYAN}"
+box_line "Enter credentials for $USERNAME" "${CYAN}"
 box_footer "${CYAN}"
 read -p "[>] Username: " USERNAME
 USERNAME=${USERNAME:-mad}
@@ -274,9 +276,11 @@ spinner $! "Bootstrapping secrets and age keys"
 
 header "LOCAL DEPLOY"
 echo -e "${CYAN}[*] Running Disko for partitioning...${NC}"
+# Added --yes-wipe-all-disks to skip extra confirmation
 nix run -L 'github:nix-community/disko' -- \
     --mode destroy,format,mount \
-    --flake "${FLAKE_REF}#$HOST"
+    --flake "${FLAKE_REF}#$HOST" \
+    --yes-wipe-all-disks
 
 mkdir -p /mnt/persistent/var/lib/sops-nix/
 chmod 755 /mnt/persistent/var/lib/sops-nix/
