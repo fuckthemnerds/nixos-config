@@ -8,6 +8,7 @@ in
 {
   stylix = {
     enable = true;
+    autoEnable = false;
     image = dummyBg;
 
     base16Scheme = {
@@ -61,5 +62,25 @@ in
     };
 
     polarity = "dark";
+
+    targets = {
+      niri.enable = true;
+      waybar.enable = true;
+      foot.enable = true;
+      fuzzel.enable = true;
+      mako.enable = true;
+      btop.enable = true;
+      yazi.enable = true;
+      zathura.enable = true;
+      fish.enable = true;
+      hyprlock.enable = true;
+      hypridle.enable = true;
+      nixvim.enable = true;
+      bat.enable = true;
+      eza.enable = true;
+      fzf.enable = true;
+      firefox.enable = true;
+      gtk.enable = true;
+    };
   };
 }
