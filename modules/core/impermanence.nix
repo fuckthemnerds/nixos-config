@@ -31,6 +31,8 @@
 		'';
 	};
 
+	programs.fuse.userAllowOther = true;
+
 	fileSystems."/persistent".neededForBoot = true;
 
 	environment.persistence."/persistent" = {

@@ -12,9 +12,9 @@
 
 			# allowedTCPPorts = [ 22 ];
 
-			allowedUDPPortRanges = [
-				{ from = 49152; to = 65534; }
-			];
+			# allowedUDPPortRanges = [
+			# 	{ from = 49152; to = 65534; }
+			# ];
 		};
 	};
 

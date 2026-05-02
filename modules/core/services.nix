@@ -14,7 +14,7 @@
 			rulesProvider = pkgs.ananicy-rules-cachyos;
 		};
 
-		auto-cpufreq.enable = (config.networking.hostName == "surface");
+		auto-cpufreq.enable = lib.mkDefault false;
 
 		journald.extraConfig = ''
 			RuntimeMaxUse=64M
@@ -30,7 +30,6 @@
 		btrfs.autoScrub = {
 			enable = true;
 			interval = "monthly";
-			fileSystems = [ "/" ];
 		};
 
 		displayManager.ly = {
@@ -50,7 +49,7 @@
 
 	boot.tmp = {
 		useTmpfs = true;
-		tmpfsSize = if (config.networking.hostName == "surface") then "2G" else "50%";
+		tmpfsSize = lib.mkDefault "50%";
 	};
 
 	hardware.bluetooth = {

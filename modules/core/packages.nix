@@ -15,6 +15,6 @@
 		wget
 		unzip
 		zip
-		p7zip
+		7zz
 	];
 }

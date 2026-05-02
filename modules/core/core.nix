@@ -5,6 +5,7 @@
     settings = {
       trusted-users = [ "root" userName ];
       allowed-users = [ "@wheel" ];
+      auto-optimise-store = true;
     };
     gc = {
       automatic = true;
@@ -14,6 +15,8 @@
     registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
   };
+
+  environment.variables.FLAKE = "/home/${userName}/nixos-config";
 
   zramSwap.enable = true;
 
