@@ -178,7 +178,7 @@ SOPS
 git add .sops.yaml
 echo "[+] .sops.yaml updated with ${#ALL_PUBKEYS[@]} recipient(s)"
 
-if [[ ! -f secrets/secrets.yaml ]]; then
+if [[ ! -f secrets/secrets.yaml ]] || ! grep -q "sops:" secrets/secrets.yaml 2>/dev/null; then
     spin_start "Hashing password..."
     USER_HASH=$(mkpasswd -m yescrypt -s <<< "$USER_PASS")
     unset USER_PASS
@@ -202,7 +202,7 @@ else
     spin_stop
 fi
 
-if [[ ! -f secrets/rclone.yaml ]]; then
+if [[ ! -f secrets/rclone.yaml ]] || ! grep -q "sops:" secrets/rclone.yaml 2>/dev/null; then
     spin_start "Encrypting rclone.yaml..."
     cat <<YAML | sops --encrypt \
         --filename-override secrets/rclone.yaml \
