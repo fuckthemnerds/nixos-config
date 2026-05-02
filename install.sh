@@ -67,6 +67,16 @@ elif [[ "$DEPLOY_MODE" == "2" ]]; then
 fi
 echo ""
 
+echo "┌─[ SOPS MASTER KEY ]──────────────────────────────────────────────"
+read -p "│ [>] Generate a new SOPS master key for decryption? [y/N]: " GEN_MASTER
+echo "└──────────────────────────────────────────────────────────────────"
+if [[ "$GEN_MASTER" =~ ^[Yy]$ ]]; then
+    export GEN_MASTER="yes"
+else
+    export GEN_MASTER="no"
+fi
+echo ""
+
 echo "┌─[ USER CREDENTIALS ]─────────────────────────────────────────────"
 read -p "│ [>] Username: " USERNAME
 USERNAME=${USERNAME:-mad}
@@ -93,7 +103,7 @@ cat > secrets/usercreds.nix <<EOF
 EOF
 git add secrets/usercreds.nix
 
-export USERNAME HOST DISK DEPLOY_MODE REMOTE_IP FLAKE_REF USER_PASS
+export USERNAME HOST DISK DEPLOY_MODE REMOTE_IP FLAKE_REF USER_PASS GEN_MASTER
 
 cat > /tmp/run-nixos-install.sh << 'EOF'
 #!/usr/bin/env bash
@@ -135,6 +145,24 @@ mkdir -p secrets/
 HOST_KEY_FILE="/tmp/sops-nix/keys.txt"
 export SOPS_AGE_KEY_FILE="$HOST_KEY_FILE"
 HOST_PUBKEY_FILE="secrets/${HOST}.pub"
+
+# 0. Handle Master Age Key
+if [[ "$GEN_MASTER" == "yes" ]]; then
+    MASTER_KEY_FILE="$HOME/.config/sops/age/keys.txt"
+    mkdir -p "$(dirname "$MASTER_KEY_FILE")"
+    if [[ ! -f "$MASTER_KEY_FILE" ]]; then
+        spin_start "Generating master age key..."
+        age-keygen -o "$MASTER_KEY_FILE" 2>/dev/null
+        chmod 400 "$MASTER_KEY_FILE"
+        spin_stop
+    else
+        echo "[!] Master key already exists at $MASTER_KEY_FILE"
+    fi
+    MASTER_PUBKEY=$(age-keygen -y "$MASTER_KEY_FILE")
+    echo "[+] Master Public Key: $MASTER_PUBKEY"
+    echo "$MASTER_PUBKEY" > secrets/master.pub
+    git add secrets/master.pub
+fi
 
 # 1. Handle Host Age Key
 if [[ ! -f "$HOST_KEY_FILE" ]]; then
@@ -234,6 +262,14 @@ if [[ "$DEPLOY_MODE" == "1" ]]; then
     chmod 755 /mnt/persistent/var/lib/sops-nix/
     cp "$HOST_KEY_FILE" /mnt/persistent/var/lib/sops-nix/keys.txt
     chmod 400 /mnt/persistent/var/lib/sops-nix/keys.txt
+
+    echo ""
+    echo "==================================================================="
+    echo "                     GENERATING HARDWARE CONFIG                    "
+    echo "==================================================================="
+    stdbuf -oL nixos-generate-config --no-filesystems --root /mnt --dir /tmp/nixos-hw 2>&1 | stdbuf -oL tee /tmp/nixos-hw.log
+    mkdir -p "hosts/$HOST"
+    cp /tmp/nixos-hw/hardware-configuration.nix "hosts/$HOST/hardware.nix"
 
     echo ""
     echo "==================================================================="

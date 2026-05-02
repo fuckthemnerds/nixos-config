@@ -42,7 +42,7 @@
 
       globals = {
         userName = localConfig.userName or "mad";
-        stateVersion = localConfig.stateVersion or "26.05";
+        stateVersion = localConfig.stateVersion or "25.05";
         themeName = localConfig.themeName or "main";
         userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
         gitPlatform = localConfig.gitPlatform or "github";
@@ -91,6 +91,7 @@
 
         nixosConfigurations = {
           aorus = mkHost { hostName = "aorus"; };
+          bootstrap = mkHost { hostName = "bootstrap"; };
           surface = mkHost {
             hostName = "surface";
             extraModules = [ inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];
