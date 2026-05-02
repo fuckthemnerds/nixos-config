@@ -75,10 +75,6 @@ in
       fish.enable = true;
       hyprlock.enable = true;
       hypridle.enable = true;
-      nixvim.enable = true;
-      bat.enable = true;
-      eza.enable = true;
-      fzf.enable = true;
       firefox.enable = true;
       gtk.enable = true;
     };
