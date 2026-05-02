@@ -8,7 +8,7 @@ in
 {
   stylix = {
     enable = true;
-    autoEnable = false;
+    autoEnable = false; # This will now correctly propagate to Home Manager
     image = dummyBg;
 
     base16Scheme = {
@@ -63,8 +63,4 @@ in
 
     polarity = "dark";
   };
-
-  home-manager.sharedModules = [
-    inputs.stylix.homeManagerModules.stylix
-  ];
 }
