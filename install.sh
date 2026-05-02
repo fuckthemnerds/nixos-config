@@ -132,10 +132,10 @@ done < <(lsblk -dpno NAME,SIZE,MODEL | grep -v 'loop' | grep -v 'ram')
 prompt_select "AVAILABLE DISKS" SELECTED_DISK_STR "${MAPFILE[@]}"
 DISK=$(echo "$SELECTED_DISK_STR" | awk '{print $1}')
 
-header "WARNING: DATA DESTRUCTION"
-echo -e "${RED}${BOLD}┌──────────────────────────────────────────────────────────────────┐${NC}"
-echo -e "${RED}${BOLD}│ WARNING: ALL DATA ON $DISK WILL BE IRRECOVERABLY DESTROYED       │${NC}"
-echo -e "${RED}${BOLD}└──────────────────────────────────────────────────────────────────┘${NC}"
+box_header "WARNING" "${RED}${BOLD}"
+box_line "ALL DATA ON $DISK WILL BE" "${RED}${BOLD}"
+box_line "IRRECOVERABLY DESTROYED" "${RED}${BOLD}"
+box_footer "${RED}${BOLD}"
 read -p "[>] Type YES to continue: " CONFIRM_WIPE
 if [[ "$CONFIRM_WIPE" != "YES" ]]; then
     echo -e "${YELLOW}[!] Aborted.${NC}"
@@ -154,7 +154,7 @@ echo ""
 
 # User Credentials
 box_header "USER CREDENTIALS" "${CYAN}"
-box_line "Enter credentials for $USERNAME" "${CYAN}"
+box_line "Enter credentials" "${CYAN}"
 box_footer "${CYAN}"
 read -p "[>] Username: " USERNAME
 USERNAME=${USERNAME:-mad}
