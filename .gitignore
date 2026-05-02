@@ -2,4 +2,3 @@
 *.pem
 .sops.yaml.tmp
 local/
-secrets/usercreds.nix
