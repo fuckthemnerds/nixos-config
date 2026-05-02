@@ -8,7 +8,9 @@ in
 {
   stylix = {
     enable = true;
-    autoEnable = true;
+    autoEnable = false;
+    homeManagerIntegration.autoImport = false;
+    homeManagerIntegration.followSystem = false;
     image = dummyBg;
 
     base16Scheme = {
@@ -62,11 +64,5 @@ in
     };
 
     polarity = "dark";
-
-    targets = {
-      kitty.enable = false;
-      gnome.enable = false;
-      tmux.enable = false;
-    };
   };
 }
