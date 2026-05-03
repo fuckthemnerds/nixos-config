@@ -11,7 +11,6 @@
 in {
   stylix = {
     enable = true;
-    autoEnable = false;
     image = dummyBg;
 
     base16Scheme = {

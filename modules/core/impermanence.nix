@@ -26,7 +26,7 @@
 
       # Cleanup old roots (keep last 5)
       if [[ -d /btrfs_tmp/old_roots ]]; then
-        find /btrfs_tmp/old_roots/ -maxdepth 1 -mindepth 1 -type d | sort -r | tail -n +6 | xargs -r btrfs subvolume delete
+        find /btrfs_tmp/old_roots/ -maxdepth 1 -mindepth 1 -type d | sort -r | tail -n +6 | xargs -r -I{} btrfs subvolume delete --recursive {}
       fi
 
       btrfs subvolume snapshot /btrfs_tmp/blank /btrfs_tmp/root
@@ -53,9 +53,9 @@
     ];
     files = [
       "/etc/machine-id"
-      "/etc/ssh/ssh_host_ed25519_key"
+      { file = "/etc/ssh/ssh_host_ed25519_key"; parentDirectory = { mode = "0755"; }; }
       "/etc/ssh/ssh_host_ed25519_key.pub"
-      "/etc/ssh/ssh_host_rsa_key"
+      { file = "/etc/ssh/ssh_host_rsa_key"; parentDirectory = { mode = "0755"; }; }
       "/etc/ssh/ssh_host_rsa_key.pub"
     ];
 
@@ -79,6 +79,12 @@
         ".local/share/fish"
         ".local/share/nvim"
         ".local/state/nvim"
+        ".local/state/nix"
+        ".local/state/home-manager"
+        ".local/share/applications"
+        ".local/share/icons"
+        ".config/dconf"
+        ".cache/nix"
         ".zen"
         ".local/share/zoxide"
         ".local/share/yazi"

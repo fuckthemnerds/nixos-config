@@ -127,9 +127,7 @@ in {
         }
 
         ${outputs}
-
-        spawn-at-startup "waybar"
-
+        
         window-rule {
             open-maximized true
         }

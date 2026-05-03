@@ -30,10 +30,9 @@ in {
           nrs = "nh os switch";
           nrb = "nh os boot";
           nrt = "nh os test";
-          nrh = "nh home switch";
           nfu = "nix flake update";
           nfc = "nix flake check";
-          cdnix = "cd /persistent/etc/nixos";
+          cdnix = "cd ~/nixcfg";
           gst = "git status";
           gd = "git diff";
           ga = "git add";

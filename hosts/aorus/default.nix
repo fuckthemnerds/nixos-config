@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: {
-  boot.kernelParams = ["acpi_osi=Linux"];
+  boot.kernelParams = ["acpi_osi=Linux" "pci=noaer"];
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
   environment.systemPackages = [

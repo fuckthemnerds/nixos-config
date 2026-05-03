@@ -11,7 +11,7 @@
   nix = {
     settings = {
       trusted-users = ["root" userName];
-      allowed-users = ["@wheel"];
+      allowed-users = ["@wheel" userName];
       auto-optimise-store = true;
       builders-use-substitutes = true;
       cores = 0;
@@ -52,6 +52,14 @@
     '';
   };
 
+  programs.nh = {
+    enable = true;
+    flake = "/home/${userName}/nixcfg";
+    clean = {
+      enable = true;
+      extraArgs = "--keep-since 7d --keep 5";
+    };
+  };
+
   zramSwap.enable = true;
-  environment.variables.FLAKE = "/home/${userName}/nixcfg";
 }
