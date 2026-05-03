@@ -96,6 +96,10 @@
         ".config/keepassxc"
         ".cache/cliphist"
         ".config/teams-for-linux"
+        ".config/git"
+        ".config/niri"
+        ".config/fish"
+        ".config/tridactyl"
       ];
     };
   };

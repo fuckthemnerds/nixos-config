@@ -12,6 +12,8 @@
       hashedPasswordFile = config.sops.secrets."user_password_${userName}".path;
       extraGroups = ["wheel" "networkmanager" "video" "audio"];
       shell = pkgs.fish;
+      createHome = true;
+      homeMode = "700";
     };
   };
 }
