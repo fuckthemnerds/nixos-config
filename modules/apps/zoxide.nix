@@ -1,8 +1,12 @@
-{ config, lib, pkgs, globals, ... }:
-let
-  cfg = config.apps.zoxide;
-in
 {
+  config,
+  lib,
+  pkgs,
+  globals,
+  ...
+}: let
+  cfg = config.apps.zoxide;
+in {
   options.apps.zoxide.enable = lib.mkEnableOption "zoxide";
 
   config = lib.mkIf cfg.enable {
@@ -10,7 +14,7 @@ in
       programs.zoxide = {
         enable = true;
         enableFishIntegration = true;
-        options = [ "--cmd z" ];
+        options = ["--cmd z"];
       };
     };
   };

@@ -1,8 +1,13 @@
-{ config, lib, pkgs, hostName, userName, ... }:
-let
-  cfg = config.apps.nvim;
-in
 {
+  config,
+  lib,
+  pkgs,
+  hostName,
+  userName,
+  ...
+}: let
+  cfg = config.apps.nvim;
+in {
   options.apps.nvim.enable = lib.mkEnableOption "nvim";
 
   config = lib.mkIf cfg.enable {
@@ -31,20 +36,64 @@ in
           colorcolumn = "80";
         };
 
-
-
         globals.mapleader = " ";
         keymaps = [
-          { mode = "n"; key = "<leader>e"; action = "<cmd>Oil<CR>"; options.desc = "Open Oil file manager"; }
-          { mode = "n"; key = "<leader>ff"; action = "<cmd>Telescope find_files<CR>"; options.desc = "Find files"; }
-          { mode = "n"; key = "<leader>fg"; action = "<cmd>Telescope live_grep<CR>"; options.desc = "Live grep"; }
-          { mode = "n"; key = "<leader>fb"; action = "<cmd>Telescope buffers<CR>"; options.desc = "Buffers"; }
-          { mode = "n"; key = "<C-h>"; action = "<C-w>h"; }
-          { mode = "n"; key = "<C-j>"; action = "<C-w>j"; }
-          { mode = "n"; key = "<C-k>"; action = "<C-w>k"; }
-          { mode = "n"; key = "<C-l>"; action = "<C-w>l"; }
-          { mode = "v"; key = "J"; action = ":m '>+1<CR>gv=gv"; options.desc = "Move selection down"; }
-          { mode = "v"; key = "K"; action = ":m '<-2<CR>gv=gv"; options.desc = "Move selection up"; }
+          {
+            mode = "n";
+            key = "<leader>e";
+            action = "<cmd>Oil<CR>";
+            options.desc = "Open Oil file manager";
+          }
+          {
+            mode = "n";
+            key = "<leader>ff";
+            action = "<cmd>Telescope find_files<CR>";
+            options.desc = "Find files";
+          }
+          {
+            mode = "n";
+            key = "<leader>fg";
+            action = "<cmd>Telescope live_grep<CR>";
+            options.desc = "Live grep";
+          }
+          {
+            mode = "n";
+            key = "<leader>fb";
+            action = "<cmd>Telescope buffers<CR>";
+            options.desc = "Buffers";
+          }
+          {
+            mode = "n";
+            key = "<C-h>";
+            action = "<C-w>h";
+          }
+          {
+            mode = "n";
+            key = "<C-j>";
+            action = "<C-w>j";
+          }
+          {
+            mode = "n";
+            key = "<C-k>";
+            action = "<C-w>k";
+          }
+          {
+            mode = "n";
+            key = "<C-l>";
+            action = "<C-w>l";
+          }
+          {
+            mode = "v";
+            key = "J";
+            action = ":m '>+1<CR>gv=gv";
+            options.desc = "Move selection down";
+          }
+          {
+            mode = "v";
+            key = "K";
+            action = ":m '<-2<CR>gv=gv";
+            options.desc = "Move selection up";
+          }
           {
             mode = "n";
             key = "<leader>tp";
@@ -63,17 +112,22 @@ in
             enable = true;
             settings = {
               options = {
-
-                component_separators = { left = ""; right = ""; };
-                section_separators = { left = ""; right = ""; };
+                component_separators = {
+                  left = "";
+                  right = "";
+                };
+                section_separators = {
+                  left = "";
+                  right = "";
+                };
               };
               sections = {
-                lualine_a = [ "mode" ];
-                lualine_b = [ "branch" "diff" ];
-                lualine_c = [ "filename" ];
-                lualine_x = [ "diagnostics" "fileformat" "filetype" ];
-                lualine_y = [ "progress" ];
-                lualine_z = [ "location" ];
+                lualine_a = ["mode"];
+                lualine_b = ["branch" "diff"];
+                lualine_c = ["filename"];
+                lualine_x = ["diagnostics" "fileformat" "filetype"];
+                lualine_y = ["progress"];
+                lualine_z = ["location"];
               };
             };
           };
@@ -111,9 +165,9 @@ in
           nvim-cmp = {
             enable = true;
             sources = [
-              { name = "nvim_lsp"; }
-              { name = "buffer"; }
-              { name = "path"; }
+              {name = "nvim_lsp";}
+              {name = "buffer";}
+              {name = "path";}
             ];
           };
           luasnip.enable = true;
@@ -143,7 +197,6 @@ in
           notify = {
             enable = true;
             settings = {
-
               fps = 60;
               render = "compact";
               stages = "fade";
@@ -158,9 +211,9 @@ in
                 timeout_ms = 500;
               };
               formatters_by_ft = {
-                nix = [ "alejandra" ];
-                lua = [ "stylua" ];
-                python = [ "black" ];
+                nix = ["alejandra"];
+                lua = ["stylua"];
+                python = ["black"];
               };
             };
           };

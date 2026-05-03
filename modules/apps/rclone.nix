@@ -1,14 +1,17 @@
-{ config, lib, pkgs, globals, ... }:
-
-let
-  cfg = config.apps.rclone;
-in
 {
+  config,
+  lib,
+  pkgs,
+  globals,
+  ...
+}: let
+  cfg = config.apps.rclone;
+in {
   options.apps.rclone.enable = lib.mkEnableOption "rclone";
 
   config = lib.mkIf cfg.enable {
     programs.fuse.userAllowOther = true;
-    environment.systemPackages = [ pkgs.rclone ];
+    environment.systemPackages = [pkgs.rclone];
 
     sops.secrets.rclone_client_id.sopsFile = ../../secrets/rclone.yaml;
     sops.secrets.rclone_token.sopsFile = ../../secrets/rclone.yaml;
@@ -23,7 +26,11 @@ in
       '';
     };
 
-    home-manager.users.${globals.userName} = { osConfig, config, ... }: {
+    home-manager.users.${globals.userName} = {
+      osConfig,
+      config,
+      ...
+    }: {
       home.file."gdrive/.keep".text = "";
 
       xdg.configFile."rclone/rclone.conf".source = config.lib.file.mkOutOfStoreSymlink osConfig.sops.templates."rclone.conf".path;
@@ -31,8 +38,8 @@ in
       systemd.user.services.rclone-gdrive = {
         Unit = {
           Description = "rclone Google Drive mount";
-          After = [ "network-online.target" ];
-          Wants = [ "network-online.target" ];
+          After = ["network-online.target"];
+          Wants = ["network-online.target"];
         };
         Service = {
           Type = "notify";
@@ -57,10 +64,10 @@ in
           ExecStop = "/run/wrappers/bin/fusermount -u %h/gdrive";
           Restart = "on-failure";
           RestartSec = "10s";
-          Environment = [ "PATH=/run/wrappers/bin:$PATH" ];
+          Environment = ["PATH=/run/wrappers/bin:$PATH"];
         };
         Install = {
-          WantedBy = [ "default.target" ];
+          WantedBy = ["default.target"];
         };
       };
     };

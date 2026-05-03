@@ -1,12 +1,20 @@
-{ config, lib, pkgs, globals, inputs, ... }:
-let
-  cfg = config.apps.git;
-in
 {
+  config,
+  lib,
+  pkgs,
+  globals,
+  inputs,
+  ...
+}: let
+  cfg = config.apps.git;
+in {
   options.apps.git.enable = lib.mkEnableOption "git";
 
   config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = { config, ... }: {
+    home-manager.users.${globals.userName} = {
+      config,
+      ...
+    }: {
       programs.git = {
         enable = true;
         userName = globals.userName;

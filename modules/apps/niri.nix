@@ -1,5 +1,11 @@
-{ config, lib, pkgs, userName, hostName, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  userName,
+  hostName,
+  ...
+}: let
   cfg = config.apps.niri;
   colors = config.lib.stylix.colors.withHashtag;
 
@@ -25,9 +31,13 @@ let
     }
   '';
 
-  outputs = if hostName == "aorus" then aorusOutputs else if hostName == "surface" then surfaceOutputs else "";
-in
-{
+  outputs =
+    if hostName == "aorus"
+    then aorusOutputs
+    else if hostName == "surface"
+    then surfaceOutputs
+    else "";
+in {
   imports = lib.optional hasEnhancements enhancements;
 
   options.apps.niri.enable = lib.mkEnableOption "niri";

@@ -1,80 +1,86 @@
-{ config, lib, pkgs, userName, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  userName,
+  ...
+}: let
   cfg = config.apps.waybar;
   palette = config.lib.stylix.colors.withHashtag;
-in
-{
+in {
   options.apps.waybar.enable = lib.mkEnableOption "waybar";
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${userName} = {
       programs.waybar = {
         enable = true;
-        settings = [{
-          layer = "top";
-          position = "top";
-          height = 28;
-          spacing = 0;
-          exclusive = true;
-          fixed-center = false;
+        settings = [
+          {
+            layer = "top";
+            position = "top";
+            height = 28;
+            spacing = 0;
+            exclusive = true;
+            fixed-center = false;
 
-          modules-left = [ "clock#date" ];
-          modules-center = [ "clock" ];
-          modules-right = [ "network" "bluetooth" "pulseaudio" "battery" ];
+            modules-left = ["clock#date"];
+            modules-center = ["clock"];
+            modules-right = ["network" "bluetooth" "pulseaudio" "battery"];
 
-          "clock#date" = {
-            format = "{0:%A}";
-            format-alt = "{0:%A, %m/%d}";
-            tooltip = false;
-          };
-
-          "clock" = {
-            format = "{0:%H:%M}";
-            tooltip = false;
-          };
-
-          "network" = {
-            format-wifi = "{icon}";
-            format-ethernet = "󰈀";
-            format-disconnected = "󰤭";
-            format-linked = "󰤫";
-            format-icons = [ "󰤟" "󰤢" "󰤥" "󰤨" ];
-            tooltip-format-wifi = "{essid}  {signalStrength}%";
-            tooltip-format-disconnected = "Disconnected";
-            on-click = "foot --app-id impala impala";
-          };
-
-          "bluetooth" = {
-            format = "󰂯";
-            format-connected = "󰂱";
-            format-disabled = "󰂲";
-            tooltip = false;
-            on-click = "foot --app-id bluetui bluetui";
-          };
-
-          "pulseaudio" = {
-            format = "{icon}";
-            format-muted = "󰖁";
-            format-icons.default = [ "󰕿" "󰖀" "󰕾" ];
-            tooltip = false;
-            on-click = "pactl set-sink-mute @DEFAULT_SINK@ toggle";
-            on-click-right = "foot --app-id wiremix wiremix";
-            scroll-step = 5;
-          };
-
-          "battery" = {
-            format = "{icon}";
-            format-charging = "󰂄";
-            format-plugged = "󰚥";
-            format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
-            states = {
-              warning = 30;
-              critical = 15;
+            "clock#date" = {
+              format = "{0:%A}";
+              format-alt = "{0:%A, %m/%d}";
+              tooltip = false;
             };
-            tooltip = false;
-            on-click = "foot --app-id btop btop";
-          };
-        }];
+
+            clock = {
+              format = "{0:%H:%M}";
+              tooltip = false;
+            };
+
+            network = {
+              format-wifi = "{icon}";
+              format-ethernet = "󰈀";
+              format-disconnected = "󰤭";
+              format-linked = "󰤫";
+              format-icons = ["󰤟" "󰤢" "󰤥" "󰤨"];
+              tooltip-format-wifi = "{essid}  {signalStrength}%";
+              tooltip-format-disconnected = "Disconnected";
+              on-click = "foot --app-id impala impala";
+            };
+
+            bluetooth = {
+              format = "󰂯";
+              format-connected = "󰂱";
+              format-disabled = "󰂲";
+              tooltip = false;
+              on-click = "foot --app-id bluetui bluetui";
+            };
+
+            pulseaudio = {
+              format = "{icon}";
+              format-muted = "󰖁";
+              format-icons.default = ["󰕿" "󰖀" "󰕾"];
+              tooltip = false;
+              on-click = "pactl set-sink-mute @DEFAULT_SINK@ toggle";
+              on-click-right = "foot --app-id wiremix wiremix";
+              scroll-step = 5;
+            };
+
+            battery = {
+              format = "{icon}";
+              format-charging = "󰂄";
+              format-plugged = "󰚥";
+              format-icons = ["󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+              states = {
+                warning = 30;
+                critical = 15;
+              };
+              tooltip = false;
+              on-click = "foot --app-id btop btop";
+            };
+          }
+        ];
 
         style = ''
           * {

@@ -1,8 +1,12 @@
-{ config, lib, pkgs, globals, ... }:
-let
-  cfg = config.apps.fuzzel;
-in
 {
+  config,
+  lib,
+  pkgs,
+  globals,
+  ...
+}: let
+  cfg = config.apps.fuzzel;
+in {
   options.apps.fuzzel.enable = lib.mkEnableOption "fuzzel";
 
   config = lib.mkIf cfg.enable {
@@ -12,7 +16,7 @@ in
         settings = {
           main = {
             prompt = "> ";
-            terminal = "footclient -a '{cmd}' -T '{cmd}' -e {cmd}";   
+            terminal = "footclient -a '{cmd}' -T '{cmd}' -e {cmd}";
             width = 30;
             lines = 10;
             horizontal-pad = 20;

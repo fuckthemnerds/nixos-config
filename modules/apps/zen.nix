@@ -1,6 +1,11 @@
-{ config, lib, pkgs, globals, inputs, ... }:
-
-let
+{
+  config,
+  lib,
+  pkgs,
+  globals,
+  inputs,
+  ...
+}: let
   cfg = config.apps.zen;
 
   extension = shortId: guid: {
@@ -33,14 +38,12 @@ let
       ExtensionSettings = builtins.listToAttrs extensions;
     };
   };
-
-in
-{
+in {
   options.apps.zen.enable = lib.mkEnableOption "zen";
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {
-      home.packages = [ zenPkg ];
+      home.packages = [zenPkg];
 
       xdg.configFile."tridactyl/tridactylrc".text = ''
         set update.lastchecktime 1776613539174

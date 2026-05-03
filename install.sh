@@ -164,6 +164,7 @@ cat > secrets/usercreds.nix <<EOF
 }
 EOF
 git add secrets/usercreds.nix >/dev/null 2>&1
+umask 022
 
 export USERNAME HOST DISK FLAKE_REF USER_PASS GEN_MASTER
 

@@ -34,33 +34,45 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
 
-  outputs = inputs@{ self, flake-parts, ... }:
-    let
-      localConfig = if builtins.pathExists ./secrets/usercreds.nix
-                    then import ./secrets/usercreds.nix
-                    else { };
+  outputs = inputs @ {
+    self,
+    flake-parts,
+    ...
+  }: let
+    localConfig =
+      if builtins.pathExists ./secrets/usercreds.nix
+      then import ./secrets/usercreds.nix
+      else {};
 
-      globals = {
-        userName = localConfig.userName;
-        stateVersion = "26.05";
-        themeName = localConfig.themeName;
-        userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
-        gitPlatform = localConfig.gitPlatform or "github";
-        gitUser = localConfig.gitUser;
-        gitRepo = localConfig.gitRepo;
-        device = localConfig.device;
-      };
+    globals = {
+      userName = localConfig.userName;
+      stateVersion = "26.05";
+      themeName = localConfig.themeName;
+      userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
+      gitPlatform = localConfig.gitPlatform or "github";
+      gitUser = localConfig.gitUser;
+      gitRepo = localConfig.gitRepo;
+      device = localConfig.device;
+    };
 
-      mkHost = { hostName, hostConfig ? {}, extraModules ? [] }:
-        inputs.nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = let
-            gitRemoteUrl = if (globals ? gitPlatform && globals.gitPlatform == "github") then "https://github.com/${globals.gitUser}/${globals.gitRepo}" else "";
-          in {
-            inherit inputs hostName gitRemoteUrl globals;
-            inherit (globals) userName stateVersion;
-          };
-          modules = [
+    mkHost = {
+      hostName,
+      hostConfig ? {},
+      extraModules ? [],
+    }:
+      inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = let
+          gitRemoteUrl =
+            if (globals ? gitPlatform && globals.gitPlatform == "github")
+            then "https://github.com/${globals.gitUser}/${globals.gitRepo}"
+            else "";
+        in {
+          inherit inputs hostName gitRemoteUrl globals;
+          inherit (globals) userName stateVersion;
+        };
+        modules =
+          [
             {
               networking.hostName = hostName;
               system.stateVersion = globals.stateVersion;
@@ -81,31 +93,36 @@
             inputs.stylix.nixosModules.stylix
 
             hostConfig
-          ] ++ extraModules;
-        };
-    in
-    flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" ];
+          ]
+          ++ extraModules;
+      };
+  in
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = ["x86_64-linux"];
 
       flake = {
         inherit globals;
 
         nixosConfigurations = {
-          aorus = mkHost { hostName = "aorus"; };
+          aorus = mkHost {hostName = "aorus";};
           surface = mkHost {
             hostName = "surface";
-            extraModules = [ inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];
+            extraModules = [inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel];
           };
         };
       };
 
-      perSystem = { self', pkgs, ... }: {
+      perSystem = {
+        self',
+        pkgs,
+        ...
+      }: {
         formatter = pkgs.alejandra;
         apps.default = self'.apps.install;
         apps.install = {
           type = "app";
           program = pkgs.lib.getExe (pkgs.writeShellScriptBin "install" ''
-            export PATH="${pkgs.lib.makeBinPath [ pkgs.git ]}:$PATH"
+            export PATH="${pkgs.lib.makeBinPath [pkgs.git]}:$PATH"
             exec "${self}/install.sh" "$@"
           '');
         };

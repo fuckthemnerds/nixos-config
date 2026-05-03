@@ -1,15 +1,16 @@
-{ config, pkgs, ... }:
 {
-  # Toggles features from modules/ (Enabled by default in defaults.nix)
-
-  # Host specific overrides
+  config,
+  pkgs,
+  ...
+}: {
+  boot.kernelParams = ["acpi_osi=Linux"];
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
   environment.systemPackages = [
     pkgs.nvtopPackages.full
   ];
 
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = ["nvidia"];
   hardware.nvidia = {
     modesetting.enable = true;
     open = false;

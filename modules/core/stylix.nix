@@ -1,11 +1,14 @@
-{ config, pkgs, inputs, lib, ... }:
-
-let
+{
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: let
   dummyBg = pkgs.runCommand "dummy-bg.png" {} ''
     ${pkgs.imagemagick}/bin/convert -size 1920x1080 xc:"#262626" $out
   '';
-in
-{
+in {
   stylix = {
     enable = true;
     autoEnable = false;

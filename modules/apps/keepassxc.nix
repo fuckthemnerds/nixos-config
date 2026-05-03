@@ -1,9 +1,12 @@
-{ config, lib, pkgs, globals, ... }:
-
-let
-  cfg = config.apps.keepassxc;
-in
 {
+  config,
+  lib,
+  pkgs,
+  globals,
+  ...
+}: let
+  cfg = config.apps.keepassxc;
+in {
   options.apps.keepassxc.enable = lib.mkEnableOption "keepassxc";
 
   config = lib.mkIf cfg.enable {
@@ -12,8 +15,8 @@ in
         enable = true;
         settings = {
           GUI = {
-            ShowTrayIcon    = true;
-            MinimizeToTray  = true;
+            ShowTrayIcon = true;
+            MinimizeToTray = true;
             MinimizeOnClose = true;
           };
         };
@@ -22,17 +25,17 @@ in
       systemd.user.services.keepassxc = {
         Unit = {
           Description = "KeePassXC Password Manager";
-          After       = [ "graphical-session.target" "waybar.service" ];
-          PartOf      = [ "graphical-session.target" ];
+          After = ["graphical-session.target" "waybar.service"];
+          PartOf = ["graphical-session.target"];
         };
 
         Install = {
-          WantedBy = [ "graphical-session.target" ];
+          WantedBy = ["graphical-session.target"];
         };
 
         Service = {
           ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized";
-          Restart   = "on-failure";
+          Restart = "on-failure";
           RestartSec = "3s";
         };
       };

@@ -1,8 +1,12 @@
-{ config, lib, pkgs, userName, ... }:
-let
-  cfg = config.apps.fish;
-in
 {
+  config,
+  lib,
+  pkgs,
+  userName,
+  ...
+}: let
+  cfg = config.apps.fish;
+in {
   options.apps.fish.enable = lib.mkEnableOption "fish";
 
   config = lib.mkIf cfg.enable {
@@ -23,32 +27,32 @@ in
         ];
 
         shellAbbrs = {
-          nrs   = "nh os switch";
-          nrb   = "nh os boot";
-          nrt   = "nh os test";
-          nrh   = "nh home switch";
-          nfu   = "nix flake update";
-          nfc   = "nix flake check";
+          nrs = "nh os switch";
+          nrb = "nh os boot";
+          nrt = "nh os test";
+          nrh = "nh home switch";
+          nfu = "nix flake update";
+          nfc = "nix flake check";
           cdnix = "cd /persistent/etc/nixos";
-          gst   = "git status";
-          gd    = "git diff";
-          ga    = "git add";
-          gaa   = "git add -A";
-          gc    = "git commit -m";
-          gca   = "git commit --amend --no-edit";
-          gp    = "git push";
-          gpl   = "git pull";
-          gl    = "git log --oneline --graph --decorate -20";
-          zo    = "zo";
+          gst = "git status";
+          gd = "git diff";
+          ga = "git add";
+          gaa = "git add -A";
+          gc = "git commit -m";
+          gca = "git commit --amend --no-edit";
+          gp = "git push";
+          gpl = "git pull";
+          gl = "git log --oneline --graph --decorate -20";
+          zo = "zo";
         };
 
         shellAliases = {
-          ls    = "eza --icons";
-          ll    = "eza -lh --icons --grid --group-directories-first";
-          la    = "eza -lah --icons --grid --group-directories-first";
-          lt    = "eza --tree --icons";
-          y     = "yazi";
-          sudo  = "sudo --preserve-env=PATH,EDITOR,VISUAL env";
+          ls = "eza --icons";
+          ll = "eza -lh --icons --grid --group-directories-first";
+          la = "eza -lah --icons --grid --group-directories-first";
+          lt = "eza --tree --icons";
+          y = "yazi";
+          sudo = "sudo --preserve-env=PATH,EDITOR,VISUAL env";
         };
 
         interactiveShellInit = ''

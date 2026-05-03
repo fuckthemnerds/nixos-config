@@ -1,6 +1,4 @@
-{ ... }:
-
-{
+{...}: {
   services.kanata = {
     enable = true;
     keyboards.default = {
@@ -13,7 +11,7 @@
     };
   };
 
-  boot.kernelModules = [ "uinput" ];
+  boot.kernelModules = ["uinput"];
   hardware.uinput.enable = true;
   users.groups.uinput = {};
 

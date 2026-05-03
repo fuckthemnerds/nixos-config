@@ -1,8 +1,10 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   imports = [
-    # Apps
     ./apps/ai.nix
     ./apps/btop.nix
     ./apps/cliphist.nix
@@ -29,10 +31,9 @@
     ./apps/zen.nix
     ./apps/zoxide.nix
 
-    # Core
     ./core/boot.nix
     ./core/core.nix
-    ./core/determinate.nix
+    ./core/system.nix
     ./core/impermanence.nix
     ./core/kanata.nix
     ./core/networking.nix
@@ -42,7 +43,6 @@
     ./core/stylix.nix
     ./core/users.nix
 
-    # Helpers
     ./helpers/niri-enhancements.nix
   ];
 }
