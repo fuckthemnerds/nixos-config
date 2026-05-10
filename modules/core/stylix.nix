@@ -14,8 +14,6 @@ in {
     enable = true;
     image = dummyBg;
 
-    targets.neovim.enable = false;
-
     base16Scheme = {
       base00 = "161616";
       base01 = "262626";
