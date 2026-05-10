@@ -27,9 +27,7 @@
     };
 
     gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 30d";
+      automatic = false;
     };
 
     registry = lib.mapAttrs (_: value: {flake = value;}) inputs;
