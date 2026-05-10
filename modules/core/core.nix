@@ -6,9 +6,7 @@
     useUserPackages = true;
     backupFileExtension = "backup";
     extraSpecialArgs = { inherit inputs userName stateVersion hostName; };
-    sharedModules = [
-      inputs.nixvim.homeModules.nixvim
-    ];
+    sharedModules = [];
 
     users.${userName} = {
       home.stateVersion = stateVersion;
