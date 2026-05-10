@@ -18,14 +18,19 @@ in {
           general = {
             lock_cmd = "pidof hyprlock || hyprlock";
             before_sleep_cmd = "loginctl lock-session";
-            after_sleep_cmd = "niri msg action power-on-monitors";
+            after_sleep_cmd = "sleep 0.5 && niri msg action power-on-monitors";
           };
           listener =
             [
               {
-                timeout = 150;
-                on-timeout = "brightnessctl -s set 10";
+                timeout = 149;
+                on-timeout = "brightnessctl -s";
                 on-resume = "brightnessctl -r";
+              }
+              {
+                timeout = 150;
+                on-timeout = "brightnessctl set 10%";
+                on-resume = "";
               }
               {
                 timeout = 300;
@@ -45,6 +50,8 @@ in {
             ];
         };
       };
+
+      systemd.user.services.hypridle.Service.Restart = lib.mkForce "always";
     };
   };
 }

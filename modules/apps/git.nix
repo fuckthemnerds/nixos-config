@@ -1,4 +1,4 @@
-{
+x{
   config,
   lib,
   pkgs,
@@ -21,7 +21,6 @@ in {
         userEmail = globals.userEmail;
         extraConfig = {
           init.defaultBranch = "main";
-          credential.helper = "store --file ~/.config/git/credentials";
         };
       };
     };

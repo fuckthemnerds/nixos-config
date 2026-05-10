@@ -14,6 +14,7 @@ in {
     environment.systemPackages = [pkgs.rclone];
 
     sops.secrets.rclone_client_id.sopsFile = ../../secrets/rclone.yaml;
+    sops.secrets.rclone_client_secret.sopsFile = ../../secrets/rclone.yaml;
     sops.secrets.rclone_token.sopsFile = ../../secrets/rclone.yaml;
 
     sops.templates."rclone.conf" = {
@@ -22,6 +23,7 @@ in {
         [gdrive]
         type = drive
         client_id = ${config.sops.placeholder.rclone_client_id}
+        client_secret = ${config.sops.placeholder.rclone_client_secret}
         token = ${config.sops.placeholder.rclone_token}
       '';
     };

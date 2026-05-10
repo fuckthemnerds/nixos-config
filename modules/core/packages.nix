@@ -13,5 +13,8 @@
     unzip
     zip
     _7zz
+    bluetui
+    pulsemixer
+    lazygit
   ];
 }

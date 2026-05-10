@@ -15,6 +15,7 @@
       auto-optimise-store = true;
       builders-use-substitutes = true;
       cores = 0;
+      max-jobs = "auto";
       substituters = [
         "https://nix-community.cachix.org"
       ];
@@ -40,7 +41,7 @@
       RuntimeWatchdogSec = "30s";
       RebootWatchdogSec = "10m";
     };
-    services.NetworkManager-wait-online.enable = false;
+
   };
 
   services = {

@@ -131,19 +131,9 @@ in {
       };
       stylix.targets.waybar.enable = false;
 
-      systemd.user.services.waybar = {
-        Unit = {
-          Description = "Waybar";
-          PartOf = ["graphical-session.target"];
-          After = ["graphical-session.target"];
-        };
-        Install = {
-          WantedBy = ["graphical-session.target"];
-        };
-        Service = {
-          ExecStart = "${pkgs.waybar}/bin/waybar";
-          Restart = "on-failure";
-        };
+      programs.waybar.systemd = {
+        enable = true;
+        target = "graphical-session.target";
       };
     };
   };

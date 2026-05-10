@@ -11,8 +11,8 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixvim = {
-      url = "github:nix-community/nixvim";
+    nixCats = {
+      url = "github:BirdeeHub/nixCats-nvim";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
@@ -31,7 +31,12 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    otter-launcher = {
+      url = "github:kuokuo123/otter-launcher";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+    niri-flake.url = "github:sodiboo/niri-flake";
   };
 
   outputs = inputs @ {
@@ -91,6 +96,7 @@
             inputs.disko.nixosModules.disko
             inputs.determinate.nixosModules.default
             inputs.stylix.nixosModules.stylix
+            inputs.niri-flake.nixosModules.niri
 
             hostConfig
           ]

@@ -25,7 +25,8 @@ in {
       systemd.user.services.keepassxc = {
         Unit = {
           Description = "KeePassXC Password Manager";
-          After = ["graphical-session.target" "waybar.service"];
+          After = ["graphical-session.target" "rclone-gdrive.service"];
+          Wants = ["rclone-gdrive.service"];
           PartOf = ["graphical-session.target"];
         };
 

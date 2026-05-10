@@ -96,6 +96,7 @@
         ".config/keepassxc"
         ".cache/cliphist"
         ".config/teams-for-linux"
+        ".config/libreoffice"
         ".config/git"
         ".config/niri"
         ".config/fish"

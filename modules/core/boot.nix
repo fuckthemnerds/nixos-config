@@ -31,6 +31,8 @@
       "vm.vfs_cache_pressure" = 50;
       "net.core.default_qdisc" = "fq";
       "net.ipv4.tcp_congestion_control" = "bbr";
+      "kernel.kptr_restrict" = 2;
+      "kernel.dmesg_restrict" = 1;
     };
   };
 }

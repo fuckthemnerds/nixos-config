@@ -24,7 +24,8 @@
     multimedia.enable = lib.mkDefault true;
     niri.enable = lib.mkDefault true;
     nvim.enable = lib.mkDefault true;
-    rclone.enable = lib.mkDefault true;
+    otter.enable = lib.mkDefault true;
+    rclone.enable = lib.mkDefault false;
     waybar.enable = lib.mkDefault true;
     yazi.enable = lib.mkDefault true;
     zathura.enable = lib.mkDefault true;
@@ -83,5 +84,7 @@
       PAGER = "bat --style=plain";
       SSH_AUTH_SOCK = "\${XDG_RUNTIME_DIR}/app/org.keepassxc.KeePassXC/ssh-agent.socket";
     };
+
+    services.udiskie.enable = true;
   };
 }

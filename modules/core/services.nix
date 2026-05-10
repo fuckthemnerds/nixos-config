@@ -17,6 +17,9 @@
     };
 
     auto-cpufreq.enable = lib.mkDefault false;
+    tlp.enable = true;
+    thermald.enable = true;
+    udisks2.enable = true;
 
     fstrim = {
       enable = true;
@@ -44,7 +47,7 @@
 
   boot.tmp = {
     useTmpfs = true;
-    tmpfsSize = lib.mkDefault "50%";
+    size = lib.mkDefault "50%";
   };
 
   hardware.bluetooth = {

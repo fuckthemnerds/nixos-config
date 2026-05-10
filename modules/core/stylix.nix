@@ -3,6 +3,7 @@
   pkgs,
   inputs,
   lib,
+  hostName,
   ...
 }: let
   dummyBg = pkgs.runCommand "dummy-bg.png" {} ''
@@ -12,6 +13,8 @@ in {
   stylix = {
     enable = true;
     image = dummyBg;
+
+    targets.neovim.enable = false;
 
     base16Scheme = {
       base00 = "161616";
@@ -35,7 +38,7 @@ in {
     cursor = {
       name = "GoogleDot-Blue";
       package = pkgs.google-cursor;
-      size = 12;
+      size = if hostName == "surface" then 10 else 12;
     };
 
     fonts = {

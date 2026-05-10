@@ -32,7 +32,7 @@
   '';
 
   zenPkg = pkgs.wrapFirefox inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped {
-    extraPrefs = (builtins.readFile ../helpers/user.js) + "\n" + customPrefs;
+    extraPrefs = (builtins.readFile ./user.js) + "\n" + customPrefs;
     extraPolicies = {
       DisableTelemetry = true;
       ExtensionSettings = builtins.listToAttrs extensions;

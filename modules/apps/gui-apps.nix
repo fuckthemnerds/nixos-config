@@ -14,6 +14,7 @@ in {
       home.packages = with pkgs; [
         teams-for-linux
         file-roller
+        libreoffice-fresh
       ];
     };
   };
