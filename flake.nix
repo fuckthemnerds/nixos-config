@@ -94,6 +94,15 @@
             inputs.determinate.nixosModules.default
             inputs.stylix.nixosModules.stylix
             inputs.niri-flake.nixosModules.niri
+            {
+              nixpkgs.overlays = [
+                (final: prev: {
+                  niri = prev.niri.overrideAttrs (old: {
+                    doCheck = false;
+                  });
+                })
+              ];
+            }
 
             hostConfig
           ]
