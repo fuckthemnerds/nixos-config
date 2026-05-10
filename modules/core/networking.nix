@@ -35,6 +35,6 @@
       "1.0.0.1#cloudflare-dns.com"
       "9.9.9.9#dns.quad9.net"
     ];
-    dnsOverTls = "opportunistic";
+    dnsovertls = "opportunistic";
   };
 }
