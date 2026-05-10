@@ -32,7 +32,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-    niri-flake.url = "github:sodiboo/niri-flake";
+
     nixCats.url = "github:BirdeeHub/nixCats-nvim";
   };
 
@@ -93,16 +93,6 @@
             inputs.disko.nixosModules.disko
             inputs.determinate.nixosModules.default
             inputs.stylix.nixosModules.stylix
-            inputs.niri-flake.nixosModules.niri
-            {
-              nixpkgs.overlays = [
-                (final: prev: {
-                  niri = prev.niri.overrideAttrs (old: {
-                    doCheck = false;
-                  });
-                })
-              ];
-            }
 
             hostConfig
           ]
