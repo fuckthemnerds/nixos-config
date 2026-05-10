@@ -19,29 +19,43 @@
           swap = {
             size = "8G";
             content = {
-              type = "swap";
-              discardPolicy = "both";
-              resumeDevice = true;
+              type = "luks";
+              name = "crypted-swap";
+              settings = {
+                allowDiscards = true;
+              };
+              content = {
+                type = "swap";
+                discardPolicy = "both";
+                resumeDevice = true;
+              };
             };
           };
           root = {
             size = "100%";
             content = {
-              type = "btrfs";
-              extraArgs = ["-L" "nixos" "-f"];
-              subvolumes = {
-                "root" = {
-                  mountpoint = "/";
-                  mountOptions = ["compress=zstd" "noatime"];
-                };
-                "blank" = {};
-                "nix" = {
-                  mountpoint = "/nix";
-                  mountOptions = ["compress=zstd" "noatime"];
-                };
-                "persistent" = {
-                  mountpoint = "/persistent";
-                  mountOptions = ["compress=zstd" "noatime"];
+              type = "luks";
+              name = "crypted";
+              settings = {
+                allowDiscards = true;
+              };
+              content = {
+                type = "btrfs";
+                extraArgs = ["-L" "nixos" "-f"];
+                subvolumes = {
+                  "root" = {
+                    mountpoint = "/";
+                    mountOptions = ["compress=zstd" "noatime"];
+                  };
+                  "blank" = {};
+                  "nix" = {
+                    mountpoint = "/nix";
+                    mountOptions = ["compress=zstd" "noatime"];
+                  };
+                  "persistent" = {
+                    mountpoint = "/persistent";
+                    mountOptions = ["compress=zstd" "noatime"];
+                  };
                 };
               };
             };

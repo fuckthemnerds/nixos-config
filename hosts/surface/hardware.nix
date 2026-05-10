@@ -19,6 +19,6 @@
   boot.kernelModules = ["kvm-intel"];
   boot.kernelParams = ["mem_sleep_default=deep"];
 
-  swapDevices = [{device = "/dev/disk/by-partlabel/disk-main-swap";}];
-  boot.resumeDevice = "/dev/disk/by-partlabel/disk-main-swap";
+  swapDevices = [{device = "/dev/mapper/crypted-swap";}];
+  boot.resumeDevice = "/dev/mapper/crypted-swap";
 }
