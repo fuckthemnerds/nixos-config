@@ -11,7 +11,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    };
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -34,6 +33,7 @@
     };
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     niri-flake.url = "github:sodiboo/niri-flake";
+    nixCats.url = "github:BirdeeHub/nixCats-nvim";
   };
 
   outputs = inputs @ {
