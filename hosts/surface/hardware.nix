@@ -18,7 +18,4 @@
   boot.initrd.availableKernelModules = ["xhci_pci" "nvme" "usbhid" "uas" "sd_mod"];
   boot.kernelModules = ["kvm-intel"];
   boot.kernelParams = ["mem_sleep_default=deep"];
-
-  swapDevices = [{device = "/dev/mapper/crypted-swap";}];
-  boot.resumeDevice = "/dev/mapper/crypted-swap";
 }
