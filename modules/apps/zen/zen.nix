@@ -86,7 +86,7 @@ in {
 
           --tridactyl-bg: #${base00};
           --tridactyl-fg: #${base05};
-          --tridactyl-border-radius: 4px;
+          --tridactyl-border-radius: 0;
 
           --tridactyl-cmdl-bg: #${base01};
           --tridactyl-cmdl-fg: #${base05};
@@ -98,7 +98,7 @@ in {
           --tridactyl-status-bg: #${base01};
           --tridactyl-status-fg: #${base05};
           --tridactyl-status-border: 1px solid #${base03};
-          --tridactyl-status-border-radius: 4px;
+          --tridactyl-status-border-radius: 0;
 
           --tridactyl-hintspan-font-size: var(--tridactyl-small-font-size);
           --tridactyl-hintspan-font-weight: 700;
@@ -139,6 +139,12 @@ in {
 
         :root .TridactylStatusIndicator {
           font-family: var(--tridactyl-font-family) !important;
+        }
+      '';
+
+      home.file.".zen/default/chrome/userChrome.css".text = ''
+        * {
+          border-radius: 0 !important;
         }
       '';
     };

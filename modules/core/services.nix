@@ -47,7 +47,7 @@
 
   boot.tmp = {
     useTmpfs = true;
-    size = lib.mkDefault "50%";
+    tmpfsSize = lib.mkDefault "50%";
   };
 
   hardware.bluetooth = {

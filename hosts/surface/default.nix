@@ -8,7 +8,7 @@
   ];
 
   services.auto-cpufreq.enable = true;
-  boot.tmp.size = "2G";
+  boot.tmp.tmpfsSize = "2G";
 
   services.displayManager.ly.enable = false;
 
