@@ -14,6 +14,7 @@
       shell = pkgs.fish;
       createHome = true;
       homeMode = "700";
+    };
   };
 
   programs.fish.enable = true;
