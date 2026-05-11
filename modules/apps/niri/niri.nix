@@ -4,6 +4,7 @@
   pkgs,
   userName,
   hostName,
+  inputs,
   ...
 }: let
   cfg = config.apps.niri;
@@ -160,23 +161,24 @@ in {
         }
 
         binds {
-            Mod+Space { spawn "/run/current-system/sw/bin/fuzzel"; }
-            Super+T { spawn "/run/current-system/sw/bin/otter-launcher"; } // CHANGE AFTER TESTING
-            Mod+Return { spawn "/run/current-system/sw/bin/foot"; }
-            Mod+V { spawn "/run/current-system/sw/bin/sh" "-c" "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"; }
-            Super+F1 { spawn "/run/current-system/sw/bin/sh" "-c" "killall -SIGUSR1 waybar"; }
+            Mod+Space { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
+            // TODO CHANGE AFTER TESTING
+            Mod+T { spawn "${inputs.otter-launcher.packages.${pkgs.system}.default}/bin/otter-launcher"; }
+            Mod+Return { spawn "${pkgs.foot}/bin/foot"; }
+            Mod+V { spawn "${pkgs.bash}/bin/bash" "-c" "${pkgs.cliphist}/bin/cliphist list | ${pkgs.fuzzel}/bin/fuzzel --dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy"; }
+            Mod+F1 { spawn "${pkgs.bash}/bin/bash" "-c" "${pkgs.psmisc}/bin/killall -SIGUSR1 waybar"; }
 
-            XF86AudioRaiseVolume allow-when-locked=true { spawn "/run/current-system/sw/bin/sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
-            XF86AudioLowerVolume allow-when-locked=true { spawn "/run/current-system/sw/bin/sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
-            XF86AudioMute allow-when-locked=true { spawn "/run/current-system/sw/bin/sh" "-c" "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
-            XF86AudioMicMute allow-when-locked=true { spawn "/run/current-system/sw/bin/sh" "-c" "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
-            XF86AudioPlay allow-when-locked=true { spawn "/run/current-system/sw/bin/playerctl" "play-pause"; }
-            XF86AudioStop allow-when-locked=true { spawn "/run/current-system/sw/bin/playerctl" "stop"; }
-            XF86AudioPrev allow-when-locked=true { spawn "/run/current-system/sw/bin/playerctl" "previous"; }
-            XF86AudioNext allow-when-locked=true { spawn "/run/current-system/sw/bin/playerctl" "next"; }
+            XF86AudioRaiseVolume allow-when-locked=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+" "-l" "1.0"; }
+            XF86AudioLowerVolume allow-when-locked=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"; }
+            XF86AudioMute allow-when-locked=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+            XF86AudioMicMute allow-when-locked=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+            XF86AudioPlay allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "play-pause"; }
+            XF86AudioStop allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "stop"; }
+            XF86AudioPrev allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "previous"; }
+            XF86AudioNext allow-when-locked=true { spawn "${pkgs.playerctl}/bin/playerctl" "next"; }
 
-            XF86MonBrightnessUp allow-when-locked=true { spawn "/run/current-system/sw/bin/brightnessctl" "--class=backlight" "set" "+10%"; }
-            XF86MonBrightnessDown allow-when-locked=true { spawn "/run/current-system/sw/bin/brightnessctl" "--class=backlight" "set" "10%-"; }
+            XF86MonBrightnessUp allow-when-locked=true { spawn "${pkgs.brightnessctl}/bin/brightnessctl" "--class=backlight" "set" "+10%"; }
+            XF86MonBrightnessDown allow-when-locked=true { spawn "${pkgs.brightnessctl}/bin/brightnessctl" "--class=backlight" "set" "10%-"; }
 
             Mod+Q { close-window; }
 
@@ -267,9 +269,9 @@ in {
             Mod+Shift+Minus { set-window-height "-10%"; }
             Mod+Shift+Equal { set-window-height "+10%"; }
 
-            Mod+Shift+M { spawn "/run/current-system/sw/bin/niri-toggle-float"; }
+            Mod+Shift+M { spawn "niri-toggle-float"; }
             Mod+M { switch-focus-between-floating-and-tiling; }
-            Mod+Ctrl+M { spawn "/run/current-system/sw/bin/niri-cycle-floating"; }
+            Mod+Ctrl+M { spawn "niri-cycle-floating"; }
 
             Mod+grave { toggle-overview; }
 
@@ -277,7 +279,7 @@ in {
             Ctrl+Print { screenshot-screen; }
 
             Mod+Escape { toggle-keyboard-shortcuts-inhibit; }
-            Mod+P { spawn "/run/current-system/sw/bin/niri-power-menu"; }
+            Mod+P { spawn "niri-power-menu"; }
             Mod+Shift+E { quit; }
             Ctrl+Alt+Delete { quit; }
             Mod+Shift+P { power-off-monitors; }
