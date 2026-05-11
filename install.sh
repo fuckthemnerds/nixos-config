@@ -141,8 +141,12 @@ box_header "USER CREDENTIALS" "${CYAN}"
 box_line "Enter credentials" "${CYAN}"
 box_footer "${CYAN}"
 read -p "[>] Username: " USERNAME
-USERNAME=${USERNAME:-mad}
 read -p "[>] Email: " USEREMAIL
+read -p "[>] Theme Name: " THEME
+read -p "[>] Git Platform: " GITPLATFORM
+read -p "[>] Git Username: " GITUSER
+read -p "[>] Git Repository Name: " GITREPO
+
 while true; do
     read -sp "[>] Password for $USERNAME: " USER_PASS
     echo ""
@@ -154,11 +158,6 @@ while true; do
 done
 echo ""
 
-read -p "[>] Theme Name: " THEME
-THEME=${THEME:-carbon}
-read -p "[>] Git Username: " GITUSER
-read -p "[>] Git Repository Name: " GITREPO
-
 umask 077
 mkdir -p secrets
 cat > secrets/usercreds.nix <<EOF
@@ -166,6 +165,7 @@ cat > secrets/usercreds.nix <<EOF
   userName = "$USERNAME";
   userEmail = "$USEREMAIL";
   themeName = "$THEME";
+  gitPlatform = "$GITPLATFORM";
   gitUser = "$GITUSER";
   gitRepo = "$GITREPO";
   device = "$DISK";

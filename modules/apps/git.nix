@@ -18,14 +18,16 @@ in {
       config,
       ...
     }: {
-      programs.git = {
-        enable = true;
-        userName = globals.userName;
-        userEmail = globals.userEmail;
-        extraConfig = {
-          init.defaultBranch = "main";
+        programs.git = {
+          enable = true;
+          settings = {
+            user = {
+              name = globals.userName;
+              email = globals.userEmail;
+            };
+            init.defaultBranch = "main";
+          };
         };
-      };
 
       programs.lazygit.enable = true;
     };

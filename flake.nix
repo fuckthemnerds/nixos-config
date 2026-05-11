@@ -47,11 +47,11 @@
       else {};
 
     globals = {
-      userName = localConfig.userName;
       stateVersion = "26.05";
+      userName = localConfig.userName;
+      userEmail = localConfig.userEmail;
       themeName = localConfig.themeName;
-      userEmail = localConfig.userEmail or "205473740+fuckthemnerds@users.noreply.github.com";
-      gitPlatform = localConfig.gitPlatform or "github";
+      gitPlatform = localConfig.gitPlatform;
       gitUser = localConfig.gitUser;
       gitRepo = localConfig.gitRepo;
       device = localConfig.device;
