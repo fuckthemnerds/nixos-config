@@ -54,7 +54,7 @@
       gitPlatform = localConfig.gitPlatform or "";
       gitUser = localConfig.gitUser or "";
       gitRepo = localConfig.gitRepo or "";
-      device = localConfig.device or "";
+      device = localConfig.device or null;
     };
 
     mkHost = {
