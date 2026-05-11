@@ -17,31 +17,30 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    home-manager.users.${userName}.xdg.configFile."nvim/lua/stylix_colors.lua".text = ''
-      return {
-        base00 = "#${stylixColors.base00}",
-        base01 = "#${stylixColors.base01}",
-        base02 = "#${stylixColors.base02}",
-        base03 = "#${stylixColors.base03}",
-        base04 = "#${stylixColors.base04}",
-        base05 = "#${stylixColors.base05}",
-        base06 = "#${stylixColors.base06}",
-        base07 = "#${stylixColors.base07}",
-        base08 = "#${stylixColors.base08}",
-        base09 = "#${stylixColors.base09}",
-        base0A = "#${stylixColors.base0A}",
-        base0B = "#${stylixColors.base0B}",
-        base0C = "#${stylixColors.base0C}",
-        base0D = "#${stylixColors.base0D}",
-        base0E = "#${stylixColors.base0E}",
-        base0F = "#${stylixColors.base0F}",
-      }
-    '';
-
-
     home-manager.sharedModules = [inputs.nixCats.homeModules.default];
 
     home-manager.users.${userName} = {
+      xdg.configFile."nvim/lua/stylix_colors.lua".text = ''
+        return {
+          base00 = "#${stylixColors.base00}",
+          base01 = "#${stylixColors.base01}",
+          base02 = "#${stylixColors.base02}",
+          base03 = "#${stylixColors.base03}",
+          base04 = "#${stylixColors.base04}",
+          base05 = "#${stylixColors.base05}",
+          base06 = "#${stylixColors.base06}",
+          base07 = "#${stylixColors.base07}",
+          base08 = "#${stylixColors.base08}",
+          base09 = "#${stylixColors.base09}",
+          base0A = "#${stylixColors.base0A}",
+          base0B = "#${stylixColors.base0B}",
+          base0C = "#${stylixColors.base0C}",
+          base0D = "#${stylixColors.base0D}",
+          base0E = "#${stylixColors.base0E}",
+          base0F = "#${stylixColors.base0F}",
+        }
+      '';
+
       nixCats = {
         enable = true;
         luaPath = "${./lua}";
