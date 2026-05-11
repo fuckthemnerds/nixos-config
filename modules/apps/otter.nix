@@ -16,7 +16,7 @@ in {
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {
       home.packages = [
-        inputs.otter-launcher.packages.${pkgs.system}.default
+        inputs.otter-launcher.packages.${pkgs.stdenv.hostPlatform.system}.default
       ];
 
       xdg.configFile."otter/config.toml".text = ''
