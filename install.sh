@@ -66,7 +66,7 @@ spinner() {
     local exit_status=$?
     
     if [ $exit_status -eq 0 ]; then
-        printf "\r${GREEN}[${CHECK}]${NC} ${msg} (Done!)\n"
+        printf "\r${GREEN}[${CHECK}]${NC} ${msg} (${CHECK})\n"
     else
         printf "\r${RED}[${CROSS}]${NC} ${msg} (Failed: $exit_status)\n"
         tput cnorm 2>/dev/null || true
@@ -105,10 +105,7 @@ FLAKE_REF="${FLAKE_REF:-git+file:.}"
 
 header "NIXOS PRE-FLIGHT SETUP"
 
-HOSTS_STR=$(nix eval --raw --impure --expr \
-  'builtins.concatStringsSep " " (builtins.attrNames (builtins.getFlake (toString ./.)).nixosConfigurations)' \
-  2>/dev/null || echo "aorus surface")
-read -r -a HOSTS <<< "$HOSTS_STR"
+mapfile -t HOSTS < <(find hosts/ -maxdepth 1 -mindepth 1 -type d -printf '%f\n' 2>/dev/null)
 prompt_select "AVAILABLE HOSTS" SELECTED_HOST "${HOSTS[@]}"
 HOST=$SELECTED_HOST
 
@@ -256,7 +253,6 @@ spinner $! "Bootstrapping secrets and age keys"
 
 header "LOCAL DEPLOY"
 echo -e "${CYAN}[*] Running Disko for partitioning...${NC}"
-# Write keyfiles for LUKS (avoids interactive prompts during disko)
 umask 077
 printf '%s' "$USER_PASS" > /tmp/luks-swap.key
 printf '%s' "$USER_PASS" > /tmp/luks-root.key
@@ -266,7 +262,6 @@ nix run -L 'github:nix-community/disko' -- \
     --flake "${FLAKE_REF}#$HOST" \
     --yes-wipe-all-disks
 
-# Cleanup keyfiles
 rm -f /tmp/luks-swap.key /tmp/luks-root.key
 umask 022
 
