@@ -4,6 +4,7 @@
   inputs,
   lib,
   hostName,
+  globals,
   ...
 }: let
   dummyBg = pkgs.runCommand "dummy-bg.png" {} ''
@@ -14,7 +15,7 @@ in {
     enable = true;
     image = dummyBg;
 
-    base16Scheme = ../../themes + "/${config.globals.themeName}.yaml";
+    base16Scheme = ../../themes + "/${globals.themeName}.yaml";
 
 
     cursor = {
