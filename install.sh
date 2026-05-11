@@ -154,16 +154,23 @@ while true; do
 done
 echo ""
 
+read -p "[>] Theme Name: " THEME
+THEME=${THEME:-carbon}
+read -p "[>] Git Username: " GITUSER
+read -p "[>] Git Repository Name: " GITREPO
+
 umask 077
 mkdir -p secrets
 cat > secrets/usercreds.nix <<EOF
 {
   userName = "$USERNAME";
   userEmail = "$USEREMAIL";
+  themeName = "$THEME";
+  gitUser = "$GITUSER";
+  gitRepo = "$GITREPO";
   device = "$DISK";
 }
 EOF
-git add secrets/usercreds.nix >/dev/null 2>&1
 umask 022
 
 export USERNAME HOST DISK FLAKE_REF USER_PASS GEN_MASTER
