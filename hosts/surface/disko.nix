@@ -23,6 +23,7 @@
               name = "crypted-swap";
               settings = {
                 allowDiscards = true;
+                keyFile = "/tmp/luks-swap.key";
               };
               content = {
                 type = "swap";

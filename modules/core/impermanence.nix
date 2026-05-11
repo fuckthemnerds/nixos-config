@@ -13,6 +13,7 @@
     before = ["sysroot.mount"];
     unitConfig.DefaultDependencies = "no";
     serviceConfig.Type = "oneshot";
+
     path = [pkgs.btrfs-progs pkgs.coreutils pkgs.findutils];
     script = ''
       mkdir -p /btrfs_tmp

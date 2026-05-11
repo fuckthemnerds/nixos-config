@@ -10,6 +10,13 @@
   services.auto-cpufreq.enable = true;
   boot.tmp.tmpfsSize = "2G";
 
+  boot.initrd.luks.devices."crypted-swap" = {
+    device = "/dev/disk/by-partlabel/disk-main-swap";
+    allowDiscards = true;
+  };
+
+  boot.resumeDevice = "/dev/mapper/crypted-swap";
+
   services.displayManager.ly.enable = false;
 
   services.greetd = {

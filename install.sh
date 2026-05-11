@@ -249,10 +249,22 @@ spinner $! "Bootstrapping secrets and age keys"
 
 header "LOCAL DEPLOY"
 echo -e "${CYAN}[*] Running Disko for partitioning...${NC}"
+
+umask 077
+printf '%s' "$USER_PASS" > /tmp/luks-swap.key
+
 nix run -L 'github:nix-community/disko' -- \
     --mode destroy,format,mount \
     --flake "${FLAKE_REF}#$HOST" \
     --yes-wipe-all-disks
+
+SWAP_DEV="/dev/disk/by-partlabel/disk-main-swap"
+if cryptsetup isLuks "$SWAP_DEV" 2>/dev/null; then
+    printf '%s' "$USER_PASS" | cryptsetup luksAddKey "$SWAP_DEV" \
+        --key-file /tmp/luks-swap.key -
+fi
+rm -f /tmp/luks-swap.key
+umask 022
 
 mkdir -p /mnt/persistent/var/lib/sops-nix/
 chmod 755 /mnt/persistent/var/lib/sops-nix/
