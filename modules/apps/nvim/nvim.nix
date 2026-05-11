@@ -65,7 +65,7 @@ in {
             lsp = with pkgs; [
               nixd
               lua-language-server
-              nodePackages.typescript-language-server
+              typescript-language-server
               pyright
               tinymist
             ];
