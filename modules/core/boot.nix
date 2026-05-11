@@ -1,4 +1,4 @@
-{ ... }: {
+{ lib, ... }: {
   boot = {
     loader = {
       systemd-boot = {
@@ -13,6 +13,11 @@
     plymouth.enable = true;
 
     initrd.systemd.enable = true;
+
+    tmp = {
+      useTmpfs = true;
+      tmpfsSize = lib.mkDefault "50%";
+    };
 
     kernelParams = [
       "quiet"

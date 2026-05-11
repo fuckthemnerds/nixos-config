@@ -5,6 +5,13 @@
   ...
 }: {
   services = {
+    dbus.implementation = "broker";
+    journald.extraConfig = ''
+      RuntimeMaxUse=64M
+      Storage=persistent
+      ForwardToSyslog=no
+    '';
+
     earlyoom = {
       enable = true;
       enableNotifications = true;
@@ -45,10 +52,7 @@
     };
   };
 
-  boot.tmp = {
-    useTmpfs = true;
-    tmpfsSize = lib.mkDefault "50%";
-  };
+
 
   hardware.bluetooth = {
     enable = true;

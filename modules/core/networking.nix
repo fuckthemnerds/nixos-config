@@ -24,15 +24,17 @@
     ];
   };
 
-  services.openssh.enable = true;
+  services = {
+    openssh.enable = true;
 
-  services.resolved = {
-    enable = true;
-    settings.Resolve = {
-      DNSSEC = "allow-downgrade";
-      Domains = "~.";
-      FallbackDNS = "1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net";
-      DNSOverTLS = "opportunistic";
+    resolved = {
+      enable = true;
+      settings.Resolve = {
+        DNSSEC = "allow-downgrade";
+        Domains = "~.";
+        FallbackDNS = "1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net";
+        DNSOverTLS = "opportunistic";
+      };
     };
   };
 }
