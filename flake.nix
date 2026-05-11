@@ -48,13 +48,13 @@
 
     globals = {
       stateVersion = "26.05";
-      userName = localConfig.userName or "";
-      userEmail = localConfig.userEmail or "";
-      themeName = localConfig.themeName or "";
-      gitPlatform = localConfig.gitPlatform or "";
-      gitUser = localConfig.gitUser or "";
-      gitRepo = localConfig.gitRepo or "";
-      device = localConfig.device or null;
+      userName = localConfig.userName;
+      userEmail = localConfig.userEmail;
+      themeName = localConfig.themeName;
+      gitPlatform = localConfig.gitPlatform;
+      gitUser = localConfig.gitUser;
+      gitRepo = localConfig.gitRepo;
+      device = localConfig.device;
     };
 
     mkHost = {

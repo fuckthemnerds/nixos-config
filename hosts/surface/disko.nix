@@ -2,7 +2,7 @@
   disko.devices = {
     disk.main = {
       type = "disk";
-      device = if globals.device != null then globals.device else "/dev/nvme0n1";
+      device = globals.device;
       content = {
         type = "gpt";
         partitions = {

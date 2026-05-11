@@ -170,6 +170,8 @@ cat > secrets/usercreds.nix <<EOF
 EOF
 umask 022
 
+git add -f secrets/usercreds.nix
+
 export USERNAME HOST DISK FLAKE_REF USER_PASS GEN_MASTER
 
 
