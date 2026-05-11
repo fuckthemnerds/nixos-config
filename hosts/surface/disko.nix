@@ -39,6 +39,7 @@
               name = "crypted";
               settings = {
                 allowDiscards = true;
+                keyFile = "/tmp/luks-root.key";
               };
               content = {
                 type = "btrfs";
