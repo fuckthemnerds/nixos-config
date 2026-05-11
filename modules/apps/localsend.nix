@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.localsend;
 in {
-  options.apps.localsend.enable = lib.mkEnableOption "localsend";
+  options.apps.localsend.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

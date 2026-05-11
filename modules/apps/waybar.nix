@@ -8,7 +8,10 @@
   cfg = config.apps.waybar;
   palette = config.lib.stylix.colors.withHashtag;
 in {
-  options.apps.waybar.enable = lib.mkEnableOption "waybar";
+  options.apps.waybar.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${userName} = {

@@ -8,7 +8,10 @@
   cfg = config.apps.hyprlock;
   colors = config.lib.stylix.colors;
 in {
-  options.apps.hyprlock.enable = lib.mkEnableOption "hyprlock";
+  options.apps.hyprlock.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

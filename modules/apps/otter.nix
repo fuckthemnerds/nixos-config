@@ -8,7 +8,10 @@
 }: let
   cfg = config.apps.otter;
 in {
-  options.apps.otter.enable = lib.mkEnableOption "otter";
+  options.apps.otter.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

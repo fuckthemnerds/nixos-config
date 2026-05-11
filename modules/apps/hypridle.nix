@@ -8,7 +8,10 @@
 }: let
   cfg = config.apps.hypridle;
 in {
-  options.apps.hypridle.enable = lib.mkEnableOption "hypridle";
+  options.apps.hypridle.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

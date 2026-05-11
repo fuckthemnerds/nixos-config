@@ -39,7 +39,10 @@
     };
   };
 in {
-  options.apps.zen.enable = lib.mkEnableOption "zen";
+  options.apps.zen.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

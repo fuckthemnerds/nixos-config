@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.keepassxc;
 in {
-  options.apps.keepassxc.enable = lib.mkEnableOption "keepassxc";
+  options.apps.keepassxc.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

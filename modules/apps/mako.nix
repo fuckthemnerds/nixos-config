@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.mako;
 in {
-  options.apps.mako.enable = lib.mkEnableOption "mako";
+  options.apps.mako.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

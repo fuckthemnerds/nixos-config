@@ -11,7 +11,10 @@
   utils = inputs.nixCats.utils;
   stylixColors = config.lib.stylix.colors;
 in {
-  options.apps.nvim.enable = lib.mkEnableOption "nvim";
+  options.apps.nvim.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${userName}.xdg.configFile."nvim/lua/stylix_colors.lua".text = ''

@@ -40,7 +40,10 @@
 in {
   imports = lib.optional hasEnhancements enhancements;
 
-  options.apps.niri.enable = lib.mkEnableOption "niri";
+  options.apps.niri.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     apps.niri-enhancements.enable = lib.mkDefault hasEnhancements;

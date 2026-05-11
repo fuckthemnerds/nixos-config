@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.gui-apps;
 in {
-  options.apps.gui-apps.enable = lib.mkEnableOption "gui-apps";
+  options.apps.gui-apps.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

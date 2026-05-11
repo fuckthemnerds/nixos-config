@@ -8,7 +8,10 @@
   cfg = config.apps.foot;
   colors = config.lib.stylix.colors;
 in {
-  options.apps.foot.enable = lib.mkEnableOption "foot";
+  options.apps.foot.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

@@ -281,9 +281,9 @@ fi
 mkdir -p "/mnt/persistent/home/$USERNAME/nixcfg"
 cp -rT "$(pwd)" "/mnt/persistent/home/$USERNAME/nixcfg"
 
-if chroot /mnt id "$USERNAME" >/dev/null 2>&1; then
-    chroot /mnt chown -R "$USERNAME:users" "/persistent/home/$USERNAME"
-fi
+USER_UID=$(chroot /mnt id -u "$USERNAME" 2>/dev/null || echo "1000")
+USER_GID=$(chroot /mnt id -g "$USERNAME" 2>/dev/null || echo "100")
+chown -R "$USER_UID:$USER_GID" "/mnt/persistent/home/$USERNAME"
 
 header "INSTALLATION COMPLETE"
 read -p "[>] Installation finished. Reboot now? [y/N]: " REBOOT_CONFIRM

@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.modern-cli;
 in {
-  options.apps.modern-cli.enable = lib.mkEnableOption "modern-cli";
+  options.apps.modern-cli.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

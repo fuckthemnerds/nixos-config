@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.niri-enhancements;
 in {
-  options.apps.niri-enhancements.enable = lib.mkEnableOption "niri-enhancements";
+  options.apps.niri-enhancements.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [

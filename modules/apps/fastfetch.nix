@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.fastfetch;
 in {
-  options.apps.fastfetch.enable = lib.mkEnableOption "fastfetch";
+  options.apps.fastfetch.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.fish;
 in {
-  options.apps.fish.enable = lib.mkEnableOption "fish";
+  options.apps.fish.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     programs.fish.enable = true;

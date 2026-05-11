@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.yazi;
 in {
-  options.apps.yazi.enable = lib.mkEnableOption "yazi";
+  options.apps.yazi.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

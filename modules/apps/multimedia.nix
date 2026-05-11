@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.multimedia;
 in {
-  options.apps.multimedia.enable = lib.mkEnableOption "multimedia";
+  options.apps.multimedia.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

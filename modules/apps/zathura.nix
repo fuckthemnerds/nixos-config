@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.zathura;
 in {
-  options.apps.zathura.enable = lib.mkEnableOption "zathura";
+  options.apps.zathura.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {

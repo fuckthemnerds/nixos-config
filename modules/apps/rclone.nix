@@ -7,7 +7,10 @@
 }: let
   cfg = config.apps.rclone;
 in {
-  options.apps.rclone.enable = lib.mkEnableOption "rclone";
+  options.apps.rclone.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+  };
 
   config = lib.mkIf cfg.enable {
     programs.fuse.userAllowOther = true;
