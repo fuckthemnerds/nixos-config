@@ -264,6 +264,16 @@ nix run -L 'github:nix-community/disko' -- \
     --flake "${FLAKE_REF}#$HOST" \
     --yes-wipe-all-disks
 
+header "ACTIVATING SWAP"
+SWAP_DEVS=$(blkid -t TYPE=swap -o device || true)
+if [[ -n "$SWAP_DEVS" ]]; then
+    while read -r dev; do
+        [[ -n "$dev" ]] && swapon "$dev" || true
+    done <<< "$SWAP_DEVS"
+fi
+swapon --show || true
+free -h || true
+
 rm -f /tmp/luks-swap.key /tmp/luks-root.key
 umask 022
 
