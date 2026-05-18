@@ -16,13 +16,10 @@ in {
     home-manager.users.${globals.userName} = {
       programs.keepassxc = {
         enable = true;
-        settings = {
-          GUI = {
-            ShowTrayIcon = true;
-            MinimizeToTray = true;
-            MinimizeOnClose = true;
-          };
-        };
+        # TODO 
+        # 1. make config declarative
+        # 2. fix daemon
+        # 3. fix open on restart
       };
 
       systemd.user.services.keepassxc = {
@@ -31,6 +28,7 @@ in {
           After = ["graphical-session.target" "rclone-gdrive.service"];
           Wants = ["rclone-gdrive.service"];
           PartOf = ["graphical-session.target"];
+          X-SwitchMethod = "keep-old";
         };
 
         Install = {
@@ -46,3 +44,4 @@ in {
     };
   };
 }
+

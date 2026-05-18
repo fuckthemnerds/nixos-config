@@ -25,7 +25,6 @@
       mv /btrfs_tmp/root "/btrfs_tmp/old_roots/$timestamp"
       fi
 
-      # Cleanup old roots (keep last 5)
       if [[ -d /btrfs_tmp/old_roots ]]; then
         find /btrfs_tmp/old_roots/ -maxdepth 1 -mindepth 1 -type d | sort -r | tail -n +6 | xargs -r -I{} btrfs subvolume delete --recursive {}
       fi
@@ -68,6 +67,9 @@
         "Pictures"
         "Documents"
         "Videos"
+        "Games"
+        ".local/share/Steam"
+        ".steam"
         {
           directory = ".ssh";
           mode = "0700";

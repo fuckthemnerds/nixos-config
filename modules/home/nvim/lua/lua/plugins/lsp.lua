@@ -28,13 +28,16 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
-      local lspconfig = require("lspconfig")
+      local nixCats = require("nixCats")
       local caps = make_capabilities()
 
-      local nixCats = require("nixCats")
-      lspconfig.nixd.setup({
+      -- Global defaults for all servers
+      vim.lsp.config("*", {
         capabilities = caps,
-        on_attach = on_attach,
+      })
+
+      -- Per-server configuration (nvim 0.12+ API)
+      vim.lsp.config("nixd", {
         settings = {
           nixd = {
             nixos = {
@@ -49,9 +52,7 @@ return {
         },
       })
 
-      lspconfig.lua_ls.setup({
-        capabilities = caps,
-        on_attach = on_attach,
+      vim.lsp.config("lua_ls", {
         settings = {
           Lua = {
             runtime = { version = "LuaJIT" },
@@ -61,25 +62,24 @@ return {
         },
       })
 
-      -- ts_ls (TypeScript)
-      lspconfig.ts_ls.setup({
-        capabilities = caps,
-        on_attach = on_attach,
-      })
+      vim.lsp.config("ts_ls", {})
+      vim.lsp.config("pyright", {})
 
-      -- pyright
-      lspconfig.pyright.setup({
-        capabilities = caps,
-        on_attach = on_attach,
-      })
-
-      lspconfig.tinymist.setup({
-        capabilities = caps,
-        on_attach = on_attach,
+      vim.lsp.config("tinymist", {
         settings = {
           exportPdf = "onSave",
           outputPath = "$dir/$name.pdf",
         },
+      })
+
+      -- Enable all servers
+      vim.lsp.enable({ "nixd", "lua_ls", "ts_ls", "pyright", "tinymist" })
+
+      -- Attach keymaps via autocmd
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(args)
+          on_attach(vim.lsp.get_client_by_id(args.data.client_id), args.buf)
+        end,
       })
 
       vim.diagnostic.config({

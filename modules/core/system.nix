@@ -4,25 +4,11 @@
   pkgs,
   inputs,
   userName,
-  hostName,
   stateVersion,
+  globals,
   ...
 }: {
-  determinate.enable = true;
-
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    backupFileExtension = "backup";
-    extraSpecialArgs = {inherit inputs userName stateVersion hostName;};
-    sharedModules = [];
-
-    users.${userName} = {
-      home.stateVersion = stateVersion;
-      home.username = userName;
-      home.homeDirectory = lib.mkForce "/home/${userName}";
-    };
-  };
+  time.timeZone = globals.timeZone;
 
   users = {
     mutableUsers = false;
@@ -39,20 +25,10 @@
 
   programs.fish.enable = true;
 
-  environment.systemPackages = with pkgs; [
-    nvd
-    nix-output-monitor
-    alejandra
-    sops
-    age
-    gnumake
-    powertop
-    acpi
-    curl
-    _7zz
-    bluetui
-    pulsemixer
-  ];
+  environment.variables = {
+    EDITOR = "nvim";
+    VISUAL = "nvim";
+  };
 
   nix = {
     settings = {
@@ -81,15 +57,6 @@
   systemd.settings.Manager = {
     RuntimeWatchdogSec = "30s";
     RebootWatchdogSec = "10m";
-  };
-
-  programs.nh = {
-    enable = true;
-    flake = "/home/${userName}/nixcfg";
-    clean = {
-      enable = true;
-      extraArgs = "--keep-since 7d --keep 5";
-    };
   };
 
   zramSwap.enable = true;

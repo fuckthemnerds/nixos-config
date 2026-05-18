@@ -1,9 +1,12 @@
 { lib, ... }: {
+  
+  # TODO ==> Make finix init
+
   boot = {
     loader = {
       systemd-boot = {
         enable = true;
-        configurationLimit = 10;
+        configurationLimit = 5;
         consoleMode = "max";
       };
       timeout = 5;
@@ -29,6 +32,7 @@
       "udev.log_priority=3"
       "watchdog.watchdog_thresh=30"
       "panic=10"
+      "split_lock_detect=off"
     ];
 
     kernel.sysctl = {

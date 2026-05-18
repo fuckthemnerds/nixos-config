@@ -1,35 +1,17 @@
 {
   pkgs,
+  lib,
   userName,
   ...
 }: {
-  environment.systemPackages = [
-    pkgs.nvtopPackages.intel
-  ];
-
   services.auto-cpufreq.enable = true;
-  boot.tmp.tmpfsSize = "2G";
 
-  boot.initrd.luks.devices."crypted-swap" = {
-    device = "/dev/disk/by-partlabel/disk-main-swap";
-    allowDiscards = true;
-  };
-
-  boot.resumeDevice = "/dev/mapper/crypted-swap";
-
-  services.displayManager.ly.enable = false;
-
-  services.greetd = {
-    enable = true;
-    settings = {
-      initial_session = {
-        command = "${pkgs.niri}/bin/niri-session";
-        user = "${userName}";
-      };
-      default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd niri-session";
-        user = "greeter";
-      };
-    };
+  zramSwap.enable = true;
+  
+  boot.kernel.sysctl = {
+    "vm.swappiness" = lib.mkForce 80;
+    "vm.page-cluster" = lib.mkForce 0;
+    "vm.max_map_count" = 1048576;
   };
 }
+

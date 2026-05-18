@@ -1,10 +1,10 @@
 return {
   {
-    "telescope-nvim",
+    "telescope.nvim",
     cmd = "Telescope",
     keys = { "<leader>ff", "<leader>fg", "<leader>fb" },
     load = function(name)
-      vim.cmd.packadd("telescope-fzf-native-nvim")
+      vim.cmd.packadd("telescope-fzf-native.nvim")
       vim.cmd.packadd(name)
     end,
     after = function()
@@ -29,7 +29,7 @@ return {
   },
 
   {
-    "oil-nvim",
+    "oil.nvim",
     cmd = "Oil",
     keys = { "<leader>e" },
     load = function(name) vim.cmd.packadd(name) end,
@@ -46,7 +46,7 @@ return {
   },
 
   {
-    "flash-nvim",
+    "flash.nvim",
     event = { "BufReadPre", "BufNewFile" },
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
@@ -72,7 +72,7 @@ return {
   },
 
   {
-    "gitsigns-nvim",
+    "gitsigns.nvim",
     event = { "BufReadPre", "BufNewFile" },
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
@@ -101,7 +101,7 @@ return {
   },
 
   {
-    "comment-nvim",
+    "comment.nvim",
     event = { "BufReadPre", "BufNewFile" },
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
@@ -110,8 +110,8 @@ return {
   },
 
   {
-    "which-key-nvim",
-    event = "VeryLazy",
+    "which-key.nvim",
+    event = "DeferredUIEnter",
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
       require("which-key").setup({
@@ -126,7 +126,7 @@ return {
   },
 
   {
-    "conform-nvim",
+    "conform.nvim",
     event = "BufWritePre",
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
@@ -145,8 +145,8 @@ return {
   },
 
   {
-    "direnv-vim",
-    event = "VeryLazy",
+    "direnv.vim",
+    event = "DeferredUIEnter",
     load = function(name) vim.cmd.packadd(name) end,
     after = function() end,
   },

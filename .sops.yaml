@@ -1,8 +1,6 @@
-keys:
-  - &repo_key age1placeholder_replace_with_real_repo_key
-
 creation_rules:
-  - path_regex: secrets/[^/]+\.yaml$
+  - path_regex: secrets/.*\.yaml$
     key_groups:
       - age:
-          - *repo_key
+          - age1jhr33arpanwdaac45m9ymj2dj75eqkpxwjcxgcju6xmak3w00uysvmqkx4
+          - age147a6utgu30ddez8s4jye47p8mkcfwdnjclysjxgzcm3knv97kc5szzefh5

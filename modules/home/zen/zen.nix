@@ -32,6 +32,7 @@
   '';
 
   zenPkg = pkgs.wrapFirefox inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped {
+    # TODO ==> Check if it even works
     extraPrefs = (builtins.readFile ./user.js) + "\n" + customPrefs;
     extraPolicies = {
       DisableTelemetry = true;
@@ -48,6 +49,7 @@ in {
     home-manager.users.${globals.userName} = {
       home.packages = [zenPkg];
 
+      # TODO => Move to seperate file zen/tridactyl
       xdg.configFile."tridactyl/tridactylrc".text = ''
         set update.lastchecktime 1776613539174
         set configversion 2.0

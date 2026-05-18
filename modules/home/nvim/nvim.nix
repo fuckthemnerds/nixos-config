@@ -135,7 +135,7 @@ in {
               nixdExtras = {
                 nixosConfig = "(builtins.getFlake \"$" + "{workspaceFolder}\").nixosConfigurations.\"${hostName}\".options";
                 hmConfig = "(builtins.getFlake \"$" + "{workspaceFolder}\").nixosConfigurations.\"${hostName}\".options.home-manager.users.type.getSubOptions []";
-                nixpkgs = "import ${pkgs.path} {}";
+                nixpkgs = "import (builtins.getFlake \"$" + "{workspaceFolder}\").inputs.nixpkgs { }";
               };
             };
           };

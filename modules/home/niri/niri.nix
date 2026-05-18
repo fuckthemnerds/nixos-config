@@ -26,11 +26,17 @@
   '';
 
   surfaceOutputs = ''
+    output "Samsung Electric Company LS24C43xG H8AK500000" {
+        mode "1920x1080@99.395"
+        position x=0 y=0
+    }
     output "eDP-1" {
         mode "2880x1920@120.0"
         scale 2.0
+        position x=0 y=1080
     }
   '';
+
 
   outputs =
     if hostName == "aorus"
@@ -52,23 +58,15 @@ in {
     programs.niri.enable = true;
 
     home-manager.users.${userName} = {
-      home.packages = with pkgs; [
-        wl-clipboard
-        brightnessctl
-        playerctl
-        grim
-        slurp
-        swappy
-        xdg-utils
-        adw-gtk3
+      home.sessionVariables = {
+        DISPLAY = ":0";
+      };
 
-        impala
-        pulsemixer
-        bluetui
-        wiremix
-      ];
+      home.packages = [];
 
       xdg.configFile."niri/config.kdl".text = ''
+        spawn-at-startup "xwayland-satellite"
+
         prefer-no-csd
         hotkey-overlay {
             skip-at-startup
@@ -85,6 +83,7 @@ in {
             keyboard {
                 xkb {
                     layout "pl"
+                    options "ctrl:nocaps"
                 }
             }
             touchpad {
@@ -131,7 +130,7 @@ in {
         }
 
         ${outputs}
-        
+
         window-rule {
             open-maximized true
         }
@@ -162,11 +161,11 @@ in {
 
         binds {
             Mod+Space { spawn "${pkgs.fuzzel}/bin/fuzzel"; }
-            // TODO CHANGE AFTER TESTING
-            Mod+T { spawn "${inputs.otter-launcher.packages.${pkgs.system}.default}/bin/otter-launcher"; }
+            // TODO => Edit keybinds after configuring
+            Mod+T { spawn "${inputs.otter-launcher.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/otter-launcher"; }
             Mod+Return { spawn "${pkgs.foot}/bin/foot"; }
             Mod+V { spawn "${pkgs.bash}/bin/bash" "-c" "${pkgs.cliphist}/bin/cliphist list | ${pkgs.fuzzel}/bin/fuzzel --dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy"; }
-            Mod+F1 { spawn "${pkgs.bash}/bin/bash" "-c" "${pkgs.psmisc}/bin/killall -SIGUSR1 waybar"; }
+            Mod+F1 { spawn "sh" "-c" "pkill -SIGUSR1 waybar"; }
 
             XF86AudioRaiseVolume allow-when-locked=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+" "-l" "1.0"; }
             XF86AudioLowerVolume allow-when-locked=true { spawn "${pkgs.wireplumber}/bin/wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"; }

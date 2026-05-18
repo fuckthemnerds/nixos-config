@@ -42,6 +42,11 @@ in {
           };
         };
       };
+
+      services.batsignal = {
+        enable = true;
+        extraArgs = ["-d" "50" "-w" "30" "-c" "15"];
+      };
     };
   };
 }

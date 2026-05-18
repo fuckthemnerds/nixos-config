@@ -30,11 +30,12 @@ in {
         ];
 
         shellAbbrs = {
-          nrs = "nh os switch";
-          nrb = "nh os boot";
-          nrt = "nh os test";
+          nhs = "nh os switch";
+          nhb = "nh os boot";
+          nht = "nh os test";
           nfu = "nix flake update";
           nfc = "nix flake check";
+          nfd = "nix flake diff";
           cdnix = "cd ~/nixcfg";
           gst = "git status";
           gd = "git diff";
@@ -55,6 +56,7 @@ in {
           lt = "eza --tree --icons";
           y = "yazi";
           sudo = "sudo --preserve-env=PATH,EDITOR,VISUAL env";
+          ff = "fastfetch";
         };
 
         interactiveShellInit = ''

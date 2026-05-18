@@ -6,10 +6,6 @@
   boot.kernelParams = ["acpi_osi=Linux" "pci=noaer"];
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
-  environment.systemPackages = [
-    pkgs.nvtopPackages.full
-  ];
-
   services.xserver.videoDrivers = ["nvidia"];
   hardware.nvidia = {
     modesetting.enable = true;

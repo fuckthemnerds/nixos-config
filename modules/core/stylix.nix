@@ -21,6 +21,8 @@ in {
     cursor = {
       name = "GoogleDot-Blue";
       package = pkgs.google-cursor;
+      
+      #TODO => Change cursor
       size = if hostName == "surface" then 10 else 12;
     };
 
@@ -42,10 +44,10 @@ in {
         package = pkgs.noto-fonts-color-emoji;
       };
       sizes = {
-        applications = 11;
-        terminal = 11;
-        desktop = 11;
-        popups = 11;
+        applications = 12;
+        terminal = 12;
+        desktop = 12;
+        popups = 12;
       };
     };
 

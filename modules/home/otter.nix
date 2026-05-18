@@ -7,6 +7,16 @@
   ...
 }: let
   cfg = config.apps.otter;
+  otter-pkg = pkgs.rustPlatform.buildRustPackage {
+    pname = "otter-launcher";
+    version = "unstable";
+    src = inputs.otter-launcher;
+    cargoLock.lockFile = "${inputs.otter-launcher}/Cargo.lock";
+    meta = {
+      description = "A hackable cli/tui launcher for keyboard-centric WM users";
+      mainProgram = "otter";
+    };
+  };
 in {
   options.apps.otter.enable = lib.mkOption {
     type = lib.types.bool;
@@ -15,11 +25,12 @@ in {
 
   config = lib.mkIf cfg.enable {
     home-manager.users.${globals.userName} = {
-      home.packages = [
-        inputs.otter-launcher.packages.${pkgs.stdenv.hostPlatform.system}.default
-      ];
+      home.packages = [otter-pkg];
+    };
 
-      xdg.configFile."otter/config.toml".text = ''
+    # TODO ==> Should launch in seperate terminal
+
+    environment.etc."otter-launcher/config.toml".text = ''
         [general]
         default_module = "app"
         empty_module = "a"
@@ -146,6 +157,5 @@ in {
         with_argument = true
         url_encode = true
       '';
-    };
   };
 }

@@ -1,7 +1,7 @@
 return {
   {
-    "lualine-nvim",
-    event = "VeryLazy",
+    "lualine.nvim",
+    event = "DeferredUIEnter",
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
       local p = vim.g.stylix_palette or {}
@@ -41,7 +41,7 @@ return {
 
   {
     "nvim-notify",
-    event = "VeryLazy",
+    event = "DeferredUIEnter",
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
       local p = vim.g.stylix_palette or {}
@@ -59,9 +59,9 @@ return {
 
   {
     "noice.nvim",
-    event = "VeryLazy",
+    event = "DeferredUIEnter",
     load = function(name)
-      vim.cmd.packadd("nui-nvim")
+      vim.cmd.packadd("nui.nvim")
       vim.cmd.packadd(name)
     end,
     after = function()
@@ -83,7 +83,7 @@ return {
   },
 
   {
-    "indent-blankline-nvim",
+    "indent-blankline.nvim",
     event = { "BufReadPre", "BufNewFile" },
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
@@ -102,9 +102,10 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     load = function(name) vim.cmd.packadd(name) end,
     after = function()
-      require("nvim-treesitter.configs").setup({
-        highlight = { enable = true },
-        indent    = { enable = true },
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          pcall(vim.treesitter.start, args.buf)
+        end,
       })
     end,
   },

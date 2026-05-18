@@ -112,6 +112,4 @@ if ok then
   vim.g.stylix_palette = palette
 end
 
-require("lze").load({
-  import = "plugins",
-})
+require("lze").load(require("plugins"))

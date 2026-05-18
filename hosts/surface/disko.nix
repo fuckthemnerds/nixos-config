@@ -17,30 +17,15 @@
             };
           };
           swap = {
-            size = "8G";
-            content = {
-              type = "luks";
-              name = "crypted-swap";
-              settings = {
-                allowDiscards = true;
-                keyFile = "/tmp/luks-swap.key";
-              };
+            size = "16G";
               content = {
                 type = "swap";
                 discardPolicy = "both";
                 resumeDevice = true;
               };
-            };
           };
           root = {
             size = "100%";
-            content = {
-              type = "luks";
-              name = "crypted";
-              settings = {
-                allowDiscards = true;
-                keyFile = "/tmp/luks-root.key";
-              };
               content = {
                 type = "btrfs";
                 extraArgs = ["-L" "nixos" "-f"];
@@ -59,7 +44,6 @@
                     mountOptions = ["compress=zstd" "noatime"];
                   };
                 };
-              };
             };
           };
         };

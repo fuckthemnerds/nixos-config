@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   globals,
   ...
 }: let
@@ -18,7 +17,8 @@ in {
         enable = true;
         settings = {
           main = {
-            prompt = "> ";
+            font = lib.mkForce "${config.stylix.fonts.monospace.name}:size=${toString config.stylix.fonts.sizes.applications}";
+            prompt = ">  ";
             terminal = "footclient -a '{cmd}' -T '{cmd}' -e {cmd}";
             width = 30;
             lines = 10;
@@ -29,7 +29,7 @@ in {
             icons-enabled = "no";
           };
           border = {
-            width = 4;
+            width = 0;
             radius = 0;
           };
         };

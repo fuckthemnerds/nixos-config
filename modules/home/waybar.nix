@@ -24,15 +24,19 @@ in {
             height = 28;
             spacing = 0;
             exclusive = true;
-            fixed-center = false;
+            fixed-center = true;
 
             modules-left = ["clock#date"];
             modules-center = ["clock"];
-            modules-right = ["network" "bluetooth" "pulseaudio" "battery"];
+            modules-right = ["tray" "network" "bluetooth" "pulseaudio" "battery"];
+
+            tray = {
+              icon-size = 15;
+              spacing = 10;
+            };
 
             "clock#date" = {
-              format = "{0:%A}";
-              format-alt = "{0:%A, %m/%d}";
+              format = "{0:%A, %d.%m}";
               tooltip = false;
             };
 
@@ -101,13 +105,13 @@ in {
             color: ${palette.base05};
           }
 
-          #clock, #network, #bluetooth, #pulseaudio, #battery {
+          #clock, #network, #bluetooth, #pulseaudio, #battery, #tray {
             padding: 0 10px;
             color: ${palette.base05};
             background-color: transparent;
           }
 
-          #clock:hover, #network:hover, #bluetooth:hover, #pulseaudio:hover, #battery:hover {
+          #clock:hover, #network:hover, #bluetooth:hover, #pulseaudio:hover, #battery:hover, #tray:hover {
             background-color: ${palette.base02};
           }
 
