@@ -1,8 +1,3 @@
-#############################################################
-#
-#  Registry - Dynamic Recursive Module Importer
-#
-#############################################################
 {
   config,
   lib,
@@ -10,7 +5,6 @@
   ...
 }: {
   imports = let
-    # Recursive helper to find all .nix modules in the subdirectories
     getModules = dir:
       lib.pipe dir [
         builtins.readDir
@@ -27,6 +21,5 @@
         lib.flatten
       ];
   in
-    # Dynamically auto-import all NixOS modules defined under this directory
     getModules ./.;
 }
