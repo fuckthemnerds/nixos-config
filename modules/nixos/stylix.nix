@@ -15,7 +15,7 @@ in {
     enable = true;
     image = dummyBg;
 
-    base16Scheme = ../../themes + "/${globals.themeName}.yaml";
+    base16Scheme = ./. + "/${globals.themeName}.yaml";
 
     cursor = {
       name = "GoogleDot-Blue";

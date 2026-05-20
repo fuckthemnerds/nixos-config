@@ -69,6 +69,9 @@ in {
         xdg-utils
         adw-gtk3
         xwayland-satellite
+        impala
+        wiremix
+        bluetui
       ];
 
       xdg.configFile."niri/config.kdl".text = ''

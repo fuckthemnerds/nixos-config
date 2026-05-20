@@ -69,12 +69,12 @@ hostname:
 # Build configuration for local machine (aorus)
 [group('local')]
 build-aorus:
-    nix build .#nixosConfigurations.aorus.config.system.build.toplevel
+    nix build .#nixosConfigurations.aorus.config.system.build.toplevel --out-link local/result-aorus
 
 # Build configuration for surface
 [group('local')]
 build-surface:
-    nix build .#nixosConfigurations.surface.config.system.build.toplevel
+    nix build .#nixosConfigurations.surface.config.system.build.toplevel --out-link local/result-surface
 
 # Switch local machine to new configuration (aorus)
 [group('local')]

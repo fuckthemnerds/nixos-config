@@ -2,3 +2,5 @@
 *.pem
 .sops.yaml.tmp
 local/
+result
+result-*

@@ -62,7 +62,7 @@ in {
             {
               type = "packages";
               key = "             PACKAGES";
-              format = "{nix-system} (NIX)";
+              format = "{nix-system} (Nix)";
             }
             "break"
             {
