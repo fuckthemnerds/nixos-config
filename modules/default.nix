@@ -21,5 +21,5 @@
         lib.flatten
       ];
   in
-    getModules ./.;
+    (getModules ./nixos) ++ (getModules ./home);
 }
