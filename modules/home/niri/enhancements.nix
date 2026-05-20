@@ -3,11 +3,12 @@
   lib,
   pkgs,
   hostName,
+  myLib,
   ...
 }: let
   cfg = config.apps.niri;
 in {
-  config = lib.mkIf cfg.enable {
+  config = myLib.mkIfEnabled cfg.enable {
     environment.systemPackages = [
       (pkgs.writeShellScriptBin "niri-cycle-floating" ''
         STATE_FILE=/tmp/niri_floating_pos_state

@@ -3,19 +3,16 @@
   lib,
   pkgs,
   userName,
+  myLib,
   ...
 }: let
   cfg = config.apps.waybar;
   palette = config.lib.stylix.colors.withHashtag;
 in {
-  options.apps.waybar.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.waybar.enable = myLib.mkEnableOpt "waybar status bar";
 
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${userName} = {
-      programs.waybar = {
+  config = myLib.mkIfEnabled cfg.enable (myLib.mkHome userName {
+    programs.waybar = {
         enable = true;
         settings = [
           {
@@ -142,6 +139,5 @@ in {
         enable = true;
         targets = ["graphical-session.target"];
       };
-    };
-  };
+    });
 }

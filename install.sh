@@ -170,9 +170,6 @@ cat > secrets/usercreds.nix <<EOF
 EOF
 umask 022
 
-# usercreds.nix is kept untracked and gitignored to hide PII from git.
-# Nix commands should evaluate using path:. to access this file.
-
 export USERNAME HOST DISK FLAKE_REF USER_PASS GEN_MASTER
 
 

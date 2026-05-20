@@ -4,6 +4,7 @@
   pkgs,
   globals,
   inputs,
+  myLib,
   ...
 }: let
   cfg = config.apps.zen;
@@ -40,20 +41,15 @@
     };
   };
 in {
-  options.apps.zen.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.zen.enable = myLib.mkEnableOpt "Zen browser";
 
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = {
-      home.packages = [zenPkg];
+  config = myLib.mkIfEnabled cfg.enable (myLib.mkHome globals.userName {
+    home.packages = [zenPkg];
 
-      home.file.".zen/default/chrome/userChrome.css".text = ''
-        * {
-          border-radius: 0 !important;
-        }
-      '';
-    };
-  };
+    home.file.".zen/default/chrome/userChrome.css".text = ''
+      * {
+        border-radius: 0 !important;
+      }
+    '';
+  });
 }

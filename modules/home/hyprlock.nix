@@ -3,19 +3,16 @@
   lib,
   pkgs,
   globals,
+  myLib,
   ...
 }: let
   cfg = config.apps.hyprlock;
   colors = config.lib.stylix.colors;
 in {
-  options.apps.hyprlock.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.hyprlock.enable = myLib.mkEnableOpt "hyprlock locker";
 
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = {
-      stylix.targets.hyprlock.enable = false;
+  config = myLib.mkIfEnabled cfg.enable (myLib.mkHome globals.userName {
+    stylix.targets.hyprlock.enable = false;
       programs.hyprlock = {
         enable = true;
         settings = {
@@ -69,6 +66,5 @@ in {
           ];
         };
       };
-    };
-  };
+    });
 }

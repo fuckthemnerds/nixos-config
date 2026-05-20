@@ -3,16 +3,14 @@
   lib,
   pkgs,
   globals,
+  myLib,
   ...
 }: let
   cfg = config.apps.rclone;
 in {
-  options.apps.rclone.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.rclone.enable = myLib.mkEnableOpt "rclone Google Drive";
 
-  config = lib.mkIf cfg.enable {
+  config = myLib.mkIfEnabled cfg.enable {
     programs.fuse.userAllowOther = true;
     environment.systemPackages = [pkgs.rclone];
 

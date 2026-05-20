@@ -5,6 +5,7 @@
   userName,
   hostName,
   inputs,
+  myLib,
   ...
 }: let
   cfg = config.apps.niri;
@@ -46,15 +47,13 @@
 in {
   imports = lib.optional hasEnhancements enhancements;
 
-  options.apps.niri.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.niri.enable = myLib.mkEnableOpt "niri compositor";
 
-  config = lib.mkIf cfg.enable {
-    programs.niri.enable = true;
-
-    home-manager.users.${userName} = {
+  config = myLib.mkIfEnabled cfg.enable (lib.mkMerge [
+    {
+      programs.niri.enable = true;
+    }
+    (myLib.mkHome userName {
       home.sessionVariables = {
         DISPLAY = ":0";
       };
@@ -294,6 +293,6 @@ in {
             Mod+Shift+P { power-off-monitors; }
         }
       '';
-    };
-  };
+    })
+  ]);
 }

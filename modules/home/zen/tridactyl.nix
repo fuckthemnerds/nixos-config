@@ -2,12 +2,12 @@
   config,
   lib,
   globals,
+  myLib,
   ...
 }: let
   cfg = config.apps.zen;
 in {
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = {
+  config = myLib.mkIfEnabled cfg.enable (myLib.mkHome globals.userName {
       xdg.configFile."tridactyl/tridactylrc".text = ''
         set update.lastchecktime 1776613539174
         set configversion 2.0
@@ -104,6 +104,5 @@ in {
           font-family: var(--tridactyl-font-family) !important;
         }
       '';
-    };
-  };
+  });
 }

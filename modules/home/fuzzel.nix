@@ -2,20 +2,17 @@
   config,
   lib,
   globals,
+  myLib,
   ...
 }: let
   cfg = config.apps.fuzzel;
 in {
-  options.apps.fuzzel.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.fuzzel.enable = myLib.mkEnableOpt "fuzzel launcher";
 
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = {
-      programs.fuzzel = {
-        enable = true;
-        settings = {
+  config = myLib.mkIfEnabled cfg.enable (myLib.mkHome globals.userName {
+    programs.fuzzel = {
+      enable = true;
+      settings = {
           main = {
             font = lib.mkForce "${config.stylix.fonts.monospace.name}:size=${toString config.stylix.fonts.sizes.applications}";
             prompt = ">  ";
@@ -34,6 +31,5 @@ in {
           };
         };
       };
-    };
-  };
+    });
 }

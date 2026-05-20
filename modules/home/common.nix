@@ -4,28 +4,23 @@
   pkgs,
   globals,
   inputs,
+  myLib,
   ...
 }: let
   cfg = config.apps;
-  mkProgramOption = name:
-    lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = "Enable ${name}";
-    };
 in {
   options.apps = {
-    nh.enable = mkProgramOption "nh Nix CLI";
-    steam.enable = mkProgramOption "Steam";
-    gui-apps.enable = mkProgramOption "GUI Apps (Teams, File-Roller, LibreOffice)";
-    multimedia.enable = mkProgramOption "Multimedia Apps (mpv, imv, etc.)";
-    zathura.enable = mkProgramOption "Zathura PDF Reader";
-    localsend.enable = mkProgramOption "LocalSend";
-    modern-cli.enable = mkProgramOption "Modern CLI tools (ripgrep, fd, eza, bat, fzf)";
-    zoxide.enable = mkProgramOption "Zoxide";
-    yazi.enable = mkProgramOption "Yazi File Manager";
-    ai.enable = mkProgramOption "AI Tools (opencode, antigravity)";
-    cliphist.enable = mkProgramOption "Cliphist (Clipboard manager)";
+    nh.enable = myLib.mkEnableOpt "nh Nix CLI";
+    steam.enable = myLib.mkEnableOpt "Steam";
+    gui-apps.enable = myLib.mkEnableOpt "GUI Apps (Teams, File-Roller, LibreOffice)";
+    multimedia.enable = myLib.mkEnableOpt "Multimedia Apps (mpv, imv, etc.)";
+    zathura.enable = myLib.mkEnableOpt "Zathura PDF Reader";
+    localsend.enable = myLib.mkEnableOpt "LocalSend";
+    modern-cli.enable = myLib.mkEnableOpt "Modern CLI tools (ripgrep, fd, eza, bat, fzf)";
+    zoxide.enable = myLib.mkEnableOpt "Zoxide";
+    yazi.enable = myLib.mkEnableOpt "Yazi File Manager";
+    ai.enable = myLib.mkEnableOpt "AI Tools (opencode, antigravity)";
+    cliphist.enable = myLib.mkEnableOpt "Cliphist (Clipboard manager)";
   };
 
   config = lib.mkMerge [

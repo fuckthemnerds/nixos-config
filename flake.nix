@@ -53,6 +53,7 @@
   }: let
     myVars = import ./vars {inherit (inputs.nixpkgs) lib;};
     myLib = import ./lib {inherit (inputs.nixpkgs) lib;};
+    extendedLib = inputs.nixpkgs.lib.extend (self: super: myLib);
 
     mkHost = {
       hostName,
@@ -60,7 +61,7 @@
       hostConfig ? {},
       extraModules ? [],
     }:
-      inputs.nixpkgs.lib.nixosSystem {
+      extendedLib.nixosSystem {
         inherit system;
         specialArgs = let
           # TODO: switch to FOSS git host
@@ -72,6 +73,7 @@
           inherit inputs hostName gitRemoteUrl;
           globals = myVars;
           inherit (myVars) userName stateVersion;
+          myLib = extendedLib;
         };
         modules =
           [
@@ -103,7 +105,7 @@
 
       flake = {
         globals = myVars;
-        lib.mkHost = mkHost;
+        lib = extendedLib // {inherit mkHost;};
 
         nixosConfigurations = {
           aorus = mkHost {hostName = "aorus";};

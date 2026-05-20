@@ -3,18 +3,15 @@
   lib,
   pkgs,
   globals,
+  myLib,
   ...
 }: let
   cfg = config.apps.keepassxc;
 in {
-  options.apps.keepassxc.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = true;
-  };
+  options.apps.keepassxc.enable = myLib.mkBoolOpt true "KeePassXC Password Manager";
 
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = {
-      programs.keepassxc = {
+  config = myLib.mkIfEnabled cfg.enable (myLib.mkHome globals.userName {
+    programs.keepassxc = {
         enable = true;
         # TODO
         # 1. make config declarative
@@ -42,6 +39,5 @@ in {
           RestartSec = "3s";
         };
       };
-    };
-  };
+    });
 }

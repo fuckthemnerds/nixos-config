@@ -4,6 +4,7 @@
   pkgs,
   globals,
   inputs,
+  myLib,
   ...
 }: let
   cfg = config.apps.otter;
@@ -19,10 +20,7 @@
   };
 in {
   options.apps.otter = {
-    enable = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-    };
+    enable = myLib.mkEnableOpt "otter-launcher";
     package = lib.mkOption {
       type = lib.types.package;
       default = otter-pkg;
@@ -30,19 +28,19 @@ in {
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = {
+  config = myLib.mkIfEnabled cfg.enable (lib.mkMerge [
+    (myLib.mkHome globals.userName {
       home.packages = [otter-pkg];
-    };
-
-    environment.etc."otter-launcher/config.toml".text = ''
-      [general]
-      default_module = "app"
-      empty_module = "a"
-      exec_cmd = "sh -c"
-      vi_mode = true
-      esc_to_abort = true
-      cheatsheet_entry = "?"
+    })
+    {
+      environment.etc."otter-launcher/config.toml".text = ''
+        [general]
+        default_module = "app"
+        empty_module = "a"
+        exec_cmd = "sh -c"
+        vi_mode = true
+        esc_to_abort = true
+        cheatsheet_entry = "?"
       cheatsheet_viewer = "less -R; clear"
       clear_screen_after_execution = false
       loop_mode = false
@@ -161,6 +159,7 @@ in {
       cmd = "setsid -f xdg-open 'https://www.merriam-webster.com/dictionary/{}'"
       with_argument = true
       url_encode = true
-    '';
-  };
+      '';
+    }
+  ]);
 }

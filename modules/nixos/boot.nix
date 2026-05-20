@@ -6,7 +6,8 @@
       systemd-boot = {
         enable = true;
         configurationLimit = 5;
-        consoleMode = "max";
+        consoleMode = "auto";
+        editor = false;
       };
       timeout = 5;
       efi.canTouchEfiVariables = true;

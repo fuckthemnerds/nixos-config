@@ -3,21 +3,16 @@
   lib,
   pkgs,
   userName,
+  myLib,
   ...
 }: let
   cfg = config.apps.fish;
 in {
-  options.apps.fish.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.fish.enable = myLib.mkEnableOpt "fish shell";
 
-  config = lib.mkIf cfg.enable {
-    programs.fish.enable = true;
-
-    home-manager.users.${userName} = {
+  config = myLib.mkIfEnabled cfg.enable (lib.mkMerge [
+    (myLib.mkHome userName {
       programs.fish = {
-        enable = true;
         plugins = [
           {
             name = "fzf.fish";
@@ -85,6 +80,6 @@ in {
           set fish_cursor_visual   block
         '';
       };
-    };
-  };
+    })
+  ]);
 }

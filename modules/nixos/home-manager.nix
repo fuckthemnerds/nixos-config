@@ -4,13 +4,14 @@
   userName,
   hostName,
   stateVersion,
+  myLib,
   ...
 }: {
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "backup";
-    extraSpecialArgs = {inherit inputs userName stateVersion hostName;};
+    extraSpecialArgs = {inherit inputs userName stateVersion hostName myLib;};
     sharedModules = [];
 
     users.${userName} = {

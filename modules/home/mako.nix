@@ -3,18 +3,15 @@
   lib,
   pkgs,
   globals,
+  myLib,
   ...
 }: let
   cfg = config.apps.mako;
 in {
-  options.apps.mako.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.mako.enable = myLib.mkEnableOpt "mako notification daemon";
 
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = {
-      services.mako = {
+  config = myLib.mkIfEnabled cfg.enable (myLib.mkHome globals.userName {
+    services.mako = {
         enable = true;
         settings = {
           width = 350;
@@ -47,6 +44,5 @@ in {
         enable = true;
         extraArgs = ["-d" "50" "-w" "30" "-c" "15"];
       };
-    };
-  };
+  });
 }

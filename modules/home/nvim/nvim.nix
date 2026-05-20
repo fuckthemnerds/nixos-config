@@ -5,21 +5,20 @@
   inputs,
   hostName,
   userName,
+  myLib,
   ...
 }: let
   cfg = config.apps.nvim;
   utils = inputs.nixCats.utils;
   stylixColors = config.lib.stylix.colors;
 in {
-  options.apps.nvim.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.nvim.enable = myLib.mkEnableOpt "neovim";
 
-  config = lib.mkIf cfg.enable {
-    home-manager.sharedModules = [inputs.nixCats.homeModules.default];
-
-    home-manager.users.${userName} = {
+  config = myLib.mkIfEnabled cfg.enable (lib.mkMerge [
+    {
+      home-manager.sharedModules = [inputs.nixCats.homeModules.default];
+    }
+    (myLib.mkHome userName {
       xdg.configFile."nvim/lua/stylix_colors.lua".text = ''
         return {
           base00 = "#${stylixColors.base00}",
@@ -141,6 +140,6 @@ in {
           };
         };
       };
-    };
-  };
+    })
+  ]);
 }

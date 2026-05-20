@@ -3,18 +3,15 @@
   lib,
   pkgs,
   globals,
+  myLib,
   ...
 }: let
   cfg = config.apps.fastfetch;
 in {
-  options.apps.fastfetch.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-  };
+  options.apps.fastfetch.enable = myLib.mkEnableOpt "fastfetch";
 
-  config = lib.mkIf cfg.enable {
-    home-manager.users.${globals.userName} = {
-      programs.fastfetch = {
+  config = myLib.mkIfEnabled cfg.enable (myLib.mkHome globals.userName {
+    programs.fastfetch = {
         enable = true;
         settings = {
           logo = {
@@ -96,6 +93,5 @@ in {
           ];
         };
       };
-    };
-  };
+    });
 }
