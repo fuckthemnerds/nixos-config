@@ -1,7 +1,4 @@
-# -----------------------------------------------------------------------------
-#  HOST: server/hardware.nix
-#  DESCRIPTION: Declarative hardware modules configuration stub for the server.
-# -----------------------------------------------------------------------------
+
 {
   config,
   lib,

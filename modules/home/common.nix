@@ -21,6 +21,7 @@ in {
     yazi.enable = myLib.mkEnableOpt "Yazi File Manager";
     ai.enable = myLib.mkEnableOpt "AI Tools (opencode, antigravity)";
     cliphist.enable = myLib.mkEnableOpt "Cliphist (Clipboard manager)";
+    obsidian.enable = myLib.mkEnableOpt "Obsidian note-taking app";
   };
 
   config = lib.mkMerge [
@@ -152,6 +153,10 @@ in {
           };
         };
       };
+    })
+
+    (lib.mkIf cfg.obsidian.enable {
+      home-manager.users.${globals.userName}.home.packages = [pkgs.obsidian];
     })
   ];
 }

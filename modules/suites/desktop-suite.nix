@@ -1,6 +1,10 @@
 {
   ...
 }: {
+  imports = [
+    ../nixos/boot/desktop.nix
+  ];
+
   apps = {
     nh.enable = true;
     steam.enable = true;
@@ -28,5 +32,7 @@
     rclone.enable = true;
     waybar.enable = true;
     zen.enable = true;
+    helium.enable = true;
+    obsidian.enable = true;
   };
 }

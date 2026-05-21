@@ -31,6 +31,14 @@ in {
   config = myLib.mkIfEnabled cfg.enable (lib.mkMerge [
     (myLib.mkHome globals.userName {
       home.packages = [otter-pkg];
+
+      xdg.desktopEntries.otter = {
+        name = "Otter Launcher";
+        exec = "${otter-pkg}/bin/otter";
+        terminal = true;
+        comment = "A hackable cli/tui launcher for keyboard-centric WM users";
+        categories = ["Utility"];
+      };
     })
     {
       environment.etc."otter-launcher/config.toml".text = ''

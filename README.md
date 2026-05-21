@@ -1,67 +1,113 @@
-# Declarative NixOS Configuration
+# NixOS Configuration
 
-## Overview
+## Directory Tree
 
-This repository houses my declarative NixOS configurations, managed with Nix flakes. It is designed for absolute reproducibility, clean modular division, and seamless ease of management across multiple hosts—ranging from high-performance desktop workstations to dedicated server instances. The architecture leverages a strict modular separation between hardware layouts, core OS modules, user-space tools, and reusable configuration profiles (Suites).
-
-Key features include:
-- **Declarative System Management**: Entire operating system configured using NixOS.
-- **Reproducible Environments**: Strictly pinned dependencies using Nix flakes and lockfiles.
-- **Modular Design**: Complete separation of concerns for simplified upgrades and maintenance.
-- **Btrfs Impermanence**: Root filesystem rolls back to a blank snapshot on every single boot, using explicit Btrfs persistence for essential data.
-- **Secrets Management**: Secure, robust, age-based file encryption via `sops-nix`.
-- **Task Automation**: Streamlined building and switching workflows using the custom `Justfile`.
-- **AI Agent Collaboration**: Standardized baseline parameters for AI pair programming inside `agents/`.
+```
+nixcfg/
+├── flake.nix                   # Flake entry-point. Declares inputs, mkHost helper,
+│                               #   and wires up nixosConfigurations for each host.
+├── flake.lock                  # Auto-generated input lock file (pinned dependencies).
+│
+├── vars/
+│   └── default.nix             # Global scalar variables shared across the config:
+│                               #   stateVersion, userName ("filip"), timezone, themeName,
+│                               #   target device path, and Git platform references.
+│
+├── lib/
+│   └── default.nix             # Custom Nix helper library: mkToggleOption, mkEnableOpt,
+│                               #   mkHome, importModulesFromDir, etc.
+│
+├── hosts/                      # Per-machine configuration — hardware/disko specs and suite choices.
+│   ├── aorus/
+│   │   ├── default.nix         # Enables desktop suite, sets Aorus-specific options (NVIDIA, Zen kernel).
+│   │   ├── hardware.nix        # System hardware config generated for the Aorus laptop.
+│   │   └── disko.nix           # Declarative GPT disk layout & Btrfs mountpoints for Aorus.
+│   ├── surface/
+│   │   ├── default.nix         # Enables desktop suite, sets Surface-specific options (auto-cpufreq).
+│   │   ├── hardware.nix        # Generated hardware config for Microsoft Surface Pro.
+│   │   └── disko.nix           # Declarative Btrfs disk layout for Surface.
+│   └── server/
+│       ├── default.nix         # Enables server suite, sets server-specific options (latest kernel).
+│       ├── hardware.nix        # System hardware config stub for the headless server.
+│       └── disko.nix           # Declarative Btrfs disk layout for the server.
+│
+├── modules/
+│   ├── default.nix             # Auto-import glue: scans modules/nixos/ and modules/home/
+│   │                           #   and dynamically imports every .nix file (excluding 'boot' submodules).
+│   │
+│   ├── suites/                 # Aggregates common modules into reusable configuration profiles.
+│   │   ├── desktop-suite.nix   # Bundles desktop apps and imports boot-desktop.nix.
+│   │   └── server-suite.nix    # Bundles headless tools and imports boot-server.nix.
+│   │
+│   ├── nixos/                  # System-level NixOS modules (root/global configurations).
+│   │   ├── boot-base.nix       # Core boot settings, sysctl tweaks, and kernel params common to all.
+│   │   ├── boot-desktop.nix    # Bootloader and Plymouth visual settings optimized for desktops.
+│   │   ├── boot-server.nix     # Speed-optimized headless settings and debug parameters for servers.
+│   │   ├── boot.nix            # Deprecated monolithic boot file stub (rendered inactive).
+│   │   ├── home-manager.nix    # Configures Home-Manager as a native NixOS module.
+│   │   ├── impermanence.nix    # Btrfs rollback-on-boot and opt-in path persistence.
+│   │   ├── networking.nix      # Wireless (iwd), Cloudflare DNS, and system firewall configurations.
+│   │   ├── security.nix        # Core system security and authentication overrides.
+│   │   ├── services.nix        # Primary system services (SSH, resolving, sound, etc.).
+│   │   ├── sops.nix            # SOPS-nix secret decryption settings.
+│   │   ├── system.nix          # System environment variables, common packages, and zram.
+│   │   └── stylix/             # System-wide theming via Stylix and base16 color schemes.
+│   │       ├── stylix.nix      # Stylix integration options.
+│   │       └── carbon.yaml     # base16 "Carbon" system color scheme palette.
+│   │
+│   └── home/                   # User-space Home-manager modules (opt-in applications).
+│       ├── common.nix          # Declares all modular app options and their merged setups.
+│       ├── btop.nix            # btop interactive console system monitor configuration.
+│       ├── fastfetch.nix       # fastfetch layout variables and display metrics.
+│       ├── fish.nix            # Fish shell prompt styling and system integration.
+│       ├── foot.nix            # foot lightweight terminal configuration.
+│       ├── fuzzel.nix          # fuzzel Wayland application launcher.
+│       ├── git.nix             # Git authentication credentials and signature signing.
+│       ├── hypridle.nix        # hypridle system idle daemon hooks.
+│       ├── hyprlock.nix        # hyprlock high-fidelity screen locker.
+│       ├── keepassxc.nix       # KeePassXC password manager database configurations.
+│       ├── mako.nix            # mako Wayland notification daemon style.
+│       ├── otter.nix           # otter-launcher configurations.
+│       ├── rclone.nix          # rclone cloud sync background tasks.
+│       ├── waybar.nix          # Waybar highly-customized status bar.
+│       ├── niri/               # Niri Wayland compositor settings and keybind mappings.
+│       │   ├── niri.nix        # Core binds, behaviors, and startup scripts.
+│       │   └── enhancements.nix # Extra compositor aesthetic tweaks.
+│       ├── nvim/               # Neovim lua configuration and plugin loading via nixCats.
+│       │   ├── nvim.nix        # nixCats wrapper and core Neovim installation.
+│       │   └── lua/            # Neovim init scripting.
+│       └── zen/                # Zen Privacy Web Browser configuration.
+│           ├── zen.nix         # Zen profiles, extensions, and user.js scripts.
+│           ├── tridactyl.nix   # Tridactyl modal keybind rules.
+│           └── user.js         # Privacy, telemetry removal, and hardware acceleration configs.
+│
+├── secrets/
+│   ├── secrets.yaml            # SOPS-encrypted password hashes, Git keys, and configurations.
+│   ├── rclone.yaml             # SOPS-encrypted storage remote targets.
+│   ├── master.pub              # Master age encryption public key.
+│   └── surface.pub             # Surface host-specific public age key.
+│
+├── agents/                     # AI assistant orchestration, setup, and rule documents.
+│   ├── AGENTS.md               # Guidelines, operating practices, and workflow models.
+│   ├── permissions.md          # Clear permission matrices restricting agent operations.
+│   ├── README.md               # Overview of symlink-first agent configuration installer.
+│   ├── install-rules.py        # Python tool symlinking rules into IDE profiles.
+│   ├── install-cli.md          # Reference snippets for installing CLI helper programs.
+│   └── install-skills.md       # Skill templates command snippets for advanced tools.
+│
+├── Justfile                    # Task runner command specs (deployment, updates, testing).
+├── JUSTFILE.md                 # Detailed documentation explaining how to run Justfile tasks.
+├── install.sh                  # Modular system bootstrapper and partitioning installer.
+├── .sops.yaml                  # SOPS age key decryption path routing laws.
+├── .gitignore                  # Git VCS tracking exclusions.
+└── .editorconfig               # Uniform formatting settings across file types.
+```
 
 ---
 
-## Directory Structure
+## Modular Architecture Principles
 
-The configuration is systematically organized as follows:
-- `flake.nix`: Main flake entrypoint defining inputs, `mkHost` generators, and system outputs.
-- `vars/`: Global shared parameters (username, timezone, theme definitions, and target devices).
-- `lib/`: Domain-specific helper utilities extending the standard Nix library.
-- `hosts/`: Host-specific definitions containing hardware specs, disk partitioning, and suite choices.
-- `modules/`: Reusable NixOS modules, Home-Manager applications, and environment Suites.
-- `secrets/`: SOPS-encrypted credentials, SSH files, and public age keys.
-- `agents/`: AI assistant workspace, guidelines, permissions, and tool configuration.
-
-For a comprehensive file-by-file breakdown of the workspace, please refer to [STRUCTURE.md](STRUCTURE.md).
-
----
-
-## Installation
-
-To deploy this configuration on a fresh machine:
-1. **Prepare Installation Media**: Boot into a minimal NixOS installer environment.
-2. **Partition Disks**: Utilize `disko` declarations (defined in `hosts/<hostname>/disko.nix`) to format target drives.
-3. **Run Installer**: Execute the customized bootstrap shell script specifying the target host name:
-   ```bash
-   sudo ./install.sh <hostname>
-   ```
-   *Example: `sudo ./install.sh aorus`*
-
----
-
-## Usage and Task Execution
-
-All common management routines are handled cleanly through `just`:
-- `just build-<hostname>`: Build a specific host's NixOS derivation without applying.
-- `just switch-<hostname>`: Build and apply a target configuration to the local host.
-- `just test-<hostname>`: Dry-run activation to test configurations.
-- `just fmt`: Formats all Nix expressions in the workspace with `alejandra`.
-- `just up`: Update all flake locked inputs to their latest versions.
-
-For a detailed review of all commands, refer to the [JUSTFILE.md](JUSTFILE.md) guide.
-
----
-
-## Contributing and AI Workflows
-
-Contributions are welcome! Please adhere to the modular structure and code guidelines. For pair-programming using AI agents (such as Antigravity IDE and OpenCode), consult the [AGENTS.md](agents/AGENTS.md) rules.
-
----
-
-## License
-
-This repository is licensed under the MIT License. See [LICENSE](LICENSE) (if present) for details.
+This system follows these strict operational paradigms:
+1. **Host Orthogonality**: Hosts (`hosts/`) only specify hardware specifications (`hardware.nix`), storage properties (`disko.nix`), and import a modular profile suite (`desktop-suite.nix` or `server-suite.nix`).
+2. **Opt-in Applications**: App modules (`modules/home/`) declare enabled toggleable options (defaulting to `false`) inside `modules/home/common.nix`. They are cleanly enabled in bulk via Suites.
+3. **Explicit Bootloader Paths**: The specialized boot settings (`boot-desktop.nix`, `boot-server.nix`) are ignored by the automatic module importer and are explicitly loaded by their matching suite to avoid bootloader configuration collisions.

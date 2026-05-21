@@ -1,14 +1,8 @@
-# -----------------------------------------------------------------------------
-#  SUITE: server-suite.nix
-#  DESCRIPTION: Configuration suite optimized for headless servers.
-#  This profile imports server boot rules and provisions standard CLI
-#  development and monitoring packages.
-# -----------------------------------------------------------------------------
 {
   ...
 }: {
   imports = [
-    ../nixos/boot-server.nix
+    ../nixos/boot/server.nix
   ];
 
   # Core headless server-appropriate options

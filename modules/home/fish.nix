@@ -13,6 +13,7 @@ in {
   config = myLib.mkIfEnabled cfg.enable (lib.mkMerge [
     (myLib.mkHome userName {
       programs.fish = {
+        enable = true;
         plugins = [
           {
             name = "fzf.fish";

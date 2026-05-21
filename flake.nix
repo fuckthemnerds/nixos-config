@@ -36,6 +36,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    helium-browser.url = "github:schembriaiden/helium-browser-nix-flake";
+
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     nixCats.url = "github:BirdeeHub/nixCats-nvim";
@@ -114,6 +116,8 @@
             hostName = "surface";
             extraModules = [inputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel];
           };
+
+          server = mkHost {hostName = "server";};
         };
       };
 

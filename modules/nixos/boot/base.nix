@@ -1,15 +1,11 @@
-# -----------------------------------------------------------------------------
-#  MODULE: boot-base.nix
-#  DESCRIPTION: Core boot settings common to all machines.
-#  This module defines foundational kernel configurations, performance sysctl
-#  rules, and basic initrd properties.
-# -----------------------------------------------------------------------------
 {
   config,
   lib,
   ...
 }: {
-  # Essential kernel parameters for stability, quiet boot, and security
+  # ===========================================================================
+  #  1. Kernel Parameters
+  # ===========================================================================
   boot.kernelParams = [
     "loglevel=3"
     "rd.systemd.show_status=false"
@@ -20,7 +16,9 @@
     "split_lock_detect=off"
   ];
 
-  # Core kernel sysctl tweaks for virtual memory, networking, and kernel security
+  # ===========================================================================
+  #  2. Kernel Sysctl
+  # ===========================================================================
   boot.kernel.sysctl = {
     "vm.swappiness" = 10;
     "vm.vfs_cache_pressure" = 50;
@@ -30,12 +28,17 @@
     "kernel.dmesg_restrict" = 1;
   };
 
+  # ===========================================================================
+  #  3. Initrd & Bootloader
+  # ===========================================================================
   # Systemd in initrd for faster boot and modern stage 1 service management
   boot.initrd.systemd.enable = true;
 
-  # EFI variables support for bootloader modifications
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # ===========================================================================
+  #  4. Temporary Filesystem
+  # ===========================================================================
   # Use tmpfs for /tmp to improve disk wear and speed
   boot.tmp = {
     useTmpfs = true;

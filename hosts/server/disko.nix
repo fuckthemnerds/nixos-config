@@ -1,7 +1,4 @@
-# -----------------------------------------------------------------------------
-#  HOST: server/disko.nix
-#  DESCRIPTION: Declarative Btrfs disk partitioning layout for the server.
-# -----------------------------------------------------------------------------
+
 {globals, ...}: {
   disko.devices = {
     disk.main = {

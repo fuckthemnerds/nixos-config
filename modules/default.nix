@@ -14,7 +14,7 @@
           in
             if type == "directory"
             then getModules path
-            else if type == "regular" && lib.hasSuffix ".nix" name && name != "default.nix"
+            else if type == "regular" && lib.hasSuffix ".nix" name && name != "default.nix" && !(lib.hasPrefix "boot" name)
             then [path]
             else []
         ))
